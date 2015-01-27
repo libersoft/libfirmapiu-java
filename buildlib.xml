@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<project name="firmapiu" default="copy_dir" basedir=".">
+    <description>
+        File di Script per la compilazione del progetto firmapiu
+    </description>
+
+	<property environment="env"/>
+
+    <property name="bin" location="./bin" />
+	<property name="config" location="./config" />
+	<property name="firmapiulib" location="${env.HOME}/firmapiulib" />
+	
+	<!-- Operazioni -->
+	
+<!-- Crea le directory -->
+	<target name="init">
+		<delete dir="${firmapiulib}" />
+	    <mkdir dir="${firmapiulib}" />
+	</target>
+
+    <!-- Creazione jar Libreria -->
+	<target name="create_jar" depends="init">
+		<jar jarfile="./firmapiulib.jar">
+        	<zipfileset dir="${bin}" excludes="*.class"/>
+        </jar>
+		<copy file="./firmapiulib.jar" todir="${firmapiulib}"/>
+		<delete file="./firmapiu.jar"/>
+    </target>  
+	
+	<!-- copia le directory e i file-->
+	<target name="copy_dir" depends="create_jar">
+		<mkdir dir="${firmapiulib}/etc/firmapiu" />
+		<copy todir="${firmapiulib}/etc/firmapiu">
+		    <fileset dir="${config}"/>
+		</copy>
+	</target>
+</project>

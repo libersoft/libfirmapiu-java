@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<project name="firmapiu" default="copy_dir" basedir=".">
+    <description>
+        File di Script per la compilazione del progetto firmapiu
+    </description>
+
+	<property environment="env"/>
+
+    <property name="bin" location="./bin" />
+    <property name="lib" location="./lib" />
+	<property name="config" location="./config" />
+	<property name="firmapiu" location="${env.HOME}/firmapiu" />
+	
+	<!-- Operazioni -->
+	
+<!-- Crea le directory -->
+	<target name="init">
+		<delete dir="${firmapiu}" />
+	    <mkdir dir="${firmapiu}" />
+	</target>
+
+    <!-- Creazione jar Libreria -->
+	<target name="create_jar" depends="init">
+		<manifest file="./MANIFEST.MF">
+			<attribute name="Main-Class" value="firmapiu.FirmapiuCLI" />
+		</manifest>
+		<jar jarfile="./firmapiu.jar" manifest="./MANIFEST.MF">
+        	<zipfileset dir="${bin}" excludes="*.class"/>
+        </jar>
+		<mkdir dir="${firmapiu}/bin" />
+		<copy file="./firmapiu.jar" todir="${firmapiu}/bin"/>
+		<delete file="./firmapiu.jar"/>
+		<delete file="./MANIFEST.MF"/>
+    </target>  
+	
+	<!-- copia le directory e i file-->
+	<target name="copy_dir" depends="create_jar">
+		<mkdir dir="${firmapiu}/lib" />
+		<copy todir="${firmapiu}/lib">
+		    <fileset dir="${lib}"/>
+		</copy>
+		<mkdir dir="${firmapiu}/config" />
+		<copy todir="${firmapiu}/config">
+			<fileset dir="${config}"/>
+		</copy>
+		<copy file="./firmapiu-cli" todir="${firmapiu}"/>
+		<copy file="README.txt" todir="${firmapiu}"/>
+	</target>
+</project>

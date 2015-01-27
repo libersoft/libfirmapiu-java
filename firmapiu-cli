@@ -1,0 +1,52 @@
+#!/bin/bash
+
+#Cerca il path delle librerie bouncycastle nella variabile definita da $BCPATH
+#Se non le trova carica le librerie locali incluse nell'applicazione firmapiu
+#BCPATH=/opt/jdk/jdk1.8.0_25/jre/lib/ext
+BCPATH=
+
+
+function _loadLocalBC(){
+	echo Carico le librerie Bouncy Castle localmente presso ./lib
+	java -classpath ./bin/firmapiu.jar:./lib/* firmapiu.FirmapiuCLI "$@"
+}
+
+
+
+echo Caricamento Bouncy Castles...
+if [ $BCPATH ]
+then
+	echo Cerco le librerie presso $BCPATH
+	bcpkixflag=0
+	bcprovflag=0
+	for file in $BCPATH/*
+	do
+		tmp=${file:${#BCPATH}+1}
+		if [[ $tmp == bcpkix* ]]
+		then
+			bcpkixflag=1
+		fi
+		if [[ $tmp == bcprov* ]]
+		then
+			bcprovflag=1
+		fi
+	done
+	if [[ $bcpkixflag == 1 ]]
+	then	
+		if [[ $bcprovflag == 1 ]]
+		then
+			java -classpath ./bin/firmapiu.jar:$BCPATH/* firmapiu.FirmapiuCLI "$@"	
+		else
+			echo Librerie Bouncy Castle non trovate.
+			_loadLocalBC "$@"
+		fi		
+	else
+		echo Librerie Bouncy Castle non trovate.
+		_loadLocalBC "$@"
+	fi
+else
+	echo BCPATH non settato. 
+	_loadLocalBC "$@"
+fi
+
+
