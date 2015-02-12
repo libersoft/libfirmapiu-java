@@ -41,10 +41,10 @@ public class Prova {
 		Security.addProvider(new BouncyCastleProvider());
 		
 		//ricava il file di configurazione
-		FileInputStream filein=new FileInputStream(new File(args[0]));
-		//String pcsc = "name=pcsc\nlibrary=/usr/lib/libbit4p11.so.0.0.0";
-		//Provider p = new sun.security.pkcs11.SunPKCS11(new ByteArrayInputStream(pcsc.getBytes()));
-		Provider p = new sun.security.pkcs11.SunPKCS11(filein);
+		//FileInputStream filein=new FileInputStream(new File(args[0]));
+		String pcsc = "name=pcsc\nlibrary=/usr/lib/libbit4xpki.so";
+		Provider p = new sun.security.pkcs11.SunPKCS11(new ByteArrayInputStream(pcsc.getBytes()));
+		//Provider p = new sun.security.pkcs11.SunPKCS11(filein);
 		Security.addProvider(p);
 		
         //stampa a video i provider
@@ -76,8 +76,8 @@ public class Prova {
         //recupera il keystore del provider SunPKCS11-pcsc
         KeyStore pkcs11keystore = KeyStore.getInstance("pkcs11", "SunPKCS11-pcsc");
         
-        String pass="12345678";
-        //String pass="55732689";
+        //String pass="12345678";
+        String pass="55732689";
         //String pass="87654321";
         
         pkcs11keystore.load(null, pass.toCharArray());  

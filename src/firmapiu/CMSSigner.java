@@ -52,6 +52,7 @@ import org.bouncycastle.cms.DefaultSignedAttributeTableGenerator;
 import org.bouncycastle.cms.SignerId;
 import org.bouncycastle.cms.SignerInfoGenerator;
 import org.bouncycastle.cms.SignerInformation;
+import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.cms.SignerInformationVerifier;
 import org.bouncycastle.cms.SignerInformationVerifierProvider;
 import org.bouncycastle.cms.jcajce.JcaSignerInfoGeneratorBuilder;
@@ -236,8 +237,8 @@ final class CMSSigner {
 			if ((Security.getProvider(bouncyCastleProvider2)) == null)
 				Security.addProvider(p);
 		}
-		//FIXME blocco di codice probabilmente da cancellare una volta che si è finito di vedere quello che si deve vedere
-		
+		//FIXME pare pulizia dei commenti sottostanti quando non servono più
+		/*
         try {
         	System.out.println("Dump del cms generato:------------------------------------------------");
 			System.out.println(ASN1Dump.dumpAsString(ASN1Primitive.fromByteArray(signedData.getEncoded())));
@@ -248,17 +249,46 @@ final class CMSSigner {
 			System.out.println("dimensione della tabella degli attributi firmati del primo firmatario"+signAttr.size());
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
+		*/
 		//controlla che i dati ricevuti in ingresso siano stati firmati correttamente
-		
 		//TODO controllare che dati e firma siano incapsulati
-		
 		return signedData.verifySignatures(new PrivateSignerInformationVerifierProvider(bouncyCastleProvider2,signedData,rb));
+		//controlla che dati e firma siano incapsulati
+		//signedData.getSignedContent()
+		
+		
+		//per ogni firmatario effettua la verifica
+		/*Store certStore = signedData.getCertificates();
+		SignerInformationStore  signers = signedData.getSignerInfos();
+		Collection<?>  c = signers.getSigners();
+		Iterator<?>  it = c.iterator();
+		while (it.hasNext())
+		{
+			//verifica che il signedData passato come parametro sia stato firmato correttamente
+			SignerInformation   signer = (SignerInformation)it.next();
+			Collection<?>          certCollection = certStore.getMatches(signer.getSID());
+			Iterator<?>  certIt = certCollection.iterator();
+			X509CertificateHolder cert = (X509CertificateHolder)certIt.next();
+			if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider(bouncyCastleProvider2).build(cert)))
+			{
+				verified++;
+			}   
+		}*/
+		//verifica che il signedData passato come parametro sia stato firmato correttamente
+		
+		//controlla che il signedData passato come parametro rispetti la  DELIBERAZIONE ministeriale del N . 45 DEL 21 MAGGIO 2009
+		//in fase di verifica
+		
+		//verifica l'affidabilità del firmatario controllando la catena dei certificati relativa
+		
+		//verifica che il certificato relativo il firmatario non sia stato revocato tramite CRL
+		
+		//genera il report della verifica per il firmatario e lo aggiunge alla lista
+		
+		//restituisce la lista contenente i report di verifica per ogni firmatario presente nella signedData
+	
 	}
 	
 	//PROCEDURE PRIVATE
