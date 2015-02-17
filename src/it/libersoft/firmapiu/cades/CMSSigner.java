@@ -1,7 +1,7 @@
 /**
  * 
  */
-package it.libersoft.firmapiu;
+package it.libersoft.firmapiu.cades;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
