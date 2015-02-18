@@ -30,7 +30,7 @@ import org.bouncycastle.cms.CMSTypedData;
 /**
  * Questa classe offre un interfaccia di comandi per accedere alle funzionalità messe a disposizione dall'applicazione Firma_più.
  * 
- * @author andy
+ * @author dellanna
  *
  */
 public class CommandProxyInterface {

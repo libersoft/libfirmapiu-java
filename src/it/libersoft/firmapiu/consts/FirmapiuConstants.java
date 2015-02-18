@@ -47,7 +47,7 @@ public final class FirmapiuConstants {
 	
 	/**
 	 * Indentifica la catena di certificati associata al certificato di un firmatario
-	 * valore associato: List<Certificate>
+	 * valore associato: List&lt;Certificate&gt;
 	 * */
 	public static final String CERTCHAIN="certchain";
 	
