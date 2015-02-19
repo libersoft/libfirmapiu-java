@@ -1,10 +1,10 @@
 /**
  * 
  */
-package firmapiu.consts;
+package it.libersoft.firmapiu.consts;
 
 /**
- * Questa classe contiene una serie di costanti usate dalla libreria firmapiu
+ * Questa classe contiene una serie di costanti usate dalla libreria it.libersoft.firmapiu
  * 
  * @author dellanna
  *

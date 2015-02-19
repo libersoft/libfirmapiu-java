@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
-<project name="firmapiu" default="copy_dir" basedir=".">
+<project name="it.libersoft.firmapiu" default="copy_dir" basedir=".">
     <description>
-        File di Script per la compilazione del progetto firmapiu
+        File di Script per la compilazione del progetto it.libersoft.firmapiu
     </description>
 
 	<property environment="env"/>
@@ -25,13 +25,13 @@
         	<zipfileset dir="${bin}" excludes="*.class"/>
         </jar>
 		<copy file="./firmapiulib.jar" todir="${firmapiulib}"/>
-		<delete file="./firmapiu.jar"/>
+		<delete file="./it.libersoft.firmapiu.jar"/>
     </target>  
 	
 	<!-- copia le directory e i file-->
 	<target name="copy_dir" depends="create_jar">
-		<mkdir dir="${firmapiulib}/etc/firmapiu" />
-		<copy todir="${firmapiulib}/etc/firmapiu">
+		<mkdir dir="${firmapiulib}/etc/it.libersoft.firmapiu" />
+		<copy todir="${firmapiulib}/etc/it.libersoft.firmapiu">
 		    <fileset dir="${config}"/>
 		</copy>
 	</target>

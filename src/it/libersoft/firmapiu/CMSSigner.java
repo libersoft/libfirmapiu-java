@@ -1,7 +1,7 @@
 /**
  * 
  */
-package firmapiu;
+package it.libersoft.firmapiu;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

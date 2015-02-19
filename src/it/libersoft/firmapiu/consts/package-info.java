@@ -5,4 +5,4 @@
  * @author andy
  *
  */
-package firmapiu.consts;
+package it.libersoft.firmapiu.consts;

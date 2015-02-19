@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
-<project name="firmapiu" default="copy_dir" basedir=".">
+<project name="it.libersoft.firmapiu" default="copy_dir" basedir=".">
     <description>
-        File di Script per la compilazione del progetto firmapiu
+        File di Script per la compilazione del progetto it.libersoft.firmapiu
     </description>
 
 	<property environment="env"/>
@@ -10,41 +10,41 @@
     <property name="bin" location="./bin" />
     <property name="lib" location="./lib" />
 	<property name="config" location="./config" />
-	<property name="firmapiu" location="${env.HOME}/firmapiu" />
+	<property name="it.libersoft.firmapiu" location="${env.HOME}/it.libersoft.firmapiu" />
 	
 	<!-- Operazioni -->
 	
 <!-- Crea le directory -->
 	<target name="init">
-		<delete dir="${firmapiu}" />
-	    <mkdir dir="${firmapiu}" />
+		<delete dir="${it.libersoft.firmapiu}" />
+	    <mkdir dir="${it.libersoft.firmapiu}" />
 	</target>
 
     <!-- Creazione jar Libreria -->
 	<target name="create_jar" depends="init">
 		<manifest file="./MANIFEST.MF">
-			<attribute name="Main-Class" value="firmapiu.FirmapiuCLI" />
+			<attribute name="Main-Class" value="it.libersoft.firmapiu.FirmapiuCLI" />
 		</manifest>
-		<jar jarfile="./firmapiu.jar" manifest="./MANIFEST.MF">
+		<jar jarfile="./it.libersoft.firmapiu.jar" manifest="./MANIFEST.MF">
         	<zipfileset dir="${bin}" excludes="*.class"/>
         </jar>
-		<mkdir dir="${firmapiu}/bin" />
-		<copy file="./firmapiu.jar" todir="${firmapiu}/bin"/>
-		<delete file="./firmapiu.jar"/>
+		<mkdir dir="${it.libersoft.firmapiu}/bin" />
+		<copy file="./it.libersoft.firmapiu.jar" todir="${it.libersoft.firmapiu}/bin"/>
+		<delete file="./it.libersoft.firmapiu.jar"/>
 		<delete file="./MANIFEST.MF"/>
     </target>  
 	
 	<!-- copia le directory e i file-->
 	<target name="copy_dir" depends="create_jar">
-		<mkdir dir="${firmapiu}/lib" />
-		<copy todir="${firmapiu}/lib">
+		<mkdir dir="${it.libersoft.firmapiu}/lib" />
+		<copy todir="${it.libersoft.firmapiu}/lib">
 		    <fileset dir="${lib}"/>
 		</copy>
-		<mkdir dir="${firmapiu}/config" />
-		<copy todir="${firmapiu}/config">
+		<mkdir dir="${it.libersoft.firmapiu}/config" />
+		<copy todir="${it.libersoft.firmapiu}/config">
 			<fileset dir="${config}"/>
 		</copy>
-		<copy file="./firmapiu-cli" todir="${firmapiu}"/>
-		<copy file="README.txt" todir="${firmapiu}"/>
+		<copy file="./it.libersoft.firmapiu-cli" todir="${it.libersoft.firmapiu}"/>
+		<copy file="README.txt" todir="${it.libersoft.firmapiu}"/>
 	</target>
 </project>

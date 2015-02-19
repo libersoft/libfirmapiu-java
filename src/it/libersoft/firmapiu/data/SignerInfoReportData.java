@@ -1,7 +1,7 @@
 /**
  * 
  */
-package firmapiu.data;
+package it.libersoft.firmapiu.data;
 
 import java.util.ArrayList;
 import java.util.List;

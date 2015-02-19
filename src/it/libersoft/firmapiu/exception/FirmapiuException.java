@@ -1,7 +1,7 @@
 /**
  * 
  */
-package firmapiu.exception;
+package it.libersoft.firmapiu.exception;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -25,7 +25,7 @@ public final class FirmapiuException extends Exception {
 	private static int DEFAULTERROR=99;
 	
 	/**
-	 * Codice di errore dell'eccezione rilanciata da firmapiu
+	 * Codice di errore dell'eccezione rilanciata da it.libersoft.firmapiu
 	 */
 	public final int errorCode;
 
@@ -36,7 +36,7 @@ public final class FirmapiuException extends Exception {
 	public FirmapiuException(int code, Throwable cause) {
 		super(cause);
 		if(cause==null)
-		{	ResourceBundle rb=ResourceBundle.getBundle("firmapiu.lang.locale",Locale.getDefault());
+		{	ResourceBundle rb=ResourceBundle.getBundle("it.libersoft.firmapiu.lang.locale",Locale.getDefault());
 			throw new IllegalArgumentException(rb.getString("fimapiuerror0")+" "+this.getClass().getName());
 		}
 		
@@ -50,7 +50,7 @@ public final class FirmapiuException extends Exception {
 	public FirmapiuException(Throwable cause) {
 		super(cause);
 		if(cause==null)
-		{	ResourceBundle rb=ResourceBundle.getBundle("firmapiu.lang.locale",Locale.getDefault());
+		{	ResourceBundle rb=ResourceBundle.getBundle("it.libersoft.firmapiu.lang.locale",Locale.getDefault());
 			throw new IllegalArgumentException(rb.getString("fimapiuerror0")+" "+this.getClass().getName());
 		}
 		
