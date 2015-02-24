@@ -10,7 +10,7 @@ import it.libersoft.firmapiu.DefaultFactory;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 
 /**
- * Costruisce il token crittografico pkcs#11 (smartcard crittografica)
+ * Costruisce il token crittografico pkcs#11 (smartcard crittografica, penna usb ecc ecc)
  * utilizzato per accedere alle credenziali (certificato utente, chiave privata
  * etc...) necessarie alle operazioni messe a disposizione dalla libreria
  * <code>firmapiulib</code>
@@ -38,15 +38,12 @@ public class PKCS11TokenFactory extends DefaultFactory {
 	 * @see it.libersoft.firmapiu.DefaultFactory#getPKCS11Token(java.lang.String)
 	 */
 	@Override
-	public CRTSmartCardToken getPKCS11Token(String choice)
+	public PKCS11Token getPKCS11Token(String choice)
 			throws IllegalArgumentException {		
 		if (choice.equals(CRTSMARTCARD))
-			return new CRTSmartCardTokenImpl();
+			return new CRTSmartCardToken();
 		else
 			throw new IllegalArgumentException(RB.getString("factoryerror3")
 					+ " : " + choice);
 	}
-	
-	
-
 }

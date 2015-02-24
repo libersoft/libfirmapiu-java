@@ -25,7 +25,7 @@ public final class FirmapiuException extends Exception {
 	// inizializza il resourcebundle per il recupero dei messaggi lanciati dalla
 	// classe
 	private static final ResourceBundle RB = ResourceBundle.getBundle(
-			"it.libersoft.firmapiu.lang.localeerrorcode", Locale.getDefault());
+			"it.libersoft.firmapiu.lang.localerrorcodetable", Locale.getDefault());
 	
 	
 	
@@ -36,15 +36,45 @@ public final class FirmapiuException extends Exception {
 
 	//Errori sulle operazioni di verifica: codici (200-299)
 
+	//Errori sulle operazioni di gestione del token crittografico (300-399)
+	/**
+	 * Errore se il lettore per smartcard o un altro strumento utilizzato per accedere al token crittografico non è stato trovato
+	 * */
+	public static final int CRT_TOKENTERMINAL_NOTFOUND=300;
+	
+	/**
+	 * Errore se la smartcart o il token crittografico richiesto non è presente
+	 * */
+	public static final int CRT_TOKEN_NOTFOUND=301;
+	
+	/**
+	 * Errore se l'accesso alla smartcard o al token crittografico richiesto non è permesso
+	 * */
+	public static final int CRT_TOKEN_FORBIDDEN=302;
 
-
-	//ERRORI GENERICI DI LIBRERIA
-
-	//Errori di (I/O): codici (700-799)
 	/**
 	 * Errore se il pin del token crittografico utilizzato non è presente/è stato omesso
 	 * */
-	public static final int CRT_TOKENPIN_NOTFOUND=704;
+	public static final int CRT_TOKENPIN_NOTFOUND=303;
+	
+	/**
+	 * Errore se non è stato trovato il file di configurazione contente i driver per accedere al token crittografico utilizzato
+	 * */
+	public static final int CRT_TOKEN_CONFIGFILE_NOTFOUND=304;
+	
+	/**
+	 * Errore se non è stato il driver/libreria del token crittografico utlizzato
+	 * */
+	public static final int CRT_TOKEN_LIB_NOTFOUND=305;
+	
+	/**
+	 * Errore di default in caso di un errore generico riguardante un token crittografico
+	 * */
+	public static final int CRT_TOKEN_DEFAULT_ERROR=399;
+	
+	//ERRORI GENERICI DI LIBRERIA
+
+	//Errori di (I/O): codici (700-799)
 	/**
 	 * Errore se si cerca di creare una nuova directory ma l'operazione non è permessa.
 	 * */

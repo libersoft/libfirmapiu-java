@@ -35,7 +35,7 @@ public final class FactoryConsts {
 	 * Factory per la creazione di token pkcs#11 utilizzati dalle operazioni della libreria
 	 * per accedere alle credenziali messe a disposizione e per la gestione del token stesso
 	 * 
-	 * @see it.libersoft.firmapiu.crtoken.CRTSmartCardToken
+	 * @see it.libersoft.firmapiu.crtoken.PKCS11Token
 	 */
 	public final static String PKCS11TOKENFACTORY="pkcs11tokenfactory";
 	
@@ -67,7 +67,7 @@ public final class FactoryConsts {
 	/**
 	 * La Factory PKCS11TokenFactory crea un token per gestire una smartcard crittografica
 	 * 
-	 * @see it.libersoft.firmapiu.crtoken.CRTSmartCardToken
+	 * @see it.libersoft.firmapiu.crtoken.PKCS11Token
 	 * */
 	public final static String CRTSMARTCARD="crtsmartcard";
 	
