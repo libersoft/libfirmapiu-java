@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.TreeMap;
 
 
 /**
@@ -114,7 +115,7 @@ class P7MCommandInterface implements CadesBESCommandInterface {
 			//prepara Map<String,Object> con i risultati delle operazioni effettuate sui file passati come parametro.
 			Map<String,Object> result = new TreeMap<String,Object>();
 
-			Iterator<File> itr2=normalizedArgs.iterator();
+/*			Iterator<File> itr2=normalizedArgs.iterator();
 			while(itr2.hasNext()){
 				File filein=itr2.next();
 				try {
@@ -154,7 +155,7 @@ class P7MCommandInterface implements CadesBESCommandInterface {
 			}//fine while
 
 			//resetta il pin e restituisce i risulti delle operazioni effettuate sui file passati come parametro
-			//java.util.Arrays.fill(pin, ' ');
+			//java.util.Arrays.fill(pin, ' ');*/
 			return result;
 
 			

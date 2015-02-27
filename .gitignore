@@ -16,3 +16,7 @@ hs_err_pid*
 .settings/
 .classpath
 bin/
+
+#Ignora il build di gradle
+build/
+.gradle
