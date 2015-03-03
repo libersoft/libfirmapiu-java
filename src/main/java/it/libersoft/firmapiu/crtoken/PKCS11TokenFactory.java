@@ -4,10 +4,14 @@
 package it.libersoft.firmapiu.crtoken;
 
 import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
 import java.util.ResourceBundle;
 
 import it.libersoft.firmapiu.DefaultFactory;
+import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
+import static it.libersoft.firmapiu.consts.FactoryPropConsts.*;
 
 /**
  * Costruisce il token crittografico pkcs#11 (smartcard crittografica, penna usb ecc ecc)
@@ -39,9 +43,20 @@ public class PKCS11TokenFactory extends DefaultFactory {
 	 */
 	@Override
 	public PKCS11Token getPKCS11Token(String choice)
-			throws IllegalArgumentException {		
-		if (choice.equals(CRTSMARTCARD))
-			return new CRTSmartCardToken();
+			throws IllegalArgumentException,FirmapiuException {	
+		if (choice.equals(CRTSMARTCARD)){
+			//cerca il file contenente i riferimenti ai driver utilizzati per caricare il provider pkcs#11
+			Map<String,Object> properties = this.getProperties();
+		
+			String pkcs11driverlocation;
+			if(properties.containsKey(CRT_TOKEN_PKCS11_LIBRARYPATH))
+				pkcs11driverlocation=(String)properties.get(CRT_TOKEN_PKCS11_LIBRARYPATH);
+			else{
+				ResourceBundle rb1 = ResourceBundle.getBundle("it.libersoft.firmapiu.properties.pkcs11driverlocation");
+				pkcs11driverlocation = rb1.getString("linux.debian.librarypath");
+			}
+			return new CRTSmartCardToken(pkcs11driverlocation);
+		}
 		else
 			throw new IllegalArgumentException(RB.getString("factoryerror3")
 					+ " : " + choice);

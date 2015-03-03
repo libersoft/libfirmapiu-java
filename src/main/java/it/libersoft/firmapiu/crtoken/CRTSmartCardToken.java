@@ -6,20 +6,34 @@ package it.libersoft.firmapiu.crtoken;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.exception.FirmapiuException.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.AuthProvider;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
+import java.security.Security;
+import java.security.cert.CertificateException;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
+//import java.util.Locale;
 import java.util.Properties;
-import java.util.ResourceBundle;
+//import java.util.ResourceBundle;
 
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginException;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import javax.smartcardio.CardTerminals;
 import javax.smartcardio.TerminalFactory;
+
 
 /**
  * La classe gestisce una smartcard crittografica.<br> 
@@ -34,36 +48,144 @@ final class CRTSmartCardToken implements PKCS11Token {
 	
 	// inizializza il resourcebundle per il recupero dei messaggi lanciati dalla
 	// classe
-	private static final ResourceBundle RB = ResourceBundle.getBundle(
-				"it.libersoft.firmapiu.lang.locale", Locale.getDefault());
+	//private static final ResourceBundle RB = ResourceBundle.getBundle(
+	//			"it.libersoft.firmapiu.lang.locale", Locale.getDefault());
 	
+	//variabili private per accedere a lettore e smartcard
 	private TerminalFactory factory;
 	private CardTerminals terminals;
 	private CardTerminal terminal = null;
 	private List<CardTerminal> listTerminals = null;
 	private Card card = null;
+	
+	//provider pkcs#11 per accedere alle operazioni della carta
+	private Provider pkcs11Provider;
+	
+	//variabili di sessione (apre/chiude sessioni sulla carta) 
+	private boolean session;
+	private AuthProvider aprov;
+	
+	
 
 	/**
-	 *La classe non dovrebbe essere inizializzata se non attraverso la factory 
+	 * @param pkcs11DriverPath file contenente i riferimenti ai driver delle smartcard che possono essere utilizzate per caricare il
+	 * provider pkcs11 corrispondente
+	 * 
+	 *La classe non dovrebbe essere inizializzata se non attraverso la factory.<br>
+	 *Inizializza il token cercando di caricare il driver corretto. Se non ce la fa lancia un errore.
 	 */
-	protected CRTSmartCardToken() {}
+	protected CRTSmartCardToken(String pkcs11DriverPath) throws FirmapiuException{
+		//non è stata instaurata ancora una sessione
+		this.session=false;
+		
+		//controlla che la smartcard sia stata inserita
+		this.getATR();
+		
+		//inizializza il provider PKCS#11: cerca di inizializzare il provider caricando uno dei driver presenti nel sistema
+		Properties pkcs11Prop = new Properties();
+		try {
+			pkcs11Prop.load(new FileInputStream(new File(pkcs11DriverPath)));
+		} catch (IOException e) {
+			throw new FirmapiuException(CRT_TOKEN_CONFIGFILE_NOTFOUND, e);
+		}
+		Iterator<String> pkcs11DriverItr = pkcs11Prop.stringPropertyNames().iterator();
+		while(pkcs11DriverItr.hasNext()){
+			String key=pkcs11DriverItr.next();
+			String pkcs11Driver = pkcs11Prop.getProperty(key);
+			String pkcs11Config = "name=pkcs11"+key+"\n";
+			pkcs11Config+="library="+pkcs11Driver;
+			try {
+				//TODO log di prova: cancellare
+				System.out.println(pkcs11Config);
+				this.pkcs11Provider= new sun.security.pkcs11.SunPKCS11(new ByteArrayInputStream(pkcs11Config.getBytes()));
+				Security.addProvider(this.pkcs11Provider);
+				break;
+			} catch (Exception e) {
+				// TODO log di prova: cancellare
+				e.printStackTrace();
+			}
+		}//fine while
+		
+		//se non è stato in grado di caricare nessun driver lancia un errore
+		if(this.pkcs11Provider==null)
+			throw new FirmapiuException(CRT_TOKEN_LIB_NOTFOUND);
+	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see it.libersoft.firmapiu.CRToken#getProvider()
 	 */
 	@Override
 	public Provider getProvider() throws FirmapiuException {
-		// TODO Auto-generated method stub
-		return null;
+		return this.pkcs11Provider;
 	}
 
-	/* (non-Javadoc)
+	/**
+	 *  
+	 * @param pass Il pin/password utilizzato per accedere al keystore.<br>
+	 * Questo valore è necessario se si accede al keystore presente su questo token in maniera stand-alone<br>
+	 * Se invece è stata instaurata una sessione, questo valore viene ignorato.
+	 * 
+	 * @throws FirmapiuException Se ci sono errori riguardanti all'accesso del keystore
 	 * @see it.libersoft.firmapiu.CRToken#getKeyStore()
+	 * @see <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/security/p11guide.html#Login">http://docs.oracle.com/javase/7/docs/technotes/guides/security/p11guide.html#Login</a>
+	 * 
 	 */
 	@Override
-	public KeyStore getKeyStore() throws FirmapiuException {
-		// TODO Auto-generated method stub
-		return null;
+	public KeyStore getKeyStore(char[] pin) throws FirmapiuException {
+		//TODO da cambiare se si decide che il keystore debba essere gestito in maniera stand-alone o meno a seconda di proprietà da stabilire a monte.
+		//TODO Al momento il keystore può essere caricato in maniera "statica" passandogli il pin come parametro di questo metodo.
+		//TODO Tuttavia se è stato effettuato un login su questo token, il caricamento statico viene ignorato e il keystore viene caricato considerando il contesto della sessione a cui appartiene
+		try {
+			KeyStore pkcs11keystore = KeyStore.getInstance("pkcs11", pkcs11Provider);
+			//se non è stata instaurata una sessione, carica il keystore in maniera stand-alone altrimenti usa la sessione
+			if(!this.session)
+				pkcs11keystore.load(null, pin);
+			else
+				pkcs11keystore.load(null, null);
+			return pkcs11keystore;
+		} catch (KeyStoreException e) {
+			throw new FirmapiuException(CERT_KEYSTORE_DEFAULT_ERROR,e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new FirmapiuException(CERT_DEFAULT_ERROR,e);
+		} catch (CertificateException e) {
+			throw new FirmapiuException(CERT_DEFAULT_ERROR,e);
+		} catch (IOException e) {
+			throw new FirmapiuException(CRT_TOKENPIN_ERROR,e);
+		}
+	}
+
+
+	/** 
+	 * Effettua il login sul pkcs#11 token
+	 * 
+	 * @throws FirmapiuException in caso in cui il pin/pass passato come parametro è sbagliato
+	 * @see it.libersoft.firmapiu.crtoken.PKCS11Token#login(char[])
+	 */
+	@Override
+	public void login(char[] pass) throws FirmapiuException {
+		this.aprov = (AuthProvider)Security.getProvider(this.pkcs11Provider.getName());
+		//Subject subject =new Subject();
+		try {
+			this.aprov.login(null, new PrivateCallbackHandler(pass));
+			//inizia la sessione
+			this.session=true;
+		} catch (LoginException e) {
+			throw new FirmapiuException(CRT_TOKENPIN_ERROR, e);
+		}
+		
+	}
+
+	@Override
+	public void logout() throws FirmapiuException {
+		try {
+			this.aprov.logout();
+		} catch (LoginException e) {
+			throw new FirmapiuException(CRT_TOKEN_DEFAULT_ERROR, e);
+		} finally{
+			Security.removeProvider(this.pkcs11Provider.getName());
+			//chiude la sessione
+			this.session=false;
+		}
 	}
 	
 	/**
@@ -84,6 +206,7 @@ final class CRTSmartCardToken implements PKCS11Token {
 		}
 		// numero dei lettori connessi
 		numberTerminals = listTerminals.size();
+		//TODO lanciare eccezione se trova più di un lettore/carta collegato?
 
 		// verifico che la carta sia insertita
 		cardPresent = false;
@@ -154,10 +277,28 @@ final class CRTSmartCardToken implements PKCS11Token {
 		
 	}
 	
+	private static class PrivateCallbackHandler implements CallbackHandler{
+
+		private final char[] pass;
+		
+		private PrivateCallbackHandler(char[] pass){
+			this.pass=pass;
+		}
+		
+		@Override
+		public void handle(Callback[] callbacks) throws IOException,
+				UnsupportedCallbackException {
+			PasswordCallback pc = (PasswordCallback) callbacks[0];
+			pc.setPassword(this.pass);
+			
+		}
+		
+	}
+	
 	//
 	//restituisce il path assoluto della libreria per la smart card identificata dal suo atr e il nome della smart card 
 	//
-	private String findLibraries(String atrString, String nameIni) throws FirmapiuException{
+	/*private String findLibraries(String atrString, String nameIni) throws FirmapiuException{
 		if((atrString == null) || (nameIni == null))
 			throw new IllegalArgumentException(RB.getString("illegalargument0"));
 
@@ -197,7 +338,7 @@ final class CRTSmartCardToken implements PKCS11Token {
 				}
 			}
 			j = 0;
-		}
+		
 
 		//path della libreria
 		String pathPKCS11Lib = configurationProperties.getProperty("smartcard." + k + ".linux.path");
@@ -206,13 +347,12 @@ final class CRTSmartCardToken implements PKCS11Token {
 		//nome della smart card
 		String nameCard = configurationProperties.getProperty("smartcard."+k+".manufacturer");
 		
-		//TODO da cambiare
 		if(trovato == false){
 			System.out.println("configurazione non riuscita: libreria mancante!");
 			System.exit(1);
 		}
 		return nameCard+"$"+pathPKCS11Lib+PKCS11Lib;
-	}
+	}*/
 
 
 	//restituisce la rappresentazione esadecimale di un array di byte

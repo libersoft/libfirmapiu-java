@@ -109,7 +109,7 @@ class P7MCommandInterface implements CadesBESCommandInterface {
 			if(commandArgs.isArgument(TOKENPIN)){
 				tokenpin=(char[])commandArgs.getArgument(TOKENPIN);
 			} else
-				throw new FirmapiuException(CRT_TOKENPIN_NOTFOUND);
+				throw new FirmapiuException(CRT_TOKENPIN_ERROR);
 			
 			
 			//prepara Map<String,Object> con i risultati delle operazioni effettuate sui file passati come parametro.

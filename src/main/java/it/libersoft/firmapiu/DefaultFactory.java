@@ -5,6 +5,7 @@ package it.libersoft.firmapiu;
 
 import it.libersoft.firmapiu.cades.CadesBESCommandInterface;
 import it.libersoft.firmapiu.crtoken.PKCS11Token;
+import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryPropConsts.*;
 
 import java.util.Locale;
@@ -96,7 +97,7 @@ public class DefaultFactory {
 	 * @throws IllegalArgumentException Se la factory utilizzata non implementa questo metodo
 	 * @see it.libersoft.firmapiu.consts.FactoryConsts
 	 */
-	public PKCS11Token getPKCS11Token(String choice) throws IllegalArgumentException{
+	public PKCS11Token getPKCS11Token(String choice) throws IllegalArgumentException,FirmapiuException{
 		throw new IllegalArgumentException(RB.getString("factoryerror1")
 				+ " : " + this.getClass().getCanonicalName());
 	}

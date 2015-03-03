@@ -12,12 +12,13 @@ package it.libersoft.firmapiu.consts;
  */
 public final class FactoryPropConsts {
 
-	private FactoryPropConsts(){}
-	
+	private FactoryPropConsts() {
+	}
+
 	/**
 	 * <b>Chiave:</b> Token crittografico utilizzato per firmare dei dati<br>
-	 * <b>Valore associato: String -</b> Viene specificato il token crittogragrico (ad
-	 * esempio smartcard, penna USB etc etc...)<br>
+	 * <b>Valore associato: String -</b> Viene specificato il token
+	 * crittogragrico (ad esempio smartcard, penna USB etc etc...)<br>
 	 * <b>Default: <i>CRT_TOKEN_PKSC11</i> -</b> di Default le factories
 	 * utilizzano il token crittografico pkcs#11 per l'operazione di firma,
 	 * ossia una smartcard crittografica
@@ -31,13 +32,27 @@ public final class FactoryPropConsts {
 	public static final String CRT_TOKEN_PKCS11 = "pkcs11";
 
 	/**
+	 * <b>Chiave:</b> file contenente i riferimenti ai driver delle smartcard
+	 * che possono essere utilizzate per caricare il provider pkcs11
+	 * corrispondente<br>
+	 * <b>Valore associato: String -</b> Viene specificato il percorso del file
+	 * (ad esempio smartcard, penna USB etc etc...)<br>
+	 * <b>Default: <i> se la proprietà non è definita viene utilizzato il
+	 * percorso di default di sistema per i file di configurazione (In questo
+	 * caso <code>/etc/firmapiulib/pkcs11driver.properties</code>)
+	 */
+	public static final String CRT_TOKEN_PKCS11_LIBRARYPATH = "pkcs11librarypath";
+
+	/**
 	 * <b>Chiave:</b> (Proprietà di DataFactory) I percorsi dei file/url vengono
 	 * normalizzati nei confronti del loro path relativo e dei loro link
 	 * simbolici, in modo da garantire che i percorsi siano delle chiavi e che
 	 * non venga effettuata più volte l'operazione di firma/verifica sulla
 	 * stessa risorsa <br>
-	 * <b>Valore associato: Boolean -</b> Se i percorsi devono essere normalizzati o meno <br>
+	 * <b>Valore associato: Boolean -</b> Se i percorsi devono essere
+	 * normalizzati o meno <br>
 	 * <b>Default: <i>true</i> -</b> I percorsi vengono normalizzati
 	 * */
 	public static final String NORMALIZE_DATAPATH = "normalizeDatapath";
+
 }

@@ -33,10 +33,11 @@ public interface CRToken {
 	 * Restituisce il keystore associato a questa istanza del token
 	 * crittografico
 	 * 
+	 * @param pass Il pin/password utilizzato per accedere al keystore
+	 * 
 	 * @return il keystore associato
 	 * @throws FirmapiuException
 	 *             in caso di errori di carattere applicativo
 	 */
-	public KeyStore getKeyStore() throws FirmapiuException;
-
+	public KeyStore getKeyStore(char[] pass) throws FirmapiuException;	
 }

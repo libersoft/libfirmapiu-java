@@ -55,17 +55,17 @@ public final class FirmapiuException extends Exception {
 	/**
 	 * Errore se il pin del token crittografico utilizzato non è presente/è stato omesso
 	 * */
-	public static final int CRT_TOKENPIN_NOTFOUND=303;
+	public static final int CRT_TOKENPIN_ERROR=303;
 	
 	/**
 	 * Errore se non è stato trovato il file di configurazione contente i driver per accedere al token crittografico utilizzato
 	 * */
-	public static final int CRT_TOKEN_CONFIGFILE_NOTFOUND=304;
+	public static final int CRT_TOKEN_CONFIGFILE_NOTFOUND=397;
 	
 	/**
-	 * Errore se non è stato il driver/libreria del token crittografico utlizzato
+	 * Errore se non è stato trovato il driver/libreria del token crittografico utlizzato
 	 * */
-	public static final int CRT_TOKEN_LIB_NOTFOUND=305;
+	public static final int CRT_TOKEN_LIB_NOTFOUND=398;
 	
 	/**
 	 * Errore di default in caso di un errore generico riguardante un token crittografico
@@ -87,7 +87,15 @@ public final class FirmapiuException extends Exception {
 	
 
 	//Errori di certificato: codici (800-899)
-
+	/**
+	 * Errore di default in caso di un errore generico su un keystore
+	 * */
+	public static final int CERT_KEYSTORE_DEFAULT_ERROR=888;
+	/**
+	 * Errore di default in caso di un errore generico su un certificato
+	 * */
+	public static final int CERT_DEFAULT_ERROR=899;
+	
 	//Errori generici: codici (900-999)
 
 	/**
