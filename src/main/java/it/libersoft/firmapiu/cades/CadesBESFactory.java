@@ -4,6 +4,7 @@
 package it.libersoft.firmapiu.cades;
 
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
+import static it.libersoft.firmapiu.consts.FactoryPropConsts.*;
 import it.libersoft.firmapiu.DefaultFactory;
 
 import java.util.Locale;
@@ -44,8 +45,11 @@ public final class CadesBESFactory extends DefaultFactory {
 		//recupera il token crittografico da utilizzare per effettuare le operazioni di firma
 		//se è pkcs#11 cerca il driver della smartcard crittografica utilizzata
 		
-		if (choice.equals(P7MFILE))
-			return new P7MCommandInterface();
+		if (choice.equals(P7MFILE)){
+			//crea la P7MFileCommandInterface passandogli come parametro il tipo di token utilizzato per firmare i file
+			String tokenType=(String)this.getProperty(CRT_TOKEN);
+			return new P7MFileCommandInterface(tokenType);
+		}
 		else if (choice.equals(P7SFILE))
 			// TODO possibile estensione della libreria con supporto ai .p7s
 			throw new IllegalArgumentException(RB.getString("factoryerror3")

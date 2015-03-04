@@ -3,6 +3,8 @@
  */
 package it.libersoft.firmapiu;
 
+import it.libersoft.firmapiu.exception.FirmapiuException;
+
 import java.util.Set;
 
 /**
@@ -19,11 +21,15 @@ public interface Data<T> {
 	 * I dati dovrebbero essere delle "chiavi" in modo da non effettuare più volte l'operazione di firma/verifica sullo stesso dato
 	 * 
 	 * @param data i dati da firmare/verificare
+	 * 
+	 * @throws FirmapiuException In caso di errori di carattere applicativo
 	 */
-	public void setData(T data);
+	public void setData(T data) throws FirmapiuException;
 	
 	/**
 	 * @return un insieme contenente i dati che devono essere firmati/verificati dall'operazione eseguita
+	 * 
+	 * @throws FirmapiuException In caso di errori di carattere applicativo
 	 */
-	public Set<T> getDataSet();
+	public Set<T> getDataSet() throws FirmapiuException;
 }

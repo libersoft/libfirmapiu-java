@@ -3,6 +3,9 @@
  */
 package it.libersoft.firmapiu;
 
+import it.libersoft.firmapiu.exception.FirmapiuException;
+import static it.libersoft.firmapiu.exception.FirmapiuException.*;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +25,7 @@ import java.util.TreeSet;
 public final class DataFilePath implements Data<String> {
 
 	//flag per vedere se i percorsi passati come parametro devono essere normalizzati o meno
-	private final boolean normalize;
+	//private final boolean normalize;
 	
 	//insieme contenete il percorso dei file su cui bisogna fare le operazioni di firma/verifica
 	private final TreeSet<String> filepathset;
@@ -30,7 +33,7 @@ public final class DataFilePath implements Data<String> {
 	protected DataFilePath(boolean normalize){
 		//TODO vedere se ce bisogno di sincronizzare o meno
 		this.filepathset=new TreeSet<String>();
-		this.normalize=normalize;
+		//this.normalize=normalize;
 	}
 	
 	/**
@@ -40,16 +43,24 @@ public final class DataFilePath implements Data<String> {
 	 * @see it.libersoft.firmapiu.Data#setData(java.lang.Object)
 	 */
 	@Override
-	public void setData(String data) {
-		//se il file deve essere normalizzato nei confronti del path relativo e dei link simbolici attiva la procedura
-		//altrimenti lo inserisce direttamente nell'insieme dei file da firmare/verificare
-		if(this.normalize){
-			//genera il path canonico
-			try {
-				data= canonicalPathFromPath(data);
-			} catch (IOException e) {
-				//se non è in grado di generare il path canonico aggiunge il percorso del file originale
-			}
+	public void setData(String data) throws FirmapiuException{
+		//TODO parte da ignorare i percorsi dei file devono già essere forniti normalizzati altrimenti la libreria lancia un errore
+		//TODO In un futuro sviluppo della libreria si può decidere se i percorsi debbano essere normalizzati o meno
+//		//se il file deve essere normalizzato nei confronti del path relativo e dei link simbolici attiva la procedura
+//		//altrimenti lo inserisce direttamente nell'insieme dei file da firmare/verificare
+//		if(this.normalize){
+//			//genera il path canonico
+//			try {
+//				data= canonicalPathFromPath(data);
+//			} catch (IOException e) {
+//				//se non è in grado di generare il path canonico aggiunge il percorso del file originale
+//			}
+//		}
+		File dataFile=new File(data);
+		if(!dataFile.isAbsolute()){
+			String msg=FirmapiuException.getDefaultErrorCodeMessage(IS_NOT_ABS_PATH);
+			msg+=" : "+data;
+			throw new FirmapiuException(IS_NOT_ABS_PATH,msg);
 		}
 		this.filepathset.add(data);
 	}
@@ -65,7 +76,7 @@ public final class DataFilePath implements Data<String> {
 	
 	//PROCEDURE PRIVATE
 	//procedura privata per trovare il percorso canonico di un file da un path generico
-	private static String canonicalPathFromPath(String filepath) throws IOException{
+	/*private static String canonicalPathFromPath(String filepath) throws IOException{
 		if(filepath.startsWith("~"))
 		{
 			String[] user=filepath.split("/",2);
@@ -89,5 +100,5 @@ public final class DataFilePath implements Data<String> {
 			}
 		}
 		return new File(filepath).getCanonicalPath();
-	}
+	}*/
 }

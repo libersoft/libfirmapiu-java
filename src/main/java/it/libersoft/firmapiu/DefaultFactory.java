@@ -7,6 +7,7 @@ import it.libersoft.firmapiu.cades.CadesBESCommandInterface;
 import it.libersoft.firmapiu.crtoken.PKCS11Token;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryPropConsts.*;
+import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 
 import java.util.Locale;
 import java.util.Map;
@@ -39,8 +40,9 @@ public class DefaultFactory {
 	protected DefaultFactory() {
 		// crea la factory settando le proprietà di default
 		this.propMap = new TreeMap<String, Object>();
-		// il token crittografico utilizzato di default è una smartcard
-		propMap.put(CRT_TOKEN_KEY, CRT_TOKEN_PKCS11);
+		// il token crittografico utilizzato di default è una smartcard. 
+		//Le factories concrete utilizzeranno questo token per implementare le operazioni di firma dei dati
+		propMap.put(CRT_TOKEN, PKCS11TOKENFACTORY);
 	}
 
 	/**
@@ -88,16 +90,15 @@ public class DefaultFactory {
 	}
 	
 	/**
-	 * Crea un token pkcs#11 per la gestione delle credenziali (certificato utente, chiave privata) usate dalle 
+	 * Crea un token per la gestione delle credenziali (certificato utente, chiave privata) usate dalle 
 	 * operazioni messe a disposizione dalla libreria <code>firmapiulib</code> e per la gestione del token stesso.<br>
-	 * (smartcard, penne usb etc...)
 	 * 
 	 * @param choice il tipo di dati concreto da creare
 	 * @return
 	 * @throws IllegalArgumentException Se la factory utilizzata non implementa questo metodo
 	 * @see it.libersoft.firmapiu.consts.FactoryConsts
 	 */
-	public PKCS11Token getPKCS11Token(String choice) throws IllegalArgumentException,FirmapiuException{
+	public CRToken getToken(String choice) throws IllegalArgumentException,FirmapiuException{
 		throw new IllegalArgumentException(RB.getString("factoryerror1")
 				+ " : " + this.getClass().getCanonicalName());
 	}
