@@ -14,14 +14,16 @@ import java.security.AuthProvider;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.Provider;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.util.Iterator;
 import java.util.List;
-//import java.util.Locale;
+import java.util.Locale;
 import java.util.Properties;
-//import java.util.ResourceBundle;
+import java.util.ResourceBundle;
+
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -48,8 +50,8 @@ final class CRTSmartCardToken implements PKCS11Token {
 	
 	// inizializza il resourcebundle per il recupero dei messaggi lanciati dalla
 	// classe
-	//private static final ResourceBundle RB = ResourceBundle.getBundle(
-	//			"it.libersoft.firmapiu.lang.locale", Locale.getDefault());
+	private static final ResourceBundle RB = ResourceBundle.getBundle(
+				"it.libersoft.firmapiu.lang.locale", Locale.getDefault());
 	
 	//variabili private per accedere a lettore e smartcard
 	private TerminalFactory factory;
@@ -98,7 +100,6 @@ final class CRTSmartCardToken implements PKCS11Token {
 				//TODO log di prova: cancellare
 				System.out.println(pkcs11Config);
 				this.pkcs11Provider= new sun.security.pkcs11.SunPKCS11(new ByteArrayInputStream(pkcs11Config.getBytes()));
-				Security.addProvider(this.pkcs11Provider);
 				break;
 			} catch (Exception e) {
 				// TODO log di prova: cancellare
@@ -136,7 +137,7 @@ final class CRTSmartCardToken implements PKCS11Token {
 		//TODO Al momento il keystore può essere caricato in maniera "statica" passandogli il pin come parametro di questo metodo.
 		//TODO Tuttavia se è stato effettuato un login su questo token, il caricamento statico viene ignorato e il keystore viene caricato considerando il contesto della sessione a cui appartiene
 		try {
-			KeyStore pkcs11keystore = KeyStore.getInstance("pkcs11", pkcs11Provider);
+			KeyStore pkcs11keystore = KeyStore.getInstance("pkcs11", pkcs11Provider.getName());
 			//se non è stata instaurata una sessione, carica il keystore in maniera stand-alone altrimenti usa la sessione
 			if(!this.session)
 				pkcs11keystore.load(null, pin);
@@ -151,6 +152,10 @@ final class CRTSmartCardToken implements PKCS11Token {
 			throw new FirmapiuException(CERT_DEFAULT_ERROR,e);
 		} catch (IOException e) {
 			throw new FirmapiuException(CRT_TOKENPIN_ERROR,e);
+		} catch (NoSuchProviderException e) {
+			String msg= FirmapiuException.getDefaultErrorCodeMessage(CRT_TOKEN_DEFAULT_ERROR);
+			msg+=RB.getString("providererror0")+" : "+pkcs11Provider.getName();
+			throw new FirmapiuException(CRT_TOKEN_DEFAULT_ERROR, msg, e);
 		}
 	}
 
@@ -163,6 +168,7 @@ final class CRTSmartCardToken implements PKCS11Token {
 	 */
 	@Override
 	public void login(char[] pass) throws FirmapiuException {
+		Security.addProvider(this.pkcs11Provider);
 		this.aprov = (AuthProvider)Security.getProvider(this.pkcs11Provider.getName());
 		//Subject subject =new Subject();
 		try {
@@ -170,6 +176,7 @@ final class CRTSmartCardToken implements PKCS11Token {
 			//inizia la sessione
 			this.session=true;
 		} catch (LoginException e) {
+			Security.removeProvider(this.pkcs11Provider.getName());
 			throw new FirmapiuException(CRT_TOKENPIN_ERROR, e);
 		}
 		
@@ -264,8 +271,11 @@ final class CRTSmartCardToken implements PKCS11Token {
 
 	}
 
+	
+	
 	//PROCEDURE PRIVATE
 
+	
 	
 	//assegna la lista dei lettori connessi alla variabile d'istanza <code>listTerminals</code>
 	private void checkTerminal() throws CardException{
@@ -352,11 +362,10 @@ final class CRTSmartCardToken implements PKCS11Token {
 			System.exit(1);
 		}
 		return nameCard+"$"+pathPKCS11Lib+PKCS11Lib;
-	}*/
-
+	}
 
 	//restituisce la rappresentazione esadecimale di un array di byte
-	public static String getHexString(byte[] dataInput){
+	private static String getHexString(byte[] dataInput){
 
 		String mes = "Utils getHexString:  ";
 		String result = "";
@@ -371,5 +380,5 @@ final class CRTSmartCardToken implements PKCS11Token {
 			result += Integer.toString((dataInput[i] & 0xff) + 0x100, 16).substring(1);
 		}
 		return result;
-	}
+	}*/
 }

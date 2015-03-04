@@ -1,0 +1,7 @@
+*Aggiunta una test-suite per controllare l'accesso alle carte incard, Athena e Oberthur.
+	
+	I test controllano la correttezza delle classi definite in it.libersoft.firmapiu.crtoken
+	I test sono scritti in junit e possono essere eseguiti da gradle con: gradle simpleTestCards
+	I test sono eseguiti in sequenza e richiedono l'insezione della carta richiesta per una corretta esecuzione
+	I risultati dei test sono salvati in dei report nella directory build di gradle
+	(Nota: I messaggi di LOG sono ripetuti anche se i test sembrano essere eseguiti corretamente una volta sola)
