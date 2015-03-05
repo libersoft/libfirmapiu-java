@@ -18,14 +18,18 @@ public final class ArgumentConsts {
 	 * Valore associato all'argomento: char[] - Un array di char contenete il
 	 * pin richiesto
 	 */
-	public static final String TOKENPIN = "tokenpin";
+	//FIXME versione debug, da cambiare
+	public static final String TOKENPIN = "pin";
+	//public static final String TOKENPIN = "tokenpin";
 	/**
 	 * Chiave: directory in cui salvare l'esito del risultato dell'operazione di
 	 * firma<br>
 	 * Valore associato all'argomento: String - Il percorso della directory in
 	 * cui salvare l'esito dell'operazione
 	 * */
-	public static final String SIGNOUTDIR = "signoutdir";
+	//FIXME versione debug, da cambiare
+	public static final String SIGNOUTDIR = "outdir";
+	//public static final String SIGNOUTDIR = "signoutdir";
 	
 	/**
 	 * Chiave: se l'opzione è presente, la directory in cui salvare l'esito del risultato dell'operazione di

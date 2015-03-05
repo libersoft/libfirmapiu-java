@@ -114,6 +114,10 @@ public final class FirmapiuException extends Exception {
 	 * */
 	public static final int IS_NOT_DIR=710;
 	
+	/**
+	 * Errore di default di I/O
+	 * */
+	public static final int IO_DEFAULT_ERROR=799;
 
 	//Errori di certificato: codici (800-899)
 	

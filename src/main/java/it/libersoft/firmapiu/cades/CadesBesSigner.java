@@ -200,16 +200,12 @@ final class CadesBesSigner {
 	    //cmsGenerator.addAttributeCertificate(new X509AttributeCertificateHolder(certHAttribute.getEncoded()));
 	}
 	
-	CMSSignedData sign(CMSTypedData data) throws FirmapiuException{
+	CMSSignedData sign(CMSTypedData data) throws CMSException{
 		
 		//TODO gestione del treadsafe?
         //genera i dati codificati in p7m (attached) secondo lo standard pkcs7 e 
 		//secondo la DELIBERAZIONE ministeriale del N . 45 DEL 21 MAGGIO 2009 art.21 comma 5,6
-		try {
 			return this.cmsGenerator.generate(data, true);
-		} catch (CMSException e) {
-			throw new FirmapiuException(SIGNER_CADESBES_ERROR, e);
-		}
 	}
 	
 //	void close(){

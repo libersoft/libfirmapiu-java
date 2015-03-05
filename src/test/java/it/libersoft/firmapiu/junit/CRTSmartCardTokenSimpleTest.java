@@ -54,7 +54,7 @@ public class CRTSmartCardTokenSimpleTest {
 		LOG.addHandler(new DualConsoleHandler());
 		System.out.println("INSERIRE SMARTCARD <"+name+"> PER ESEGUIRE IL TEST CORRETTAMENTE!");
 		Thread.sleep(10000);
-		smartcard = MasterFactoryBuilder.getFactory(PKCS11TOKENFACTORY).getPKCS11Token(CRTSMARTCARD);
+		smartcard = (PKCS11Token)MasterFactoryBuilder.getFactory(PKCS11TOKENFACTORY).getToken(CRTSMARTCARD);
 		LOG.info("Oggetto da testare creato: inizio batteria di test su: "+smartcard.getClass().getCanonicalName());
 		System.out.println();
 		System.out.println("---------------------------------------------------------");

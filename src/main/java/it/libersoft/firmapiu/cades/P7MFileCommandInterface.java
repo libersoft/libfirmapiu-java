@@ -3,11 +3,13 @@
  */
 package it.libersoft.firmapiu.cades;
 
+import it.libersoft.firmapiu.CRToken;
 import it.libersoft.firmapiu.Data;
 import it.libersoft.firmapiu.DataFilePath;
 import it.libersoft.firmapiu.Argument;
 import it.libersoft.firmapiu.GenericArgument;
 import it.libersoft.firmapiu.MasterFactoryBuilder;
+import it.libersoft.firmapiu.crtoken.PKCS11Token;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.ArgumentConsts.*;
 import static it.libersoft.firmapiu.exception.FirmapiuException.*;
@@ -16,6 +18,8 @@ import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Iterator;
@@ -25,6 +29,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSProcessableFile;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSTypedData;
@@ -39,10 +44,12 @@ import org.bouncycastle.cms.CMSTypedData;
  */
 final class P7MFileCommandInterface implements CadesBESCommandInterface {
 
-	// inizializza il resourcebundle per il recupero dei messaggi lanciati dalla
+	// inizializza i resourcebundle per il recupero dei messaggi lanciati dalla
 	// classe
 	private static final ResourceBundle RB = ResourceBundle.getBundle(
 				"it.libersoft.firmapiu.lang.localefactory", Locale.getDefault());
+	private static final ResourceBundle RB1 = ResourceBundle.getBundle(
+			"it.libersoft.firmapiu.lang.locale", Locale.getDefault());
 	
 	//tipo di token utilizzato per le operazioni di firma
 	private final String tokenType;
@@ -72,14 +79,13 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 	 */
 	@Override
 	public Map<String, ?> sign(Data<?> data, Argument<?, ?> option) throws IllegalArgumentException,FirmapiuException{
-
 		//controllo di coerenza iniziale sugli argomenti
-		DataFilePath datafile;
+		DataFilePath dataFilePath;
 		if( data==null || !(data instanceof DataFilePath))
 			throw new IllegalArgumentException(RB.getString("factoryerror4")
 					+ " : " + data.getClass().getCanonicalName());
 		else 
-			datafile=(DataFilePath)data;
+			dataFilePath=(DataFilePath)data;
 		GenericArgument commandArgs;
 		if( option==null || !(option instanceof GenericArgument))
 			throw new IllegalArgumentException(RB.getString("factoryerror4")
@@ -143,56 +149,64 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 		//prepara Map<String,Object> con i risultati delle operazioni effettuate sui file passati come parametro.
 		Map<String,Object> result = new TreeMap<String,Object>();
 		//recupera il dataset contenente i percorsi dei file da firmare
-		DataFilePath dataFilePath = (DataFilePath)data;
 		Set<String> dataFilePathSet=dataFilePath.getDataSet();
 		
-//		Iterator<String> dataPathItr=dataFilePathSet.iterator();
-//		CadesBesSigner signer=null;
-//		while(dataPathItr.hasNext()){
-//			File dataFile=new File(dataPathItr.next());
-//			try {
-//				if (!dataFile.exists())
-//					throw new FirmapiuException(FILE_NOTFOUND);
-//				CMSTypedData dataIn = new CMSProcessableFile(dataFile);
-//				//se il file esiste inizializza una sessione, altrimenti usa quella che è già stata inizializzata
-//				if(signer==null){
-//					//crea il token crittografico a seconda del tipo passato come parametro alla P7MFileCommandInterface
-//					MasterFactoryBuilder.getFactory(PKCS11TOKENFACTORY).
-//					signer = new CadesBesSigner(token);
-//				}
-//				CMSSignedData signedData=signer.sign(dataIn);
-//				File fileout;
-//				if(outDir==null)
-//					fileout = new File(filein.getCanonicalPath()+".p7m");
-//				else
-//					fileout = new File(outDir.getCanonicalPath()+"/"+filein.getName()+".p7m");
-//				FileOutputStream fileoutStream =new FileOutputStream(fileout);
-//				fileoutStream.write(signedData.getEncoded());
-//				fileoutStream.flush();
-//				fileoutStream.close();
-//				//se l'operazione è andata bene, genera il percorso del .p7m risultante del file passato come parametro
-//				result.put(filein.getCanonicalPath(),fileout.getCanonicalPath());
-//			} catch (FileNotFoundException e){
-//				//associa un errore di file non found per il file passato come parametro
-//				String errString=rb.getString("warning0")+": "+rb.getString("filenotfound0")+"\n"+e.getMessage();
-//				LOGGER.severe(errString);
-//				result.put(filein.getCanonicalPath(), e);
-//			} catch (IOException e) {
-//				// logga eccezione
-//				//LOGGER.throwing(CommandInterface.class.getCanonicalName(), "sign", e);
-//				//associa un errore generico di I/O per il file passato come parametro
-//				String errString=rb.getString("warning0")+": "+rb.getString("ioerror0")+"\n"+e.getMessage();
-//				LOGGER.severe(errString);
-//				result.put(filein.getCanonicalPath(), e);
-//			} catch (Exception e) {
-//				//resetta ilpin e rilancia eccezione
-//				java.util.Arrays.fill(pin, ' ');
-//				throw e;
-//			}//fine try-catch
-//		}//fine while
-
-			//resetta il pin e restituisce i risulti delle operazioni effettuate sui file passati come parametro
-			//java.util.Arrays.fill(pin, ' ');
+		Iterator<String> dataPathItr=dataFilePathSet.iterator();
+		CadesBesSigner signer=null;
+		CRToken token=null;
+		while(dataPathItr.hasNext()){
+			File dataFileIn=new File(dataPathItr.next());
+			try {
+				if (!dataFileIn.exists())
+					throw new FileNotFoundException(dataFileIn.getAbsolutePath()+" "+RB1.getString("filerror0"));
+				CMSTypedData cmsDataIn = new CMSProcessableFile(dataFileIn);
+				//se il file esiste inizializza una sessione, altrimenti usa quella che è già stata inizializzata
+				if(signer==null){
+					//crea il token crittografico a seconda del tipo passato come parametro alla P7MFileCommandInterface
+					token=MasterFactoryBuilder.getFactory(this.tokenType).getToken(CRTSMARTCARD);
+					//se il token è di tipo PKCS11Token, inizializza la sessione
+					if(token instanceof PKCS11Token)
+						((PKCS11Token)token).login(tokenpin);
+					signer = new CadesBesSigner(token);
+				}
+				CMSSignedData signedData=signer.sign(cmsDataIn);
+				File dataFileOut;
+				if(outDir==null)
+					dataFileOut = new File(dataFileIn.getAbsolutePath()+".p7m");
+				else
+					dataFileOut = new File(outDir.getAbsolutePath()+"/"+dataFileIn.getName()+".p7m");
+				FileOutputStream fileoutStream =new FileOutputStream(dataFileOut);
+				fileoutStream.write(signedData.getEncoded());
+				fileoutStream.flush();
+				fileoutStream.close();
+				//se l'operazione è andata bene, genera il percorso del .p7m risultante del file passato come parametro
+				result.put(dataFileIn.getAbsolutePath(),dataFileOut.getAbsolutePath());
+			} catch (FileNotFoundException e) {
+				String msg= FirmapiuException.getDefaultErrorCodeMessage(FILE_NOTFOUND);
+				msg+=" : "+dataFileIn.getAbsolutePath();
+				FirmapiuException fe1 =new FirmapiuException(FILE_NOTFOUND, msg, e);
+				result.put(dataFileIn.getAbsolutePath(), fe1);
+			} catch (IOException e) {
+				FirmapiuException fe1 =new FirmapiuException(IO_DEFAULT_ERROR, e);
+				result.put(dataFileIn.getAbsolutePath(), fe1);
+			} catch (CMSException e){
+				FirmapiuException fe1 =new FirmapiuException(SIGNER_CADESBES_ERROR, e);
+				result.put(dataFileIn.getAbsolutePath(), fe1);
+			}catch (FirmapiuException e) {
+				//se il token è PKCS11token si slogga e rilancia l'eccezione firmapiuexception al chiamante
+				if((token!=null)&&(token instanceof PKCS11Token)){
+					((PKCS11Token)token).logout();
+				}
+				throw e;
+			}//fine try-catch
+		}//fine while
+		//se il token è PKCS11token si slogga e rilancia l'eccezione firmapiuexception al chiamante
+		if((token!=null)&&(token instanceof PKCS11Token)){
+			((PKCS11Token)token).logout();
+		}
+		
+		//resetta il pin e restituisce i risulti delle operazioni effettuate sui file passati come parametro
+		//java.util.Arrays.fill(pin, ' ');
 		return result;
 	}
 
