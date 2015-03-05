@@ -42,7 +42,7 @@ public class PKCS11TokenFactory extends DefaultFactory {
 	 * @see it.libersoft.firmapiu.DefaultFactory#getPKCS11Token(java.lang.String)
 	 */
 	@Override
-	public PKCS11Token getPKCS11Token(String choice)
+	public PKCS11Token getToken(String choice)
 			throws IllegalArgumentException,FirmapiuException {	
 		if (choice.equals(CRTSMARTCARD)){
 			//cerca il file contenente i riferimenti ai driver utilizzati per caricare il provider pkcs#11

@@ -17,19 +17,19 @@ public final class FactoryPropConsts {
 
 	/**
 	 * <b>Chiave:</b> Token crittografico utilizzato per firmare dei dati<br>
-	 * <b>Valore associato: String -</b> Viene specificato il token
-	 * crittogragrico (ad esempio smartcard, penna USB etc etc...)<br>
-	 * <b>Default: <i>CRT_TOKEN_PKSC11</i> -</b> di Default le factories
-	 * utilizzano il token crittografico pkcs#11 per l'operazione di firma,
-	 * ossia una smartcard crittografica
+	 * <b>Valore associato: String -</b> Viene specificata la factory utilizzata
+	 * per creare il token crittografico <br>
+	 * <b>Default: <i>PKCS11TOKENFACTORY</i> -</b> di Default viene utilizzata
+	 * la factory per creare un token crittografico pkcs#11 (ad esempio
+	 * smartcard, penna USB etc etc...)
 	 */
-	public static final String CRT_TOKEN_KEY = "crtToken";
+	public static final String CRT_TOKEN = "crtToken";
 
-	/**
-	 * Token crittografico pkcs#11. Il token crittografico utilizzato per
-	 * firmare i dati è una smartcard
-	 */
-	public static final String CRT_TOKEN_PKCS11 = "pkcs11";
+	// /**
+	// * Token crittografico pkcs#11. Il token crittografico utilizzato per
+	// * firmare i dati è una smartcard
+	// */
+	// public static final String CRT_TOKEN_PKCS11 = "pkcs11";
 
 	/**
 	 * <b>Chiave:</b> file contenente i riferimenti ai driver delle smartcard

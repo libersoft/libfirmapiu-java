@@ -33,7 +33,27 @@ public final class FirmapiuException extends Exception {
 	//ERRORI SULLE OPERAZIONI DI FIRMA E VERIFICA
 
 	//Errori sulle operazioni di firma: codici (100-199)
+	/**
+	 * Errore durante l'operazione di firma: Il sistema non è riuscito a imbustare nella busta crittografica CADES-bes i dati richiesti  
+	 * */
+	public static final int SIGNER_CADESBES_ERROR=100;
+	/**
+	 * Errore se il token utilizzato non contiene un alias valido per la firma certificata
+	 * conforme alla DELIBERAZIONE ministeriale del N . 45 DEL 21 MAGGIO 2009.
+	 * */
+	public static final int SIGNER_ALIAS_NOTFOUND=110;
+	
+	/**
+	 * Errore se il token utilizzato contiene più di un alias valido per la firma certificata
+	 * conforme alla DELIBERAZIONE ministeriale del N . 45 DEL 21 MAGGIO 2009.
+	 * */
+	public static final int SIGNER_ALIAS_TOOMANY=111;
 
+	/**
+	 * Errore di default durante l'operazione di firma
+	 * */
+	public static final int SIGNER_DEFAULT_ERROR=199;
+	
 	//Errori sulle operazioni di verifica: codici (200-299)
 
 	//Errori sulle operazioni di gestione del token crittografico (300-399)
@@ -76,9 +96,18 @@ public final class FirmapiuException extends Exception {
 
 	//Errori di (I/O): codici (700-799)
 	/**
+	 * Errore se non trova il file richiesto
+	 * */
+	public static final int FILE_NOTFOUND=700;
+	/**
 	 * Errore se si cerca di creare una nuova directory ma l'operazione non è permessa.
 	 * */
 	public static final int MKDIR_FORBIDDEN=705;
+	
+	/**
+	 * Il percorso del file/directory cercato non è un percorso assoluto. Non è possibile interpretare correttamente il percorso
+	 * */
+	public static final int IS_NOT_ABS_PATH=709;
 	
 	/**
 	 * Errore se si cerca di ricavare il percorso di una directory, ma il percorso corrisponde ad un file e non ad una directory
@@ -87,6 +116,22 @@ public final class FirmapiuException extends Exception {
 	
 
 	//Errori di certificato: codici (800-899)
+	
+	/**
+	 * Errore nel caso che la chiave specifica richiesta al keystore non sia presente o non sia accessibile
+	 * */
+	public static final int CERT_KEYSTORE_KEYERROR=800;
+	
+	/**
+	 * Errore nel caso che il certificato specifico richiesto al keystore non sia presente o non sia accessibile
+	 * */
+	public static final int CERT_KEYSTORE_CERTERROR=801;
+	
+	/**
+	 * Errore nel caso in cui non è stato possibile fare l'encoding/decoding del certificato
+	 * */
+	public static final int CERT_ENCODING_ERROR=802;
+	
 	/**
 	 * Errore di default in caso di un errore generico su un keystore
 	 * */
