@@ -25,10 +25,10 @@ public final class CadesBESFactory extends DefaultFactory {
 	private static final ResourceBundle RB = ResourceBundle.getBundle(
 			"it.libersoft.firmapiu.lang.localefactory", Locale.getDefault());
 
-	
 	/**
-	 * Questa classe non dovrebbe essere inizializzata dal costruttore ma dalla super factory ad essa associata che inizializza
-	 * le proprietà di default di questo oggetto.
+	 * Questa classe non dovrebbe essere inizializzata dal costruttore ma dalla
+	 * super factory ad essa associata che inizializza le proprietà di default
+	 * di questo oggetto.
 	 */
 	public CadesBESFactory() {
 		super();
@@ -36,21 +36,22 @@ public final class CadesBESFactory extends DefaultFactory {
 
 	/**
 	 * 
-	 * @see it.libersoft.firmapiu.DefaultFactory#getCadesBESCommandInterface(String choice)
+	 * @see it.libersoft.firmapiu.DefaultFactory#getCadesBESCommandInterface(String
+	 *      choice)
 	 * @throws IllegalArgumentException
 	 *             Se l'oggetto richiesto non esiste
 	 */
 	@Override
-	public CadesBESCommandInterface getCadesBESCommandInterface(String choice) throws IllegalArgumentException{
-		//recupera il token crittografico da utilizzare per effettuare le operazioni di firma
-		//se è pkcs#11 cerca il driver della smartcard crittografica utilizzata
-		
-		if (choice.equals(P7MFILE)){
-			//crea la P7MFileCommandInterface passandogli come parametro il tipo di token utilizzato per firmare i file
-			String tokenType=(String)this.getProperty(CRT_TOKEN);
-			return new P7MFileCommandInterface(tokenType);
-		}
-		else if (choice.equals(P7SFILE))
+	public CadesBESCommandInterface getCadesBESCommandInterface(String choice)
+			throws IllegalArgumentException {
+		if (choice.equals(P7MFILE)) {
+			// recupera i token crittografici da utilizzare per effettuare le
+			// operazioni di firma e verifica
+			String signTokenType = (String) this.getProperty(CRT_SIGN_TOKEN);
+			String verifyTokenType = (String) this
+					.getProperty(CRT_VERIFY_TOKEN);
+			return new P7MFileCommandInterface(signTokenType, verifyTokenType);
+		} else if (choice.equals(P7SFILE))
 			// TODO possibile estensione della libreria con supporto ai .p7s
 			throw new IllegalArgumentException(RB.getString("factoryerror3")
 					+ " : " + choice);

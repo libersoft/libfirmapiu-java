@@ -141,7 +141,7 @@ final class CRTSmartCardToken implements PKCS11Token {
 	 * 
 	 */
 	@Override
-	public KeyStore getKeyStore(char[] pin) throws FirmapiuException {
+	public KeyStore loadKeyStore(char[] pin) throws FirmapiuException {
 		// TODO da cambiare se si decide che il keystore debba essere gestito in
 		// maniera stand-alone o meno a seconda di proprietà da stabilire a
 		// monte.

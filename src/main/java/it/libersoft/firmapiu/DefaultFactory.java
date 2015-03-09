@@ -40,9 +40,16 @@ public class DefaultFactory {
 	protected DefaultFactory() {
 		// crea la factory settando le proprietà di default
 		this.propMap = new TreeMap<String, Object>();
-		// il token crittografico utilizzato di default è una smartcard. 
-		//Le factories concrete utilizzeranno questo token per implementare le operazioni di firma dei dati
-		propMap.put(CRT_TOKEN, PKCS11TOKENFACTORY);
+		// il token crittografico utilizzato di default per la firma è un pkcs11
+		// token (una smartcard).
+		// Le factories concrete utilizzeranno questo token per implementare le
+		// operazioni di firma dei dati
+		propMap.put(CRT_SIGN_TOKEN, PKCS11TOKENFACTORY);
+		// Il token crittografico utilizzato di default per la verifica di dati
+		// firmati elettronicamente è un TSLXmlKeyStoreToken.
+		// Le factories concrete utilizzeranno questo token per implementare le
+		// operazioni di verifica dell firma dei dati
+		propMap.put(CRT_VERIFY_TOKEN, KEYSTORETOKENFACTORY);
 	}
 
 	/**
@@ -63,46 +70,57 @@ public class DefaultFactory {
 	}
 
 	/**
-	 * Crea un oggetto che raccoglie un insieme di dati da firmare o verificare tramite le operazioni di firma e verifica
-	 * messe a disposizione dalla libreria
+	 * Crea un oggetto che raccoglie un insieme di dati da firmare o verificare
+	 * tramite le operazioni di firma e verifica messe a disposizione dalla
+	 * libreria
 	 * 
-	 * @param choice il tipo di dati concreto da creare
+	 * @param choice
+	 *            il tipo di dati concreto da creare
 	 * @return
-	 * @throws IllegalArgumentException Se la factory utilizzata non implementa questo metodo
+	 * @throws IllegalArgumentException
+	 *             Se la factory utilizzata non implementa questo metodo
 	 * @see it.libersoft.firmapiu.consts.FactoryConsts
 	 */
-	public Data<?> getData(String choice) throws IllegalArgumentException{
-		throw new IllegalArgumentException(RB.getString("factoryerror1")
-				+ " : " + this.getClass().getCanonicalName());
-	}	
-	
-	/**
-	 * Crea un oggetto che raccoglie gli argomenti opzionali utilizzati nelle operazioni di firma e verifica
-	 * 
-	 * @param choice il tipo di dati concreto da creare
-	 * @return
-	 * @throws IllegalArgumentException Se la factory utilizzata non implementa questo metodo
-	 * @see it.libersoft.firmapiu.consts.FactoryConsts
-	 */
-	public Argument<?,?> getArgument(String choice) throws IllegalArgumentException{
+	public Data<?> getData(String choice) throws IllegalArgumentException {
 		throw new IllegalArgumentException(RB.getString("factoryerror1")
 				+ " : " + this.getClass().getCanonicalName());
 	}
-	
+
 	/**
-	 * Crea un token per la gestione delle credenziali (certificato utente, chiave privata) usate dalle 
-	 * operazioni messe a disposizione dalla libreria <code>firmapiulib</code> e per la gestione del token stesso.<br>
+	 * Crea un oggetto che raccoglie gli argomenti opzionali utilizzati nelle
+	 * operazioni di firma e verifica
 	 * 
-	 * @param choice il tipo di dati concreto da creare
+	 * @param choice
+	 *            il tipo di dati concreto da creare
 	 * @return
-	 * @throws IllegalArgumentException Se la factory utilizzata non implementa questo metodo
+	 * @throws IllegalArgumentException
+	 *             Se la factory utilizzata non implementa questo metodo
 	 * @see it.libersoft.firmapiu.consts.FactoryConsts
 	 */
-	public CRToken getToken(String choice) throws IllegalArgumentException,FirmapiuException{
+	public Argument<?, ?> getArgument(String choice)
+			throws IllegalArgumentException {
 		throw new IllegalArgumentException(RB.getString("factoryerror1")
 				+ " : " + this.getClass().getCanonicalName());
 	}
-	
+
+	/**
+	 * Crea un token per la gestione delle credenziali (tipo certificato utente,
+	 * chiave privata, gestione CA) usate dalle operazioni messe a disposizione
+	 * dalla libreria <code>firmapiulib</code>
+	 * 
+	 * @param choice
+	 *            il tipo di dati concreto da creare
+	 * @return
+	 * @throws IllegalArgumentException
+	 *             Se la factory utilizzata non implementa questo metodo
+	 * @see it.libersoft.firmapiu.consts.FactoryConsts
+	 */
+	public CRToken getToken(String choice) throws IllegalArgumentException,
+			FirmapiuException {
+		throw new IllegalArgumentException(RB.getString("factoryerror1")
+				+ " : " + this.getClass().getCanonicalName());
+	}
+
 	/**
 	 * Setta o sovrascrive una proprietà della factory. Questo comporta che gli
 	 * oggetti saranno creati dalla factory secondo questa proprietà<br>
@@ -132,8 +150,8 @@ public class DefaultFactory {
 	 * Restituisce tutte le proprietà settate da questa Factory: vedi i constant
 	 * fields di questa classe
 	 * 
-	 * @return Una map contenete tutte le associazioni &lt;chiave,valore&gt; delle
-	 *         proprietà settate da questa classe
+	 * @return Una map contenete tutte le associazioni &lt;chiave,valore&gt;
+	 *         delle proprietà settate da questa classe
 	 */
 	public Map<String, Object> getProperties() {
 		return (TreeMap<String, Object>) propMap.clone();

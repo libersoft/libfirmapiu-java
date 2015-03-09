@@ -99,10 +99,16 @@ public final class FirmapiuException extends Exception {
 	 * Errore se non trova il file richiesto
 	 * */
 	public static final int FILE_NOTFOUND=700;
+	
 	/**
-	 * Errore se si cerca di creare una nuova directory ma l'operazione non è permessa.
+	 * Errore se si cerca di creare o accedere a una nuova directory ma l'operazione non è permessa.
 	 * */
-	public static final int MKDIR_FORBIDDEN=705;
+	public static final int DIR_FORBIDDEN=705;
+	
+	/**
+	 * Errore se si cerca di creare o accedere a un file ma l'operazione non è permessa.
+	 * */
+	public static final int FILE_FORBIDDEN=706;
 	
 	/**
 	 * Il percorso del file/directory cercato non è un percorso assoluto. Non è possibile interpretare correttamente il percorso
@@ -110,9 +116,14 @@ public final class FirmapiuException extends Exception {
 	public static final int IS_NOT_ABS_PATH=709;
 	
 	/**
-	 * Errore se si cerca di ricavare il percorso di una directory, ma il percorso corrisponde ad un file e non ad una directory
+	 * Errore se si cerca di ricavare il percorso di una directory, ma il percorso corrisponde ad un file 
 	 * */
 	public static final int IS_NOT_DIR=710;
+	
+	/**
+	 * Errore se si cerca di ricavare il percorso di un file, ma il percorso corrisponde ad una directory
+	 * */
+	public static final int IS_NOT_FILE=711;
 	
 	/**
 	 * Errore di default di I/O
@@ -136,6 +147,11 @@ public final class FirmapiuException extends Exception {
 	 * */
 	public static final int CERT_ENCODING_ERROR=802;
 	
+	/***
+	 * Errore nel caso in cui si cerca di creare o accedere al keystore ma l'operazione non è permessa
+	 * */
+	public static final int CERT_KEYSTOSTORE_FORBIDDEN=803;
+	
 	/**
 	 * Errore di default in caso di un errore generico su un keystore
 	 * */
@@ -147,6 +163,11 @@ public final class FirmapiuException extends Exception {
 	
 	//Errori generici: codici (900-999)
 
+	/**
+	 * Errore di default: protocollo sconosciuto
+	 * */
+	public final static int PROTOCOL_DEFAULT_ERROR=998;
+	
 	/**
 	 * Errore di default
 	 * */

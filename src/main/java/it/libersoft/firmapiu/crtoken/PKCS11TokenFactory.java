@@ -14,10 +14,10 @@ import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 import static it.libersoft.firmapiu.consts.FactoryPropConsts.*;
 
 /**
- * Costruisce il token crittografico pkcs#11 (smartcard crittografica, penna usb ecc ecc)
- * utilizzato per accedere alle credenziali (certificato utente, chiave privata
- * etc...) necessarie alle operazioni messe a disposizione dalla libreria
- * <code>firmapiulib</code>
+ * Costruisce il token crittografico pkcs#11 (smartcard crittografica, penna usb
+ * ecc ecc) utilizzato per accedere alle credenziali (certificato utente, chiave
+ * privata etc...) necessarie alle operazioni messe a disposizione dalla
+ * libreria <code>firmapiulib</code>
  * 
  * @author dellanna
  *
@@ -28,7 +28,7 @@ public class PKCS11TokenFactory extends DefaultFactory {
 	// classe
 	private static final ResourceBundle RB = ResourceBundle.getBundle(
 			"it.libersoft.firmapiu.lang.localefactory", Locale.getDefault());
-	
+
 	/**
 	 * Questa classe non dovrebbe essere inizializzata dal costruttore ma dalla
 	 * super factory ad essa associata che inizializza le proprietà di default
@@ -42,22 +42,24 @@ public class PKCS11TokenFactory extends DefaultFactory {
 	 * @see it.libersoft.firmapiu.DefaultFactory#getPKCS11Token(java.lang.String)
 	 */
 	@Override
-	public PKCS11Token getToken(String choice)
-			throws IllegalArgumentException,FirmapiuException {	
-		if (choice.equals(CRTSMARTCARD)){
-			//cerca il file contenente i riferimenti ai driver utilizzati per caricare il provider pkcs#11
-			Map<String,Object> properties = this.getProperties();
-		
+	public PKCS11Token getToken(String choice) throws IllegalArgumentException,
+			FirmapiuException {
+		if (choice.equals(CRTSMARTCARD)) {
+			// cerca il file contenente i riferimenti ai driver utilizzati per
+			// caricare il provider pkcs#11
+			Map<String, Object> properties = this.getProperties();
+
 			String pkcs11driverlocation;
-			if(properties.containsKey(CRT_TOKEN_PKCS11_LIBRARYPATH))
-				pkcs11driverlocation=(String)properties.get(CRT_TOKEN_PKCS11_LIBRARYPATH);
-			else{
-				ResourceBundle rb1 = ResourceBundle.getBundle("it.libersoft.firmapiu.properties.pkcs11driverlocation");
-				pkcs11driverlocation = rb1.getString("linux.debian.librarypath");
+			if (properties.containsKey(CRT_TOKEN_PKCS11_LIBRARYPATH))
+				pkcs11driverlocation = (String) properties
+						.get(CRT_TOKEN_PKCS11_LIBRARYPATH);
+			else {
+				ResourceBundle rb1 = ResourceBundle
+						.getBundle("it.libersoft.firmapiu.properties.pkcs11driverlocation");
+				pkcs11driverlocation = rb1.getString("linux.debian.path");
 			}
 			return new CRTSmartCardToken(pkcs11driverlocation);
-		}
-		else
+		} else
 			throw new IllegalArgumentException(RB.getString("factoryerror3")
 					+ " : " + choice);
 	}

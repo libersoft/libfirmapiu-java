@@ -83,7 +83,7 @@ final class CadesBesSigner {
 		this.cmsGenerator = new CMSSignedDataGenerator();
 
 		//recupera e carica il keystore presente sul token
-		KeyStore pkcs11keystore = token.getKeyStore(null);
+		KeyStore pkcs11keystore = token.loadKeyStore(null);
 		
 		//scorre gli alias del keystore fino a trovare quello che ha keyusage nonrepudiation=true e tutti gli flag=false
 		//secondo la DELIBERAZIONE ministeriale del N . 45 DEL 21 MAGGIO 2009 art.12 comma 5 par a)

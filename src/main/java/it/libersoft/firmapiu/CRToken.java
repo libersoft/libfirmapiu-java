@@ -30,7 +30,7 @@ public interface CRToken {
 	public Provider getProvider() throws FirmapiuException;
 
 	/**
-	 * Restituisce il keystore associato a questa istanza del token
+	 * Carica il keystore associato a questa istanza del token
 	 * crittografico
 	 * 
 	 * @param pass Il pin/password utilizzato per accedere al keystore
@@ -39,5 +39,5 @@ public interface CRToken {
 	 * @throws FirmapiuException
 	 *             in caso di errori di carattere applicativo
 	 */
-	public KeyStore getKeyStore(char[] pass) throws FirmapiuException;	
+	public KeyStore loadKeyStore(char[] pass) throws FirmapiuException;	
 }

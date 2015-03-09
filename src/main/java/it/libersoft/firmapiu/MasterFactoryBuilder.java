@@ -5,6 +5,7 @@ package it.libersoft.firmapiu;
 
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 import it.libersoft.firmapiu.cades.CadesBESFactory;
+import it.libersoft.firmapiu.crtoken.KeyStoreTokenFactory;
 import it.libersoft.firmapiu.crtoken.PKCS11TokenFactory;
 
 import java.util.Locale;
@@ -44,6 +45,8 @@ public final class MasterFactoryBuilder {
 			return new ArgumentFactory(); 
 		}else if (choice.equals(PKCS11TOKENFACTORY)) {
 			return new PKCS11TokenFactory(); 
+		}else if(choice.equals(KEYSTORETOKENFACTORY)){
+			return new KeyStoreTokenFactory();
 		}
 			throw new IllegalArgumentException(RB.getString("factoryerror0")
 					+ " : " + choice);

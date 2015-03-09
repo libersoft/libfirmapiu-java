@@ -23,7 +23,15 @@ public final class FactoryPropConsts {
 	 * la factory per creare un token crittografico pkcs#11 (ad esempio
 	 * smartcard, penna USB etc etc...)
 	 */
-	public static final String CRT_TOKEN = "crtToken";
+	public static final String CRT_SIGN_TOKEN = "crtToken";
+
+	/**
+	 * <b>Chiave:</b> Token crittografico utilizzato per la verifica di dati
+	 * firmati elettronicamente<br>
+	 * <b>Valore associato: String -</b> Viene specificata la factory utilizzata
+	 * per creare il token crittografico <br>
+	 * */
+	public static final String CRT_VERIFY_TOKEN = "crtVerifyToken";
 
 	// /**
 	// * Token crittografico pkcs#11. Il token crittografico utilizzato per
@@ -36,12 +44,21 @@ public final class FactoryPropConsts {
 	 * che possono essere utilizzate per caricare il provider pkcs11
 	 * corrispondente<br>
 	 * <b>Valore associato: String -</b> Viene specificato il percorso del file
-	 * (ad esempio smartcard, penna USB etc etc...)<br>
 	 * <b>Default: <i> se la proprietà non è definita viene utilizzato il
 	 * percorso di default di sistema per i file di configurazione (In questo
 	 * caso <code>/etc/firmapiulib/pkcs11driver.properties</code>)
 	 */
 	public static final String CRT_TOKEN_PKCS11_LIBRARYPATH = "pkcs11librarypath";
+
+	/**
+	 * <b>Chiave:</b> file di configurazione utilizzato per inizializzare e
+	 * caricare un keystore da una Trust Service status List<br>
+	 * <b>Valore associato: String -</b> Viene specificato il percorso del file
+	 * <b>Default: <i> se la proprietà non è definita viene utilizzato il
+	 * percorso di default di sistema per i file di configurazione (In questo
+	 * caso <code>/etc/firmapiulib/tslkeystoreconfig.properties</code>)
+	 * */
+	public static final String CRT_TOKEN_TSLXMLKEYSTORE_CONFIGFILEPATH = "tslxmlkeystoreconfigfilepath";
 
 	/**
 	 * <b>Chiave:</b> (Proprietà di DataFactory) I percorsi dei file/url vengono

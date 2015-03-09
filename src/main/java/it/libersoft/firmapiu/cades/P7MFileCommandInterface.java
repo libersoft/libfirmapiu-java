@@ -52,16 +52,21 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 			"it.libersoft.firmapiu.lang.locale", Locale.getDefault());
 	
 	//tipo di token utilizzato per le operazioni di firma
-	private final String tokenType;
+	private final String signTokenType;
+	//tipo di token utilizzato per le operazioni di verifica
+	private final String verifyTokenType;
 	
 	/**
 	 * la classe non dovrebbe essere inizializzata se non attraverso la factory
 	 * 
-	 * @param tokenType Il tipo di token utilizzato per l'operazione di firma dei files
+	 * @param signTokenType Il tipo di token utilizzato per le operazioni di firma dei files
+	 * @param verifyTokenType Il tipo di token utilizzato per le operazioni di verifica  tecnica e legale 
+	 * di files firmati elettronicamente in formato CADES-bes (attacched)  
 	 * @see it.libersoft.firmapiu.consts.FactoryPropConsts
 	 */
-	protected P7MFileCommandInterface(String tokenType) {
-		this.tokenType=tokenType;
+	protected P7MFileCommandInterface(String signTokenType,String verifyTokenType) {
+		this.signTokenType=signTokenType;
+		this.verifyTokenType=verifyTokenType;
 	}
 
 	/** 
@@ -118,14 +123,14 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 					try {
 						outDir.mkdir();
 					} catch (SecurityException e) {
-						String msg=FirmapiuException.getDefaultErrorCodeMessage(MKDIR_FORBIDDEN);
+						String msg=FirmapiuException.getDefaultErrorCodeMessage(DIR_FORBIDDEN);
 						msg+=" : "+outDirPath;
-						throw new FirmapiuException(MKDIR_FORBIDDEN, msg, e);
+						throw new FirmapiuException(DIR_FORBIDDEN, msg, e);
 					}
 				else
 				{
-					String msgError=FirmapiuException.getDefaultErrorCodeMessage(MKDIR_FORBIDDEN)+" : "+outDirPath;
-					throw new FirmapiuException(MKDIR_FORBIDDEN,msgError);
+					String msgError=FirmapiuException.getDefaultErrorCodeMessage(DIR_FORBIDDEN)+" : "+outDirPath;
+					throw new FirmapiuException(DIR_FORBIDDEN,msgError);
 				}
 			}
 			//altrimenti se è un file lancia un eccezione
@@ -163,7 +168,7 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 				//se il file esiste inizializza una sessione, altrimenti usa quella che è già stata inizializzata
 				if(signer==null){
 					//crea il token crittografico a seconda del tipo passato come parametro alla P7MFileCommandInterface
-					token=MasterFactoryBuilder.getFactory(this.tokenType).getToken(CRTSMARTCARD);
+					token=MasterFactoryBuilder.getFactory(this.signTokenType).getToken(CRTSMARTCARD);
 					//se il token è di tipo PKCS11Token, inizializza la sessione
 					if(token instanceof PKCS11Token)
 						((PKCS11Token)token).login(tokenpin);
@@ -209,6 +214,11 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 		//java.util.Arrays.fill(pin, ' ');
 		return result;
 	}
+	
+	// ossia un keystore contenente le "trust anchor", i certificati di ROOT
+	// delle CA utilizzati per verificare l'affidabilità di
+	// un firmatario. Il keystore è generato da una Trust Service status
+	// List scaricata da un sito ritenuto affidabile.
 
 	@Override
 	public Map<?, ?> verify(Data<?> data, Argument<?, ?> option) throws FirmapiuException{

@@ -121,12 +121,12 @@ public class CRTSmartCardTokenSimpleTest {
 	}
 
 	/**
-	 * Test method for {@link it.libersoft.firmapiu.crtoken.CRTSmartCardToken#getKeyStore(char[])}.
+	 * Test method for {@link it.libersoft.firmapiu.crtoken.CRTSmartCardToken#loadKeyStore(char[])}.
 	 */
 	@Test
 	public void a04testGetKeyStore() throws Exception{
 		LOG.info("Testo metodo getKeystore():");
-		KeyStore pkcs11Keystore = smartcard.getKeyStore(pass);
+		KeyStore pkcs11Keystore = smartcard.loadKeyStore(pass);
 		assertNotNull(pkcs11Keystore);
 		LOG.info("Keystore not null!");
 	}
