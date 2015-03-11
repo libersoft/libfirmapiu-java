@@ -55,6 +55,25 @@ public final class FirmapiuException extends Exception {
 	public static final int SIGNER_DEFAULT_ERROR=199;
 	
 	//Errori sulle operazioni di verifica: codici (200-299)
+	/**
+	 * Errore durante la fase di verifica della firma di un firmatario: attributi firmati non trovati
+	 * */
+	public static final int VERIFY_SIGNER_SIGNINGATTRIBUTE_NOTFOUND=205;
+	
+	/**
+	 * Errore durante la fase di verifica: Il certificato del firmatario non è affidabile
+	 * perché c'è stato un errore in fase di costruzione della catena di certificati del firmatario.
+	 * */
+	public static final int VERIFY_SIGNER_CERTPATH_ERROR=206;
+	
+	/**
+	 * Errore di default durante l'operazione della verifica della firma di un firmatario
+	 * */
+	public static final int VERIFY_SIGNER_DEFAULT_ERROR=298;
+	/**
+	 * Errore di default durante l'operazione di verifica
+	 * */
+	public static final int VERIFY_DEFAULT_ERROR=299;
 
 	//Errori sulle operazioni di gestione del token crittografico (300-399)
 	/**

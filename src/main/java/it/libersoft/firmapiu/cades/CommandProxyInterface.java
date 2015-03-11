@@ -85,7 +85,7 @@ public class CommandProxyInterface {
 	
 		//driver del provider pkcs#11 
 		//se è definita l'opzione DRIVERPATH carica il driver dal driverpath passato come parametro
-		//altrimenti inizializza il CadesBesSigner passandogli come parametro il driver della carta utilizzato
+		//altrimenti inizializza il CadesBESSigner passandogli come parametro il driver della carta utilizzato
 		//ricavandolo dal path corrente di esecuzione
 		String pkcs11driverpath;
 		if(optionKeySet.contains(DRIVERPATH)){

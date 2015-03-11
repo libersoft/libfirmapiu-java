@@ -52,7 +52,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.util.Store;
 
-import static it.libersoft.firmapiu.consts.FirmapiuConstants.*;
+import static it.libersoft.firmapiu.consts.FirmapiuRecordConstants.*;
 
 
 /**

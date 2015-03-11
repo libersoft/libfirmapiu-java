@@ -157,7 +157,7 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 		Set<String> dataFilePathSet=dataFilePath.getDataSet();
 		
 		Iterator<String> dataPathItr=dataFilePathSet.iterator();
-		CadesBesSigner signer=null;
+		CadesBESSigner signer=null;
 		CRToken token=null;
 		while(dataPathItr.hasNext()){
 			File dataFileIn=new File(dataPathItr.next());
@@ -172,7 +172,7 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 					//se il token è di tipo PKCS11Token, inizializza la sessione
 					if(token instanceof PKCS11Token)
 						((PKCS11Token)token).login(tokenpin);
-					signer = new CadesBesSigner(token);
+					signer = new CadesBESSigner(token);
 				}
 				CMSSignedData signedData=signer.sign(cmsDataIn);
 				File dataFileOut;
@@ -215,13 +215,19 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 		return result;
 	}
 	
-	// ossia un keystore contenente le "trust anchor", i certificati di ROOT
-	// delle CA utilizzati per verificare l'affidabilità di
-	// un firmatario. Il keystore è generato da una Trust Service status
-	// List scaricata da un sito ritenuto affidabile.
-
+	
 	@Override
 	public Map<?, ?> verify(Data<?> data, Argument<?, ?> option) throws FirmapiuException{
+		//inizializza il token contenente i certificati di ROOT delle CA utilizzati 
+		//per controllare l'affidabilità del certificato del firmatario
+		
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Data<?> getContentSignedData(Data<?> signedData,
+			Argument<?, ?> option) throws FirmapiuException {
 		// TODO Auto-generated method stub
 		return null;
 	}	

@@ -48,9 +48,9 @@ import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.bouncycastle.util.Store;
 
 /**
- * Questa classe firma e verifica dei dati nel formato CMS definito dallo standard pkcs#7<p>
+ * Questa classe firma dei dati nel formato CMS definito dallo standard pkcs#7<p>
  * 
- * Firma elettronicamente un file nel formato CADES-bes 
+ * Firma elettronicamente i dati nel formato CADES-bes 
  * secondo la DELIBERAZIONE ministeriale del N . 45 DEL 21 MAGGIO 2009. <p>
  * 
  * I dati vengono firmati utilizzando un token crittografico passato come parametro
@@ -58,22 +58,26 @@ import org.bouncycastle.util.Store;
  * @author dellanna
  *
  */
-final class CadesBesSigner {
+final class CadesBESSigner {
 
 	/**
 	 * Provider utilizzato per caricare le Bouncy Castle 
 	 */
-	private final String bouncyCastleProvider;
+	private final String bcProvName;
 	
 	private final CMSSignedDataGenerator cmsGenerator;
 	
 		
-	CadesBesSigner(CRToken token) throws FirmapiuException{
+	/**
+	 * @param token
+	 * @throws FirmapiuException
+	 */
+	CadesBESSigner(CRToken token) throws FirmapiuException{
 		//inizializza il provider di Bouncy Castle
 		Provider p1 = new BouncyCastleProvider();
-		this.bouncyCastleProvider = p1.getName();
 		//TODO vedere se ce da implementare o meno una procedura se si tenta di installare più volte lo stesso providere in maniera concorrente
 		Security.addProvider(p1);
+		this.bcProvName = p1.getName();
 		
 		//firma i dati ricevuti in ingresso secondo lo standard CMS (pkcs#7). 
 		//I dati e la firma devono incapsulati (attached) nel CMS risultante.
@@ -190,7 +194,7 @@ final class CadesBesSigner {
 	    //crea il signerInfoGenerator e aggiunge gli attributi richiesti per la legge italiana
 	    SignerInfoGenerator original;
 		try {
-			original = new JcaSignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder().setProvider(bouncyCastleProvider).build()).build(shaSigner, signCert);
+			original = new JcaSignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder().setProvider(bcProvName).build()).build(shaSigner, signCert);
 		} catch (CertificateEncodingException e) {
 			throw new FirmapiuException(CERT_ENCODING_ERROR, e);
 		} catch (OperatorCreationException e) {
@@ -210,7 +214,7 @@ final class CadesBesSigner {
 	
 //	void close(){
 //		//rimuove i providers utilizzati dall'applicazione
-//		//Security.removeProvider(bouncyCastleProvider);
+//		//Security.removeProvider(bcProvName);
 //		Security.removeProvider(pkcs11Provider);
 //	}
 //
