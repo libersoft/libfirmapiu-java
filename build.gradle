@@ -36,8 +36,7 @@ dependencies {
     // 'test.useTestNG()' to your build script.
     testCompile 'junit:junit:4.12'
     
-task simpleTestCards(type: Test) {
-		
+task simpleTestCards(type: Test) {		
 		println('Testa le funzionalità di accesso base alle carte Incard, Oberthur e Athena')
 		println("Salva i report in $buildDir/reports/simple-test-cards")
 		
@@ -51,4 +50,17 @@ task simpleTestCards(type: Test) {
   		
   		reports.html.destination = ("$buildDir/reports/simple-test-cards")
 	}
+}
+
+task simpleTestKeystore(type: Test) {		
+		//println('Testa le funzionalità di accesso base alle carte Incard, Oberthur e Athena')
+		//println("Salva i report in $buildDir/reports/simple-test-cards")
+		
+		//include i test preliminari sul TSLXmlKeyStoreTokenSimpleTest
+	  	include '**/TSLXmlKeyStoreTokenSimpleTest.class'
+	  	
+	  	// show standard out and standard error of the test JVM(s) on the console
+  		testLogging.showStandardStreams = true
+  		
+  		reports.html.destination = ("$buildDir/reports/tslxmlkeystoretoken-simpletest")
 }

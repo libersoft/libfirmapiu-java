@@ -97,8 +97,9 @@ public class Verifier {
 			//FileInputStream in = new FileInputStream(new File("/home/andy/Scrivania/Smart Card Handbook.pdf.p7m"));
 			//FileInputStream in = new FileInputStream(new File("/home/andy/Scrivania/t.txt.p7m"));
 			//FileInputStream in = new FileInputStream(new File("/home/andy/Scrivania/README.txt.p7m"));
-			FileInputStream in = new FileInputStream(new File("/home/andy/Scrivania/signFake.pdf.p7m"));
+			//FileInputStream in = new FileInputStream(new File("/home/andy/Scrivania/signFake.pdf.p7m"));
 			//FileInputStream in = new FileInputStream(new File("/home/andy/Scrivania/Cose da Fare.txt.p7m"));
+			FileInputStream in = new FileInputStream(new File(args[0]));
 			byte[] b=new byte[in.available()];
 			in.read(b);
 			signedData = new CMSSignedData(b);
@@ -166,12 +167,12 @@ public class Verifier {
 				AttributeTable signAttr=signer.getSignedAttributes();
 				Attribute attr=signAttr.get(PKCSObjectIdentifiers.id_aa_signingCertificateV2);
 				if(attr==null)
-					throw new FirmapiuException("errore attributo signingCertificateV2 non presente");
+					throw new FirmapiuException(999,"errore attributo signingCertificateV2 non presente");
 				ASN1Sequence sequence = ASN1Sequence.getInstance(attr.getAttrValues().getObjectAt(0));
 				SigningCertificateV2 scv2 = SigningCertificateV2.getInstance(sequence);
 				ESSCertIDv2[] essCert =scv2.getCerts();
 				if(essCert == null || essCert.length < 1)
-					throw new FirmapiuException("errore attributo ESSCertIDv2 non presente");
+					throw new FirmapiuException(999,"errore attributo ESSCertIDv2 non presente");
 				
 				//controlla l'hash del certificato se si restituisce true se no restituisce no
 				//aggiungere hash del certificato di sottoscrizione

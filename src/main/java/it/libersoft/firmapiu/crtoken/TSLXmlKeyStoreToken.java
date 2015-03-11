@@ -267,7 +267,7 @@ final class TSLXmlKeyStoreToken implements KeyStoreToken {
 		// errore
 		this.deleteKeystore();
 		// ricrea il keystore
-
+		this.createKeyStore();
 	}
 
 	/**

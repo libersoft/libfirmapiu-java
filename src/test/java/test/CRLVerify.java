@@ -1,3 +1,5 @@
+package test;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -431,7 +433,7 @@ public class CRLVerify{
    * @param intermediateCerts
    *          set di certificati che rappresentano la catena intermedia della CRL: {@code Set<X509Certificate>}
    * @return il risultato positivo dell'algo per la certificazione di tipo PKIX: {@code PKIXCertPathBuilderResult}
-   * *//*
+   * */
   private PKIXCertPathBuilderResult verifyCertificate(Set<X509Certificate> trustedRootCerts,
       Set<X509Certificate> intermediateCerts){
 
@@ -508,7 +510,7 @@ public class CRLVerify{
     }
 
     return result;
-  }*/
+  }
 
   /**
    * Verifica che il certificato sia stato firmato con la chiave privata corrispondente alla chiave pubblica
@@ -518,7 +520,7 @@ public class CRLVerify{
    * @return {@code true} se il certificato � stato firmato con la chiave privata corrispondente alla chiave pubblica;
    *         {@code false} altrimenti
    * */
-  /*private boolean isSelfSigned(X509Certificate cert){
+  private boolean isSelfSigned(X509Certificate cert){
 
     try{
       // tento di verificare il certificato con la sua chiave pubblica
@@ -543,6 +545,6 @@ public class CRLVerify{
       System.err.println("CRLVerify.isSelfSigned() " + "chiave pubblica invalida!");
       return false;
     }
-  }*/
+  }
 
 }
