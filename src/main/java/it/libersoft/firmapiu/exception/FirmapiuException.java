@@ -246,6 +246,11 @@ public final class FirmapiuException extends Exception {
 	public static final int CERT_KEYSTOSTORE_FORBIDDEN=803;
 	
 	/**
+	 * Errore nel caso in cui il certificato non è valido alla data corrente. (O perché è scaduto o perché non è ancora valido)
+	 * */
+	public static final int CERT_INVALID_CURRENTDATE=804;
+	
+	/**
 	 * Errore di default in caso di un errore generico su un keystore
 	 * */
 	public static final int CERT_KEYSTORE_DEFAULT_ERROR=888;
