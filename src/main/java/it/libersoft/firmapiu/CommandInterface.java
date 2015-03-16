@@ -43,5 +43,5 @@ public interface CommandInterface {
 	 * @return Il contenuto originale dei dati firmati
 	 * @throws FirmapiuException In caso di errore applicativo
 	 */
-	public Data<?> getContentSignedData(Data<?> signedData, Argument<?,?> option) throws FirmapiuException;
+	public Map<?,?> getContentSignedData(Data<?> signedData, Argument<?,?> option) throws FirmapiuException;
 }

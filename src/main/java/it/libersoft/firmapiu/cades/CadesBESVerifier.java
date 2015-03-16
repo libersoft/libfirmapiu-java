@@ -31,7 +31,10 @@ import java.security.cert.PKIXCertPathBuilderResult;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
+import java.text.ParseException;
 import java.util.Collection;
+import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -41,8 +44,11 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.ASN1UTCTime;
+import org.bouncycastle.asn1.DERUTCTime;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
+import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.ess.ESSCertIDv2;
 import org.bouncycastle.asn1.ess.SigningCertificateV2;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -318,43 +324,93 @@ final class CadesBESVerifier {
 		}
 		
 		//verifica che il certificato relativo il firmatario non sia stato revocato
-//		if(fields.contains(SIGNERCERTSTATUS)){
-//			//controllo lo status del certificato utente con OSCP. Se il controllo fallisce o lo status del certificato è "UNKNOWN"
-//			//esegue il controllo con le CRL  
-//			X509Certificate userCertificate=null;
-//			try {
-//				userCertificate = new JcaX509CertificateConverter().getCertificate(cert);
-//			} catch (CertificateException e1) {
-//				record.put(SIGNERCERTSTATUS, e1);
+		Object certStatus=null;
+		Date rvkdCertTime=null;
+		if(fields.contains(SIGNERCERTSTATUS)){
+			//controllo lo status del certificato utente con OSCP. Se il controllo fallisce o lo status del certificato è "UNKNOWN"
+			//esegue il controllo con le CRL  
+			X509Certificate userCertificate=null;
+			try {
+				userCertificate = new JcaX509CertificateConverter().getCertificate(cert);
+			} catch (CertificateException e1) {
+				record.put(SIGNERCERTSTATUS, e1);
+			}
+			//se non è in grado di determinare lo user certificate di cui controllare lo status non deve proseguire oltre
+			if (userCertificate!=null) {
+				try {
+					if (signerCerthPathResult == null)
+						signerCerthPathResult = isTrustedSigner(signer);
+					//TODO nota: non è detto che il trustanchor sia anche l'issuercertificate. Bisogna fare un controllo mogliore
+					X509Certificate issuerCertificate = signerCerthPathResult
+							.getTrustAnchor().getTrustedCert();
+					certStatus = getCertificateStatus(userCertificate, issuerCertificate);
+					//se certstatus è null il certificato è valido
+					if(certStatus==null)
+						record.put(SIGNERCERTSTATUS, CertStatus.GOOD);
+					else{
+						//se certStatus è una risposta ocsp
+						if (certStatus instanceof CertificateStatus){
+							CertificateStatus c1 =(CertificateStatus)certStatus;
+							if (c1 == CertificateStatus.GOOD) {
+								record.put(SIGNERCERTSTATUS, CertStatus.GOOD);
+							} else
+							// certificato revocato
+							if (c1 instanceof RevokedStatus) {
+								rvkdCertTime = ((RevokedStatus) c1).getRevocationTime();
+								record.put(SIGNERCERTSTATUS, CertStatus.REVOKED);
+							}	
+						}
+						//se il certStatus è una risposta CRL
+						else if (certStatus instanceof X509CRLEntry){
+							rvkdCertTime = ((X509CRLEntry) certStatus).getRevocationDate();
+							record.put(SIGNERCERTSTATUS, CertStatus.REVOKED);
+						}
+					}//fine else
+				} catch (FirmapiuException e) {
+					record.put(SIGNERCERTSTATUS, e);
+				}
+			}//fine if (userCertificate!=null)
+		}//fine if(fields.contains(SIGNERCERTSTATUS))
+		
+		//verifica che il certificato relativo il firmatario non era revocato al momento in cui i dati sono stati firmati
+		Date signingTime=null;
+		if(fields.contains(SIGNERCERTREVOKED)){
+			//recupera il signing time del firmatario
+			try {
+				signingTime = getSigningTime(signer);
+			} catch (FirmapiuException e) {
+				record.put(SIGNERCERTREVOKED, e);
+			}
+			
+			//se esiste già un certstatus usa quello se no lo crea 
+//			if (certStatus!=null && signingTime!=null)
+//			{
+//				if(certStatus instanceof RevokedStatus){
+//					RevokedStatus rvkdCert=(RevokedStatus)certStatus;
+//					Date rvkdCertTime = rvkdCert.getRevocationTime();
+//					//il certificato è revocato se il signing time è >= della data di revoca
+//					if(signingTime.compareTo(rvkdCertTime)>=0)
+//						record.put(SIGNERCERTREVOKED, new Boolean(true));
+//					else
+//						record.put(SIGNERCERTREVOKED, new Boolean(false));
+//				}
 //			}
-//			//se non è in grado di determinare lo user certificate di cui controllare lo status non deve proseguire oltre
-//			if (userCertificate!=null) {
-//				if (signerCerthPathResult == null)
-//					signerCerthPathResult = isTrustedSigner(signer);
-//				//TODO nota: non è detto che il trustanchor sia anche l'issuercertificate. Bisogna fare un controllo mogliore
-//				X509Certificate issuerCertificate = signerCerthPathResult
-//						.getTrustAnchor().getTrustedCert();
-//				Object certStatus = getCertificateStatus(userCertificate, issuerCertificate);
-//				//se certstatus è null il certificato è valido
-//				if(certStatus==null)
-//					record.put(SIGNERCERTSTATUS, CertStatus.GOOD);
-//				else{
-//					//se certStatus è una risposta ocsp
-//					if (certStatus instanceof CertificateStatus){
-//						CertificateStatus c1 =(CertificateStatus)certStatus;
-//						if (c1 == CertificateStatus.GOOD) {
-//							record.put(SIGNERCERTSTATUS, CertStatus.GOOD);
-//						} else
-//						// certificato revocato
-//						if (c1 instanceof RevokedStatus) {
-//							record.put(SIGNERCERTSTATUS, CertStatus.REVOKED);}
-//					}else if (certStatus instanceof X509CRLEntry){
-//						
-//					}
-//				}//fine else
-//			}//fine if (userCertificate!=null)
-//		}//fine if(fields.contains(SIGNERCERTSTATUS))
-//		
+			X509Certificate userCertificate=null;
+			try {
+				userCertificate = new JcaX509CertificateConverter().getCertificate(cert);
+			} catch (CertificateException e1) {
+				record.put(SIGNERCERTREVOKED, e1);
+			}
+			
+			//se non è in grado di determinare lo user certificate o il signing time di cui controllare lo status non deve proseguire oltre
+			if (userCertificate!=null && signingTime !=null ){
+				//TODO controllo rvktime
+			}//fine if (userCertificate!=null)
+		}
+		
+		//ritorna il record generato al chiamante
+		return record;
+		
 		//OCSPVerify ocspVerifier=null;
 //		if(fields.contains(SIGNERCERTSTATUS)){
 //			//controllo lo status del certificato utente con OSCP. Se il controllo fallisce o lo status del certificato è "UNKNOWN"
@@ -419,23 +475,6 @@ final class CadesBESVerifier {
 //				}//fine try-catch	
 //			}//fine if (userCertificate!=null)
 //		}//fine if(fields.contains(SIGNERCERTSTATUS)) 
-		
-		//verifica che il certificato relativo il firmatario non era revocato al momento in cui i dati sono stati firmati
-		if(fields.contains(SIGNERCERTREVOKED)){
-			X509Certificate userCertificate=null;
-			try {
-				userCertificate = new JcaX509CertificateConverter().getCertificate(cert);
-			} catch (CertificateException e1) {
-				record.put(SIGNERCERTREVOKED, e1);
-			}
-			//se non è in grado di determinare lo user certificate di cui controllare lo status non deve proseguire oltre
-			if (userCertificate!=null){
-				
-			}//fine if (userCertificate!=null)
-		}
-		
-		//ritorna il record generato al chiamante
-		return record;
 	}
 
 	/**
@@ -600,5 +639,34 @@ final class CadesBESVerifier {
 		}//fine try-catch
 	}
 	
-	
+	//recupera il signing time di un firmatario
+	private Date getSigningTime(SignerInformation signer) throws FirmapiuException{
+		AttributeTable signedAttr = signer.getSignedAttributes();
+		Attribute signingTimeAttr = signedAttr.get(CMSAttributes.signingTime);
+		if (signingTimeAttr != null) {
+			Enumeration<?> en = signingTimeAttr.getAttrValues().getObjects();
+			
+			Date signingTime=null;
+			
+			Object obj = en.nextElement();
+			try {
+				if (obj instanceof ASN1UTCTime) {
+					ASN1UTCTime asn1Time = (ASN1UTCTime) obj;
+					signingTime=asn1Time.getDate();
+				} else if (obj instanceof DERUTCTime) {
+					DERUTCTime derTime = (DERUTCTime) obj;
+					signingTime=derTime.getDate();
+				}
+				return signingTime;
+			} catch (ParseException e) {
+				//TODO eccezioni ammodo
+				throw new FirmapiuException();	
+			}
+
+		} else {
+			//non ha trovato il signing time come attributo
+			//TODO eccezioni ammodo
+			throw new FirmapiuException();	
+		} 
+	}
 }

@@ -18,6 +18,7 @@ import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -85,60 +86,21 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 	@Override
 	public Map<String, ?> sign(Data<?> data, Argument<?, ?> option) throws IllegalArgumentException,FirmapiuException{
 		//controllo di coerenza iniziale sugli argomenti
-		DataFilePath dataFilePath;
-		if( data==null || !(data instanceof DataFilePath))
-			throw new IllegalArgumentException(RB.getString("factoryerror4")
-					+ " : " + data.getClass().getCanonicalName());
-		else 
-			dataFilePath=(DataFilePath)data;
-		GenericArgument commandArgs;
-		if( option==null || !(option instanceof GenericArgument))
-			throw new IllegalArgumentException(RB.getString("factoryerror4")
-					+ " : " + option.getClass().getCanonicalName());
-		else 
-			commandArgs=(GenericArgument)option;
-
+		DataFilePath dataFilePath = checkData(data);
+		GenericArgument commandArgs = checkArgument(option);
+	
 		//controlla gli argomenti
 		//TODO bisogna documentare con attenzione tutti gli argomenti che il comando può accettare se l'arg è obbligatorio e che valore può accettare
 
 		//directory di output
 		//recupera la directory di output. presso cui salvare i p7m, se non esiste la crea
 		//Default: se l'argomento non è presente il p7m viene salvato nella stessa dir del file da firmare
-		//DefauLt: se la directory non esiste e non è presente l'opzione CREATESIGNOUTDIR 
+		//DefauLt: se la directory non esiste e non è presente l'opzione CREATEOUTDIR 
 		//O L'OPZIONE È FALSE NON CREA LA DIRECTORY e lancia un eccezione 
 		File outDir=null;
-		if(commandArgs.isArgument(SIGNOUTDIR)){
-			//controlla che il percorso della directory sia assoluto altrimenti lancia un errore
-			String outDirPath=(String)commandArgs.getArgument(SIGNOUTDIR);
-			outDir=new File(outDirPath);
-			if(!outDir.isAbsolute()){
-				String msg=FirmapiuException.getDefaultErrorCodeMessage(IS_NOT_ABS_PATH);
-				msg+=" : "+outDirPath;
-				throw new FirmapiuException(IS_NOT_ABS_PATH,msg);
-			}
-			//se la directory non esiste controlla CREATESIGNOUTDIR se l'opzione non esiste o è false non la crea e lancia un eccezione
-			if(!outDir.exists())
-			{
-				if(commandArgs.isArgument(CREATESIGNOUTDIR) && (Boolean)commandArgs.getArgument(CREATESIGNOUTDIR))
-					try {
-						outDir.mkdir();
-					} catch (SecurityException e) {
-						String msg=FirmapiuException.getDefaultErrorCodeMessage(DIR_FORBIDDEN);
-						msg+=" : "+outDirPath;
-						throw new FirmapiuException(DIR_FORBIDDEN, msg, e);
-					}
-				else
-				{
-					String msgError=FirmapiuException.getDefaultErrorCodeMessage(DIR_FORBIDDEN)+" : "+outDirPath;
-					throw new FirmapiuException(DIR_FORBIDDEN,msgError);
-				}
-			}
-			//altrimenti se è un file lancia un eccezione
-			else if(outDir.isFile()){
-				String msgError=FirmapiuException.getDefaultErrorCodeMessage(IS_NOT_DIR)+" : "+outDirPath;
-				throw new FirmapiuException(IS_NOT_DIR,msgError);
-			}
-		}//fine if controllo argomento SIGNOUTDIR
+		if(commandArgs.isArgument(OUTDIR)){
+			outDir=getOutDir(commandArgs);
+		}//fine if controllo argomento OUTDIR
 
 		//pin
 		//recupera il pin del token utilizzato
@@ -225,14 +187,153 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 		return null;
 	}
 
+	/** 
+	 * Restituisce il contenuto originale di una serie di File passati come parametri
+	 * 
+	 * @param signedDataPath Il percorso dei file firmati nel formato p7m di cui si vuole recuperare il contenuto originale del file
+	 * @param option Argomenti opzionali generici passati al comando
+	 * @return Una map contenente l'esito dell'operazione di getContentSignedData per ogni file passato come parametro
+	 * 
+	 * @see it.libersoft.firmapiu.CommandInterface#getContentSignedData(it.libersoft.firmapiu.Data, it.libersoft.firmapiu.Argument)
+	 */
 	@Override
-	public Data<?> getContentSignedData(Data<?> signedData,
+	public Map<String, ?> getContentSignedData(Data<?> signedDataPath,
 			Argument<?, ?> option) throws FirmapiuException {
-		// TODO Auto-generated method stub
-		return null;
-	}	
+		//controllo di coerenza iniziale sugli argomenti
+		DataFilePath signedDataFilePath = checkData(signedDataPath);
+		GenericArgument commandArgs = checkArgument(option);
+
+		//directory di output
+		//recupera la directory di output. presso cui salvare il contenuto originale dei file contenuti nel p7m. Se non esiste la crea
+		//Default: se l'argomento non è presente il contenuto originale del file viene salvato nella stessa dir del file da verificare
+		//DefauLt: se la directory non esiste e non è presente l'opzione CREATEOUTDIR 
+		//O L'OPZIONE È FALSE NON CREA LA DIRECTORY e lancia un eccezione 
+		File outDir=null;
+		if(commandArgs.isArgument(OUTDIR)){
+			outDir=getOutDir(commandArgs);
+		}//fine if controllo argomento OUTDIR
+
+		//prepara Map<String,Object> con i risultati delle operazioni effettuate sui file passati come parametro.
+		Map<String,Object> result = new TreeMap<String,Object>();
+		//recupera il dataset contenente i percorsi dei file da firmare
+		Set<String> dataFilePathSet=signedDataFilePath.getDataSet();
+		
+		Iterator<String> dataPathItr=dataFilePathSet.iterator();
+		//per ogni file presente in signedDataFilePath controlla che sia un p7m che sia nel formato valido (attacched)
+		//restituisce il contenuto originale del file
+		while(dataPathItr.hasNext()){
+			File dataFileIn=new File(dataPathItr.next());
+			try {
+				//controlla che il file termini con .p7m altrimenti lancia un errore
+				String fileOutName=dataFileIn.getName();
+				if(!fileOutName.endsWith(".p7m"))
+					throw new FirmapiuException(CONTENT_CADESBES_NOTP7MFILE);
+				
+				//controlla che il file esista altrimenti lancia un errore
+				if (!dataFileIn.exists())
+					throw new FileNotFoundException(dataFileIn.getAbsolutePath()+" "+RB1.getString("filerror0"));
+				
+				//crea la busta crittografica CMSSignedData. Se non è attacched lancia un errore
+				FileInputStream in = new FileInputStream(dataFileIn);
+				byte[] b=new byte[in.available()];
+				in.read(b);
+				CMSSignedData signedData;
+				try {
+					signedData = new CMSSignedData(b);
+				} catch (CMSException e) {
+					throw new FirmapiuException(CONTENT_CADESBES_FORMATERROR_ATTACHED, e);
+				}
+				
+				//recupera il contenuto originale del file p7m
+				File dataFileOut;
+				fileOutName=fileOutName.substring(0, fileOutName.length()-4);
+				if(outDir==null)
+					dataFileOut = new File(dataFileIn.getParent()+"/"+fileOutName);
+				else
+					dataFileOut = new File(outDir.getAbsolutePath()+"/"+fileOutName);
+				FileOutputStream fileOutStream=new FileOutputStream(dataFileOut);
+				try {
+					signedData.getSignedContent().write(fileOutStream);
+				} catch (CMSException e) {
+					throw new FirmapiuException(CONTENT_CADESBES_DEFAULT_ERROR, e);
+				}
+				fileOutStream.flush();
+				fileOutStream.close();
+				
+				//se l'operazione è andata bene, genera il percorso del file risultante del file passato come parametro
+				result.put(dataFileIn.getAbsolutePath(),dataFileOut.getAbsolutePath());
+			} catch (FileNotFoundException e) {
+				String msg= FirmapiuException.getDefaultErrorCodeMessage(FILE_NOTFOUND);
+				msg+=" : "+dataFileIn.getAbsolutePath();
+				FirmapiuException fe1 =new FirmapiuException(FILE_NOTFOUND, msg, e);
+				result.put(dataFileIn.getAbsolutePath(), fe1);
+			} catch (IOException e) {
+				FirmapiuException fe1 =new FirmapiuException(IO_DEFAULT_ERROR, e);
+				result.put(dataFileIn.getAbsolutePath(), fe1);
+			}catch (FirmapiuException e) {
+				result.put(dataFileIn.getAbsolutePath(), e);
+			}//fine try-catch
+		}//fine while
+		return result;
+	}//fine metodo	
 	
 	//PROCEDURE PRIVATE
+	//controllo coerenza data
+	private static DataFilePath checkData(Data<?> data){
+		DataFilePath dataFilePath;
+		if( data==null || !(data instanceof DataFilePath))
+			throw new IllegalArgumentException(RB.getString("factoryerror4")
+					+ " : " + data.getClass().getCanonicalName());
+		else 
+			dataFilePath=(DataFilePath)data;
+		return dataFilePath;
+	}
+	//controllo coerenza argomenti
+	private static GenericArgument checkArgument(Argument<?, ?> option){
+		GenericArgument commandArgs;
+		if( option==null || !(option instanceof GenericArgument))
+			throw new IllegalArgumentException(RB.getString("factoryerror4")
+					+ " : " + option.getClass().getCanonicalName());
+		else 
+			commandArgs=(GenericArgument)option;
+		return commandArgs;
+	}
+			
+	//genera directory di output
+	private static File getOutDir(GenericArgument commandArgs) throws FirmapiuException{
+		//controlla che il percorso della directory sia assoluto altrimenti lancia un errore
+		String outDirPath=(String)commandArgs.getArgument(OUTDIR);
+		File outDir=new File(outDirPath);
+		if(!outDir.isAbsolute()){
+			String msg=FirmapiuException.getDefaultErrorCodeMessage(IS_NOT_ABS_PATH);
+			msg+=" : "+outDirPath;
+			throw new FirmapiuException(IS_NOT_ABS_PATH,msg);
+		}
+		//se la directory non esiste controlla CREATEOUTDIR se l'opzione non esiste o è false non la crea e lancia un eccezione
+		if(!outDir.exists())
+		{
+			if(commandArgs.isArgument(CREATEOUTDIR) && (Boolean)commandArgs.getArgument(CREATEOUTDIR))
+				try {
+					outDir.mkdir();
+				} catch (SecurityException e) {
+					String msg=FirmapiuException.getDefaultErrorCodeMessage(DIR_FORBIDDEN);
+					msg+=" : "+outDirPath;
+					throw new FirmapiuException(DIR_FORBIDDEN, msg, e);
+				}
+			else
+			{
+				String msgError=FirmapiuException.getDefaultErrorCodeMessage(DIR_FORBIDDEN)+" : "+outDirPath;
+				throw new FirmapiuException(DIR_FORBIDDEN,msgError);
+			}
+		}
+		//altrimenti se è un file lancia un eccezione
+		else if(outDir.isFile()){
+			String msgError=FirmapiuException.getDefaultErrorCodeMessage(IS_NOT_DIR)+" : "+outDirPath;
+			throw new FirmapiuException(IS_NOT_DIR,msgError);
+		}
+		return outDir;
+	}
+	
 	//procedura privata per trovare il percorso canonico di un file da un path generico
 	/*private static File fileFromPath(String filepath){
 		if(filepath.startsWith("~"))

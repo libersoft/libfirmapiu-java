@@ -93,41 +93,57 @@ public final class FirmapiuException extends Exception {
 	 * */
 	public static final int VERIFY_DEFAULT_ERROR=299;
 
-	//Errori sulle operazioni di gestione del token crittografico (300-399)
+	//Errori sull'operazione di recupero del contenuto originale di dati imbustati nella busta crittografica CADES-bes
+	/**
+	 * Errore di formato se i dati non sono formattati secondo la busta crittografica CADES-bes di tipo "attached"
+	 * */
+	public static final int CONTENT_CADESBES_FORMATERROR_ATTACHED=300;
+	/**
+	 * Errore di formato se il file contenente i dati non ha l'estensione .p7m
+	 * */
+	public static final int CONTENT_CADESBES_NOTP7MFILE=301;
+
+	/**
+	 * Errore di default sull'operazione di recupero del contenuto originale di dati imbustati nella busta crittografica CADES-bes
+	 * */
+	public static final int CONTENT_CADESBES_DEFAULT_ERROR=399;
+	
+	
+	//Errori sulle operazioni di gestione del token crittografico (600-699)
 	/**
 	 * Errore se il lettore per smartcard o un altro strumento utilizzato per accedere al token crittografico non è stato trovato
 	 * */
-	public static final int CRT_TOKENTERMINAL_NOTFOUND=300;
+	public static final int CRT_TOKENTERMINAL_NOTFOUND=600;
 	
 	/**
 	 * Errore se la smartcart o il token crittografico richiesto non è presente
 	 * */
-	public static final int CRT_TOKEN_NOTFOUND=301;
+	public static final int CRT_TOKEN_NOTFOUND=601;
 	
 	/**
 	 * Errore se l'accesso alla smartcard o al token crittografico richiesto non è permesso
 	 * */
-	public static final int CRT_TOKEN_FORBIDDEN=302;
+	public static final int CRT_TOKEN_FORBIDDEN=602;
 
 	/**
 	 * Errore se il pin del token crittografico utilizzato non è presente/è stato omesso
 	 * */
-	public static final int CRT_TOKENPIN_ERROR=303;
+	public static final int CRT_TOKENPIN_ERROR=603;
 	
 	/**
 	 * Errore se non è stato trovato il file di configurazione contente i driver per accedere al token crittografico utilizzato
 	 * */
-	public static final int CRT_TOKEN_CONFIGFILE_NOTFOUND=397;
+	public static final int CRT_TOKEN_CONFIGFILE_NOTFOUND=697;
 	
 	/**
 	 * Errore se non è stato trovato il driver/libreria del token crittografico utlizzato
 	 * */
-	public static final int CRT_TOKEN_LIB_NOTFOUND=398;
+	public static final int CRT_TOKEN_LIB_NOTFOUND=698;
 	
 	/**
 	 * Errore di default in caso di un errore generico riguardante un token crittografico
 	 * */
-	public static final int CRT_TOKEN_DEFAULT_ERROR=399;
+	public static final int CRT_TOKEN_DEFAULT_ERROR=699;
 	
 	//ERRORI GENERICI DI LIBRERIA
 

@@ -28,8 +28,8 @@ public final class ArgumentConsts {
 	 * cui salvare l'esito dell'operazione
 	 * */
 	//FIXME versione debug, da cambiare
-	public static final String SIGNOUTDIR = "outdir";
-	//public static final String SIGNOUTDIR = "signoutdir";
+	public static final String OUTDIR = "outdir";
+	//public static final String OUTDIR = "signoutdir";
 	
 	/**
 	 * Chiave: se l'opzione è presente, la directory in cui salvare l'esito del risultato dell'operazione di
@@ -37,5 +37,5 @@ public final class ArgumentConsts {
 	 * Valore associato all'argomento: Boolean - se la directory deve essere creata o no
 	 * cui salvare l'esito dell'operazione
 	 * */
-	public static final String CREATESIGNOUTDIR ="createsignoutdir";
+	public static final String CREATEOUTDIR ="createoutdir";
 }
