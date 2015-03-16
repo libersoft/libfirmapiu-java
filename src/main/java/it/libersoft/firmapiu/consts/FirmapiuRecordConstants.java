@@ -43,23 +43,24 @@ public final class FirmapiuRecordConstants {
 	public static final String TRUSTEDSIGNER = "trustedsigner";
 
 	/**
-	 * <b>Chiave:</b> Indica se il certificato del firmatario è stato evocato o
-	 * sospeso <br>
-	 * <b>Valore associato: Boolean/FirmapiuException -</b> TRUE Se il
-	 * certificato NON è stato revocato<br>
+	 * <b>Chiave:</b> Indica lo stato del certificato del firmatario (se è stato revocato o
+	 * sospeso ecc...)<br>
+	 * TODO cambiare il valore associato in maniera adeguata
+	 * <b>Valore associato: String/FirmapiuException -</b> String con lo stato del certificato<br>
 	 * eccezione se è stato riscontrato un errore di carattere applicativo
+	 * @see it.libersoft.firmapiu.consts.FirmapiuRecordConstants.CertStatus
 	 * */
-	public static final String SIGNERISnotREVOKED = "signernotrvkd";
+	public static final String SIGNERCERTSTATUS = "signercertstatus";
 
 	/**
 	 * <b>Chiave:</b> Indica se il certificato del firmatario era revocato o
 	 * sospeso al momento in cui i dati sono stati firmati<br>
 	 * <b>Valore associato: Boolean/FirmapiuException -</b> TRUE Se il
-	 * certificato NON era revocato o sospeso al momento in cui i dati sono
+	 * certificato era revocato o sospeso al momento in cui i dati sono
 	 * stati firmati<br>
 	 * eccezione se è stato riscontrato un errore di carattere applicativo
 	 * */
-	public static final String SIGNERISnotREVOKEDatSIGNINGTIME = "signernotrvkdatsigningtime";
+	public static final String SIGNERCERTREVOKED = "signercertrevoked";
 
 	// chiavi e valori di utilità
 
@@ -95,5 +96,24 @@ public final class FirmapiuRecordConstants {
 	// * Valore associato alla chiave : ??
 	// * */
 	// public static final String CONTENTDATA="contentdata";
-
+	
+	//TODO commenti ammodo!!
+	//INNER CLASS contenente le risposte degli status dei certificati se sono revocati o meno
+	public static class CertStatus{
+		
+		/**
+		 * Il certificato non è stato revocato
+		 * */
+		public static final String GOOD="GOOD";
+		
+		/**
+		 * Il certificato è stato revocato
+		 * */
+		public static final String REVOKED="REVOKED";
+		
+		/**
+		 * Lo stato del certificato è sconosciuto (probabilmente perchè è stato interrogato il server sbagliato)
+		 * */
+		public static final String UNKNOWN="UNKNOWN";
+	}
 }

@@ -28,6 +28,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CollectionCertStoreParameters;
 import java.security.cert.PKIXBuilderParameters;
 import java.security.cert.PKIXCertPathBuilderResult;
+import java.security.cert.X509CRLEntry;
 import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
@@ -47,6 +48,9 @@ import org.bouncycastle.asn1.ess.SigningCertificateV2;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.ocsp.CertificateStatus;
+import org.bouncycastle.cert.ocsp.RevokedStatus;
+import org.bouncycastle.cert.ocsp.UnknownStatus;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.SignerInformation;
@@ -314,13 +318,120 @@ final class CadesBESVerifier {
 		}
 		
 		//verifica che il certificato relativo il firmatario non sia stato revocato
-		if(fields.contains(SIGNERISnotREVOKED)){
-			
-		}
+//		if(fields.contains(SIGNERCERTSTATUS)){
+//			//controllo lo status del certificato utente con OSCP. Se il controllo fallisce o lo status del certificato è "UNKNOWN"
+//			//esegue il controllo con le CRL  
+//			X509Certificate userCertificate=null;
+//			try {
+//				userCertificate = new JcaX509CertificateConverter().getCertificate(cert);
+//			} catch (CertificateException e1) {
+//				record.put(SIGNERCERTSTATUS, e1);
+//			}
+//			//se non è in grado di determinare lo user certificate di cui controllare lo status non deve proseguire oltre
+//			if (userCertificate!=null) {
+//				if (signerCerthPathResult == null)
+//					signerCerthPathResult = isTrustedSigner(signer);
+//				//TODO nota: non è detto che il trustanchor sia anche l'issuercertificate. Bisogna fare un controllo mogliore
+//				X509Certificate issuerCertificate = signerCerthPathResult
+//						.getTrustAnchor().getTrustedCert();
+//				Object certStatus = getCertificateStatus(userCertificate, issuerCertificate);
+//				//se certstatus è null il certificato è valido
+//				if(certStatus==null)
+//					record.put(SIGNERCERTSTATUS, CertStatus.GOOD);
+//				else{
+//					//se certStatus è una risposta ocsp
+//					if (certStatus instanceof CertificateStatus){
+//						CertificateStatus c1 =(CertificateStatus)certStatus;
+//						if (c1 == CertificateStatus.GOOD) {
+//							record.put(SIGNERCERTSTATUS, CertStatus.GOOD);
+//						} else
+//						// certificato revocato
+//						if (c1 instanceof RevokedStatus) {
+//							record.put(SIGNERCERTSTATUS, CertStatus.REVOKED);}
+//					}else if (certStatus instanceof X509CRLEntry){
+//						
+//					}
+//				}//fine else
+//			}//fine if (userCertificate!=null)
+//		}//fine if(fields.contains(SIGNERCERTSTATUS))
+//		
+		//OCSPVerify ocspVerifier=null;
+//		if(fields.contains(SIGNERCERTSTATUS)){
+//			//controllo lo status del certificato utente con OSCP. Se il controllo fallisce o lo status del certificato è "UNKNOWN"
+//			//esegue il controllo con le CRL  
+//			X509Certificate userCertificate=null;
+//			try {
+//				userCertificate = new JcaX509CertificateConverter().getCertificate(cert);
+//			} catch (CertificateException e1) {
+//				record.put(SIGNERCERTSTATUS, e1);
+//			}
+//			//se non è in grado di determinare lo user certificate di cui controllare lo status non deve proseguire oltre
+//			if (userCertificate!=null) {
+//				try {
+//					if (signerCerthPathResult == null)
+//						signerCerthPathResult = isTrustedSigner(signer);
+//					//TODO nota: non è detto che il trustanchor sia anche l'issuercertificate. Bisogna fare un controllo mogliore
+//					X509Certificate issuerCertificate = signerCerthPathResult
+//							.getTrustAnchor().getTrustedCert();
+//					ocspVerifier = new OCSPVerify(issuerCertificate,
+//							userCertificate, this.bcProvName);
+//					CertificateStatus certStatus = ocspVerifier
+//							.getStatusCertificate();
+//					// certificato valido
+//					if (certStatus == CertificateStatus.GOOD) {
+//						record.put(SIGNERCERTSTATUS, CertStatus.GOOD);
+//					} else
+//					// certificato revocato
+//					if (certStatus instanceof RevokedStatus) {
+//						record.put(SIGNERCERTSTATUS, CertStatus.REVOKED);
+//					} else
+//					// stato del certificato sconosciuto
+//					if (certStatus instanceof UnknownStatus) {
+//						//			System.out.println("certificato sconosciuto!");
+//						//			System.err.println("OCSPVerify.getStatusResponse() "
+//						//					+ "UnknowStatus");
+//						//return CertStatus.UNKNOWN;
+//						//se lo stato del certificato è sconosciuto controlla anche le crl
+//						CRLVerify crlVerifier = new CRLVerify(userCertificate);
+//						try {
+//							//TODO bisognerebbe controllare la firma delle risposte ricevute
+//							if (crlVerifier.verifyCertificateCRLs())
+//								record.put(SIGNERCERTSTATUS, CertStatus.GOOD);
+//							else
+//								record.put(SIGNERCERTSTATUS, CertStatus.REVOKED);
+//						} catch (FirmapiuException e) {
+//							record.put(SIGNERCERTSTATUS, e);
+//						}
+//					}//fine if (certStatus instanceof UnknownStatus)
+//				} catch (FirmapiuException e) {
+//					//se il controllo tramite ocsp è fallito a causa di un errore, controlla anche le CRL
+//					CRLVerify crlVerifier = new CRLVerify(userCertificate);
+//					try {
+//						//TODO bisognerebbe controllare la firma delle risposte ricevute
+//						if (crlVerifier.verifyCertificateCRLs())
+//							record.put(SIGNERCERTSTATUS, CertStatus.GOOD);
+//						else
+//							record.put(SIGNERCERTSTATUS, CertStatus.REVOKED);
+//					} catch (FirmapiuException e1) {
+//						//TODO quale eccezione restituire? quella di OCSP o Quella di CRL?
+//						record.put(SIGNERCERTSTATUS, e1);
+//					}
+//				}//fine try-catch	
+//			}//fine if (userCertificate!=null)
+//		}//fine if(fields.contains(SIGNERCERTSTATUS)) 
 		
 		//verifica che il certificato relativo il firmatario non era revocato al momento in cui i dati sono stati firmati
-		if(fields.contains(SIGNERISnotREVOKEDatSIGNINGTIME)){
-			
+		if(fields.contains(SIGNERCERTREVOKED)){
+			X509Certificate userCertificate=null;
+			try {
+				userCertificate = new JcaX509CertificateConverter().getCertificate(cert);
+			} catch (CertificateException e1) {
+				record.put(SIGNERCERTREVOKED, e1);
+			}
+			//se non è in grado di determinare lo user certificate di cui controllare lo status non deve proseguire oltre
+			if (userCertificate!=null){
+				
+			}//fine if (userCertificate!=null)
 		}
 		
 		//ritorna il record generato al chiamante
@@ -353,8 +464,8 @@ final class CadesBESVerifier {
 		allFields.add(OKSIGNED);
 		allFields.add(LEGALLYSIGNED);
 		allFields.add(TRUSTEDSIGNER);
-		allFields.add(SIGNERISnotREVOKED);
-		allFields.add(SIGNERISnotREVOKEDatSIGNINGTIME);
+		allFields.add(SIGNERCERTSTATUS);
+		allFields.add(SIGNERCERTREVOKED);
 		allFields.add(SIGNERINFO);
 		allFields.add(CERTCHAIN);
 		allFields.add(TRUSTANCHOR);
@@ -441,7 +552,7 @@ final class CadesBESVerifier {
 		} catch (KeyStoreException | InvalidAlgorithmParameterException e) {
 			throw new FirmapiuException(CERT_KEYSTORE_DEFAULT_ERROR, e);
 		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-			throw new FirmapiuException(DEFAULT_ERROR);
+			throw new FirmapiuException(DEFAULT_ERROR,e);
 		}
 		/* 
 		 * If build() returns successfully, the certificate is valid. More details 
@@ -453,7 +564,41 @@ final class CadesBESVerifier {
 		} catch (CertPathBuilderException e) {
 			throw new FirmapiuException(VERIFY_SIGNER_CERTPATH_ERROR, e);
 		} catch (InvalidAlgorithmParameterException e) {
-			throw new FirmapiuException(DEFAULT_ERROR);
+			throw new FirmapiuException(DEFAULT_ERROR,e);
 		}
+	}//fine metodo
+	
+	
+	//restituisce un oggetto contenente lo status di revoca di un certificato
+	private Object getCertificateStatus(X509Certificate userCertificate, X509Certificate issuerCertificate) throws FirmapiuException{
+		try {
+			//TODO nota: non è detto che il trustanchor sia anche l'issuercertificate. Bisogna fare un controllo mogliore
+			
+			OCSPVerify ocspVerifier = new OCSPVerify(issuerCertificate,
+					userCertificate, this.bcProvName);
+			CertificateStatus certStatus = ocspVerifier
+					.getStatusCertificate();
+			// certificato valido
+			if (certStatus == CertificateStatus.GOOD || certStatus instanceof RevokedStatus) {
+				return certStatus; 
+			} else
+			// stato del certificato sconosciuto
+			if (certStatus instanceof UnknownStatus) {
+				//			System.out.println("certificato sconosciuto!");
+				//			System.err.println("OCSPVerify.getStatusResponse() "
+				//					+ "UnknowStatus");
+				//return CertStatus.UNKNOWN;
+				//se lo stato del certificato è sconosciuto controlla anche le crl
+				CRLVerify crlVerifier1 = new CRLVerify(userCertificate);
+				return crlVerifier1.getX509CRLEntry();
+			}//fine if (certStatus instanceof UnknownStatus)
+			return null;
+		} catch (FirmapiuException e) {
+			//se il controllo tramite ocsp è fallito a causa di un errore, controlla anche le CRL
+			CRLVerify crlVerifier = new CRLVerify(userCertificate);
+			return crlVerifier.getX509CRLEntry();
+		}//fine try-catch
 	}
+	
+	
 }

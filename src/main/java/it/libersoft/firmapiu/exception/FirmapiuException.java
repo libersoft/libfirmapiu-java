@@ -67,6 +67,24 @@ public final class FirmapiuException extends Exception {
 	public static final int VERIFY_SIGNER_CERTPATH_ERROR=206;
 	
 	/**
+	 * Errore http durante il tentativo di accedere tramite OCSP al server della CA che ha rilasciato il certificato del firmatario,
+	 * per controllare se il certificato è stato revocato
+	 * */
+	public static final int VERIFY_SIGNERCERT_OCSP_HTTPTERROR=295;
+
+	/**
+	 * Errore di default durante il tentativo di scaricare le liste CRL dal server della CA che ha rilasciato il certificato del firmatario,
+	 * per controllare se il certificato è stato revocato
+	 * */
+	public static final int VERIFY_SIGNERCERT_CRL_DEFAULTERROR=296;
+	
+	/**
+	 * Errore di default durante il tentativo di accedere tramite OCSP al server della CA che ha rilasciato il certificato del firmatario,
+	 * per controllare se il certificato è stato revocato
+	 * */
+	public static final int VERIFY_SIGNERCERT_OCSP_DEFAULTERROR=297;
+	
+	/**
 	 * Errore di default durante l'operazione della verifica della firma di un firmatario
 	 * */
 	public static final int VERIFY_SIGNER_DEFAULT_ERROR=298;

@@ -15,18 +15,19 @@ apply plugin: 'eclipse'
 repositories {
     // Use 'jcenter' for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
-    jcenter()
-    maven {
-        url "http://mvnrepository.com/artifact"
-    }
+    //jcenter()
+    //maven {
+    //    url "http://mvnrepository.com/artifact"
+    //}
+    flatDir{dirs '/usr/share/java'}
 }
 
 // In this section you declare the dependencies for your production and test code
 dependencies {
     // The production code uses the SLF4J logging API at compile time
     //compile 'org.slf4j:slf4j-api:1.7.7'
-	compile 'org.bouncycastle:bcprov-jdk15on:1.49'
-    compile 'org.bouncycastle:bcpkix-jdk15on:1.49'
+	compile 'org.bouncycastle:bcprov:1.49'
+    compile 'org.bouncycastle:bcpkix:1.49'
     compile 'org.jsoup:jsoup:1.7.3'
     
 
