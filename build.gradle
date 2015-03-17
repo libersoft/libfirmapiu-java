@@ -25,7 +25,7 @@ repositories {
 // In this section you declare the dependencies for your production and test code
 dependencies {
     // The production code uses the SLF4J logging API at compile time
-    //compile 'org.slf4j:slf4j-api:1.7.7'
+    //compile 'org.slf4j:slf4j-api:1.7.5'
 	compile 'org.bouncycastle:bcprov:1.49'
     compile 'org.bouncycastle:bcpkix:1.49'
     compile 'org.jsoup:jsoup:1.7.3'
@@ -35,11 +35,14 @@ dependencies {
     // TestNG is also supported by the Gradle Test task. Just change the
     // testCompile dependency to testCompile 'org.testng:testng:6.8.1' and add
     // 'test.useTestNG()' to your build script.
-    testCompile 'junit:junit:4.12'
+    testCompile 'junit:junit4:4.11'
+    testCompile 'org.slf4j:slf4j-api:1.7.5'
+    testCompile 'org.slf4j:slf4j-log4j12:1.7.5'
+    testCompile 'log4j:log4j-1.2:1.2.17'
     
 task simpleTestCards(type: Test) {		
-		println('Testa le funzionalità di accesso base alle carte Incard, Oberthur e Athena')
-		println("Salva i report in $buildDir/reports/simple-test-cards")
+		//println('Testa le funzionalità di accesso base alle carte Incard, Oberthur e Athena')
+		//println("Salva i report in $buildDir/reports/simple-test-cards")
 		
 		//include i test preliminari sulle carte
 	  	include '**/OberthurCardSimpleTest.class'
@@ -64,4 +67,17 @@ task simpleTestKeystore(type: Test) {
   		testLogging.showStandardStreams = true
   		
   		reports.html.destination = ("$buildDir/reports/tslxmlkeystoretoken-simpletest")
+}
+
+task simpleTestGetSignedContent(type: Test) {		
+		//println('Testa le funzionalità di accesso base alle carte Incard, Oberthur e Athena')
+		//println("Salva i report in $buildDir/reports/simple-test-cards")
+		
+		//include i test preliminari sul TSLXmlKeyStoreTokenSimpleTest
+	  	include '**/GetP7MContentDataSimpleTest.class'
+	  	
+	  	// show standard out and standard error of the test JVM(s) on the console
+  		testLogging.showStandardStreams = true
+  		
+  		reports.html.destination = ("$buildDir/reports/getsignedcontent-simpletest")
 }

@@ -123,11 +123,24 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 		CRToken token=null;
 		while(dataPathItr.hasNext()){
 			File dataFileIn=new File(dataPathItr.next());
+			FileOutputStream fileOutStream=null;
 			try {
+				//controlla che il file di input esiste
 				if (!dataFileIn.exists())
 					throw new FileNotFoundException(dataFileIn.getAbsolutePath()+" "+RB1.getString("filerror0"));
+				
+				//si prepara a creare il file di output: se sovrascrive un file esistente lancia un errore
+				File dataFileOut;
+				if(outDir==null)
+					dataFileOut = new File(dataFileIn.getAbsolutePath()+".p7m");
+				else
+					dataFileOut = new File(outDir.getAbsolutePath()+"/"+dataFileIn.getName()+".p7m");
+				if(dataFileOut.exists())
+					throw new IOException("Cannot override file! : "+dataFileOut.getAbsolutePath());
+
 				CMSTypedData cmsDataIn = new CMSProcessableFile(dataFileIn);
-				//se il file esiste inizializza una sessione, altrimenti usa quella che è già stata inizializzata
+				
+				//se non è già stata inizializzata, inizializza una sessione di login se il token usato per firmare è pkcs#11
 				if(signer==null){
 					//crea il token crittografico a seconda del tipo passato come parametro alla P7MFileCommandInterface
 					token=MasterFactoryBuilder.getFactory(this.signTokenType).getToken(CRTSMARTCARD);
@@ -136,16 +149,10 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 						((PKCS11Token)token).login(tokenpin);
 					signer = new CadesBESSigner(token);
 				}
-				CMSSignedData signedData=signer.sign(cmsDataIn);
-				File dataFileOut;
-				if(outDir==null)
-					dataFileOut = new File(dataFileIn.getAbsolutePath()+".p7m");
-				else
-					dataFileOut = new File(outDir.getAbsolutePath()+"/"+dataFileIn.getName()+".p7m");
-				FileOutputStream fileoutStream =new FileOutputStream(dataFileOut);
-				fileoutStream.write(signedData.getEncoded());
-				fileoutStream.flush();
-				fileoutStream.close();
+				CMSSignedData signedData=signer.sign(cmsDataIn);				
+				fileOutStream =new FileOutputStream(dataFileOut);
+				fileOutStream.write(signedData.getEncoded());
+				
 				//se l'operazione è andata bene, genera il percorso del .p7m risultante del file passato come parametro
 				result.put(dataFileIn.getAbsolutePath(),dataFileOut.getAbsolutePath());
 			} catch (FileNotFoundException e) {
@@ -154,7 +161,11 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 				FirmapiuException fe1 =new FirmapiuException(FILE_NOTFOUND, msg, e);
 				result.put(dataFileIn.getAbsolutePath(), fe1);
 			} catch (IOException e) {
-				FirmapiuException fe1 =new FirmapiuException(IO_DEFAULT_ERROR, e);
+				FirmapiuException fe1 = null;
+				if(e.getMessage().equals("Cannot override file!"))
+					fe1 =new FirmapiuException(FILE_OVERRIDE_ERROR, e);
+				else
+					fe1 =new FirmapiuException(IO_DEFAULT_ERROR, e);
 				result.put(dataFileIn.getAbsolutePath(), fe1);
 			} catch (CMSException e){
 				FirmapiuException fe1 =new FirmapiuException(SIGNER_CADESBES_ERROR, e);
@@ -165,7 +176,14 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 					((PKCS11Token)token).logout();
 				}
 				throw e;
-			}//fine try-catch
+			}finally{
+				try {
+					//cerca di chiudere le risorse utilizzate
+					fileOutStream.flush();
+					fileOutStream.close();
+				} catch (Exception e) {}
+			}//fine try-catch-finally
+			
 		}//fine while
 		//se il token è PKCS11token si slogga e rilancia l'eccezione firmapiuexception al chiamante
 		if((token!=null)&&(token instanceof PKCS11Token)){
@@ -223,6 +241,7 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 		//restituisce il contenuto originale del file
 		while(dataPathItr.hasNext()){
 			File dataFileIn=new File(dataPathItr.next());
+			FileOutputStream fileOutStream=null;
 			try {
 				//controlla che il file termini con .p7m altrimenti lancia un errore
 				String fileOutName=dataFileIn.getName();
@@ -241,7 +260,7 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 				try {
 					signedData = new CMSSignedData(b);
 				} catch (CMSException e) {
-					throw new FirmapiuException(CONTENT_CADESBES_FORMATERROR_ATTACHED, e);
+					throw new FirmapiuException(CONTENT_CADESBES_ENCODINGERROR_ATTACHED, e);
 				}
 				
 				//recupera il contenuto originale del file p7m
@@ -251,14 +270,15 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 					dataFileOut = new File(dataFileIn.getParent()+"/"+fileOutName);
 				else
 					dataFileOut = new File(outDir.getAbsolutePath()+"/"+fileOutName);
-				FileOutputStream fileOutStream=new FileOutputStream(dataFileOut);
+				//non si può sovrascrivere un file esistente
+				if(dataFileOut.exists())
+					throw new IOException("Cannot override file! : "+dataFileOut.getAbsolutePath());
+				fileOutStream=new FileOutputStream(dataFileOut);
 				try {
 					signedData.getSignedContent().write(fileOutStream);
 				} catch (CMSException e) {
 					throw new FirmapiuException(CONTENT_CADESBES_DEFAULT_ERROR, e);
 				}
-				fileOutStream.flush();
-				fileOutStream.close();
 				
 				//se l'operazione è andata bene, genera il percorso del file risultante del file passato come parametro
 				result.put(dataFileIn.getAbsolutePath(),dataFileOut.getAbsolutePath());
@@ -268,11 +288,24 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 				FirmapiuException fe1 =new FirmapiuException(FILE_NOTFOUND, msg, e);
 				result.put(dataFileIn.getAbsolutePath(), fe1);
 			} catch (IOException e) {
-				FirmapiuException fe1 =new FirmapiuException(IO_DEFAULT_ERROR, e);
+				FirmapiuException fe1 = null;
+				if(e.getMessage().equals("Cannot override file!"))
+					fe1 =new FirmapiuException(FILE_OVERRIDE_ERROR, e);
+				else
+					fe1 =new FirmapiuException(IO_DEFAULT_ERROR, e);
 				result.put(dataFileIn.getAbsolutePath(), fe1);
-			}catch (FirmapiuException e) {
+			} catch (SecurityException e){
+				FirmapiuException fe1 =new FirmapiuException(FILE_FORBIDDEN, e);
+				result.put(dataFileIn.getAbsolutePath(), fe1);
+			} catch (FirmapiuException e) {
 				result.put(dataFileIn.getAbsolutePath(), e);
-			}//fine try-catch
+			}finally{
+				try {
+					//cerca di chiudere le risorse utilizzate
+					fileOutStream.flush();
+					fileOutStream.close();
+				} catch (Exception e) {}
+			}//fine try-catch-finally
 		}//fine while
 		return result;
 	}//fine metodo	

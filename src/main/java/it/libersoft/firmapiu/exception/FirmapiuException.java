@@ -95,9 +95,9 @@ public final class FirmapiuException extends Exception {
 
 	//Errori sull'operazione di recupero del contenuto originale di dati imbustati nella busta crittografica CADES-bes
 	/**
-	 * Errore di formato se i dati non sono formattati secondo la busta crittografica CADES-bes di tipo "attached"
+	 * Errore di formato se i dati non sono codificati secondo la busta crittografica CADES-bes di tipo "attached"
 	 * */
-	public static final int CONTENT_CADESBES_FORMATERROR_ATTACHED=300;
+	public static final int CONTENT_CADESBES_ENCODINGERROR_ATTACHED=300;
 	/**
 	 * Errore di formato se il file contenente i dati non ha l'estensione .p7m
 	 * */
@@ -162,6 +162,11 @@ public final class FirmapiuException extends Exception {
 	 * Errore se si cerca di creare o accedere a un file ma l'operazione non è permessa.
 	 * */
 	public static final int FILE_FORBIDDEN=706;
+	
+	/**
+	 * Errore se si cerca di sovrascrivere un file esistente
+	 * */
+	public static final int FILE_OVERRIDE_ERROR=707;
 	
 	/**
 	 * Il percorso del file/directory cercato non è un percorso assoluto. Non è possibile interpretare correttamente il percorso
