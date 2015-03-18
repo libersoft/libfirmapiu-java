@@ -9,6 +9,7 @@ import it.libersoft.firmapiu.DataFilePath;
 import it.libersoft.firmapiu.Argument;
 import it.libersoft.firmapiu.GenericArgument;
 import it.libersoft.firmapiu.MasterFactoryBuilder;
+import it.libersoft.firmapiu.crtoken.KeyStoreToken;
 import it.libersoft.firmapiu.crtoken.PKCS11Token;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.ArgumentConsts.*;
@@ -24,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -92,15 +94,11 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 		//controlla gli argomenti
 		//TODO bisogna documentare con attenzione tutti gli argomenti che il comando può accettare se l'arg è obbligatorio e che valore può accettare
 
-		//directory di output
-		//recupera la directory di output. presso cui salvare i p7m, se non esiste la crea
-		//Default: se l'argomento non è presente il p7m viene salvato nella stessa dir del file da firmare
-		//DefauLt: se la directory non esiste e non è presente l'opzione CREATEOUTDIR 
-		//O L'OPZIONE È FALSE NON CREA LA DIRECTORY e lancia un eccezione 
+		//directory di output 
 		File outDir=null;
 		if(commandArgs.isArgument(OUTDIR)){
 			outDir=getOutDir(commandArgs);
-		}//fine if controllo argomento OUTDIR
+		}
 
 		//pin
 		//recupera il pin del token utilizzato
@@ -196,13 +194,65 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 	}
 	
 	
+	/** 
+	 * Restituisce l'esito dell'operazione di verifica della firma digitale per una serie di file passati come parametro
+	 * 
+	 * @param signedDataPath Il percorso dei file firmati nel formato p7m di cui si vuole verificare la correttezza della firma digitale
+	 * @param option Argomenti opzionali generici passati al comando
+	 * @return Una map contenente l'esito dell'operazione di verifica firma per ogni file passato come parametro
+	 * @throws FirmapiuException 
+	 * @throws IllegalArgumentException 
+	 * 
+	 * @see it.libersoft.firmapiu.CommandInterface#verify(it.libersoft.firmapiu.Data, it.libersoft.firmapiu.Argument)
+	 */
 	@Override
-	public Map<?, ?> verify(Data<?> data, Argument<?, ?> option) throws FirmapiuException{
+	public Map<?, ?> verify(Data<?> signedDataPath, Argument<?, ?> option) throws IllegalArgumentException, FirmapiuException{
 		//inizializza il token contenente i certificati di ROOT delle CA utilizzati 
 		//per controllare l'affidabilità del certificato del firmatario
 		
-		// TODO Auto-generated method stub
-		return null;
+		//controllo di coerenza iniziale sugli argomenti
+		DataFilePath signedDataFilePath = checkData(signedDataPath);
+		GenericArgument commandArgs = checkArgument(option);
+
+//		//directory di output
+//		File outDir=null;
+//		if(commandArgs.isArgument(OUTDIR)){
+//			outDir=getOutDir(commandArgs);
+//		}
+
+		//prepara Map<String,Object> con i risultati delle operazioni effettuate sui file passati come parametro.
+		Map<String,Object> result = new TreeMap<String,Object>();
+		//recupera il dataset contenente i percorsi dei file da firmare
+		Set<String> dataFilePathSet=signedDataFilePath.getDataSet();
+
+		//inizializza e carica il token utilizzato per controllare l'affidabilità della catena dei certificati dei firmatari
+		CRToken token=MasterFactoryBuilder.getFactory(this.verifyTokenType).getToken(TSLXMLKEYSTORE);
+		token.loadKeyStore(null);
+		
+		//per ogni file presente in signedDataFilePath cerca di verificare la correttezza della firma digitale
+		Iterator<String> dataPathItr=dataFilePathSet.iterator();
+		while(dataPathItr.hasNext()){
+			File dataFileIn=new File(dataPathItr.next());
+			try {	
+				//crea la busta crittografica dal file di input
+				CMSSignedData signedData =file2CMSSignedData(dataFileIn);
+				
+				//crea il verificatore per verificare la signedData ed effettua tutte le verifiche su tutti i firmatari
+				CadesBESVerifier verifier = new CadesBESVerifier(signedData, token);
+				List<Map<String,Object>> report=verifier.verifyAllSigners();
+				//TODO da cambiare con un report dei risultati più umano?
+				
+				//se l'operazione è andata bene, associa il report al percorso del file passato come parametro
+				result.put(dataFileIn.getAbsolutePath(),report);
+			} catch (FirmapiuException e) {
+				//associa l'errore al percorso del file passato come parametro
+				result.put(dataFileIn.getAbsolutePath(),e);
+			} catch (IOException e) {
+				FirmapiuException fe1 =new FirmapiuException(IO_DEFAULT_ERROR, e);
+				result.put(dataFileIn.getAbsolutePath(), fe1);
+			}
+		}
+		return result;
 	}
 
 	/** 
@@ -222,49 +272,30 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 		GenericArgument commandArgs = checkArgument(option);
 
 		//directory di output
-		//recupera la directory di output. presso cui salvare il contenuto originale dei file contenuti nel p7m. Se non esiste la crea
-		//Default: se l'argomento non è presente il contenuto originale del file viene salvato nella stessa dir del file da verificare
-		//DefauLt: se la directory non esiste e non è presente l'opzione CREATEOUTDIR 
-		//O L'OPZIONE È FALSE NON CREA LA DIRECTORY e lancia un eccezione 
 		File outDir=null;
 		if(commandArgs.isArgument(OUTDIR)){
 			outDir=getOutDir(commandArgs);
-		}//fine if controllo argomento OUTDIR
+		}
 
 		//prepara Map<String,Object> con i risultati delle operazioni effettuate sui file passati come parametro.
 		Map<String,Object> result = new TreeMap<String,Object>();
 		//recupera il dataset contenente i percorsi dei file da firmare
 		Set<String> dataFilePathSet=signedDataFilePath.getDataSet();
 		
+		//per ogni file presente in signedDataFilePath cerca di restituire il contenuto originale del file
 		Iterator<String> dataPathItr=dataFilePathSet.iterator();
-		//per ogni file presente in signedDataFilePath controlla che sia un p7m che sia nel formato valido (attacched)
-		//restituisce il contenuto originale del file
 		while(dataPathItr.hasNext()){
 			File dataFileIn=new File(dataPathItr.next());
-			FileOutputStream fileOutStream=null;
+			FileOutputStream fileOutStream=null;	
 			try {
-				//controlla che il file termini con .p7m altrimenti lancia un errore
-				String fileOutName=dataFileIn.getName();
-				if(!fileOutName.endsWith(".p7m"))
-					throw new FirmapiuException(CONTENT_CADESBES_NOTP7MFILE);
-				
-				//controlla che il file esista altrimenti lancia un errore
-				if (!dataFileIn.exists())
-					throw new FileNotFoundException(dataFileIn.getAbsolutePath()+" "+RB1.getString("filerror0"));
-				
-				//crea la busta crittografica CMSSignedData. Se non è attacched lancia un errore
-				FileInputStream in = new FileInputStream(dataFileIn);
-				byte[] b=new byte[in.available()];
-				in.read(b);
-				CMSSignedData signedData;
-				try {
-					signedData = new CMSSignedData(b);
-				} catch (CMSException e) {
-					throw new FirmapiuException(CONTENT_CADESBES_ENCODINGERROR_ATTACHED, e);
-				}
-				
+				//crea la busta crittografica dal file di input
+				CMSSignedData signedData =file2CMSSignedData(dataFileIn);
+
 				//recupera il contenuto originale del file p7m
+				
+				//crea il nome del file di output, non si può sovrascrivere un file esistente
 				File dataFileOut;
+				String fileOutName=dataFileIn.getName();
 				fileOutName=fileOutName.substring(0, fileOutName.length()-4);
 				if(outDir==null)
 					dataFileOut = new File(dataFileIn.getParent()+"/"+fileOutName);
@@ -274,6 +305,7 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 				if(dataFileOut.exists())
 					throw new IOException("Cannot override file! : "+dataFileOut.getAbsolutePath());
 				fileOutStream=new FileOutputStream(dataFileOut);
+				//scrive il contenuto del file originale sul file di output
 				try {
 					signedData.getSignedContent().write(fileOutStream);
 				} catch (CMSException e) {
@@ -333,6 +365,10 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 	}
 			
 	//genera directory di output
+	//recupera la directory di output. presso cui salvare il contenuto originale dei file contenuti nel p7m. Se non esiste la crea
+	//Default: se l'argomento non è presente il contenuto originale del file viene salvato nella stessa dir del file da verificare
+	//DefauLt: se la directory non esiste e non è presente l'opzione CREATEOUTDIR 
+	//O L'OPZIONE È FALSE NON CREA LA DIRECTORY e lancia un eccezione 
 	private static File getOutDir(GenericArgument commandArgs) throws FirmapiuException{
 		//controlla che il percorso della directory sia assoluto altrimenti lancia un errore
 		String outDirPath=(String)commandArgs.getArgument(OUTDIR);
@@ -365,6 +401,33 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 			throw new FirmapiuException(IS_NOT_DIR,msgError);
 		}
 		return outDir;
+	}
+	
+	//procedura privata per recuperare una CMSSIgnedData (una busta crittografica) da un FILE
+	private static CMSSignedData file2CMSSignedData(File dataFileIn) throws FirmapiuException, IOException
+	{
+		//controlla che il file di input termini con .p7m altrimenti lancia un errore
+		if(!dataFileIn.getName().endsWith(".p7m"))
+			throw new FirmapiuException(CONTENT_CADESBES_NOTP7MFILE);
+		
+		//controlla che il file esista altrimenti lancia un errore
+		if (!dataFileIn.exists())
+			throw new FileNotFoundException(dataFileIn.getAbsolutePath()+" "+RB1.getString("filerror0"));
+		
+		//crea la busta crittografica CMSSignedData. Se non è attacched lancia un errore
+		FileInputStream fileInStream = new FileInputStream(dataFileIn);
+		byte[] b=new byte[fileInStream.available()];
+		fileInStream.read(b);
+		try {
+			return new CMSSignedData(b);
+		} catch (CMSException e) {
+			throw new FirmapiuException(CONTENT_CADESBES_ENCODINGERROR_ATTACHED, e);
+		}finally{
+			//cerca di chiude la risorsa esistente
+			try {
+				fileInStream.close();
+			} catch (Exception e) {}
+		}
 	}
 	
 	//procedura privata per trovare il percorso canonico di un file da un path generico

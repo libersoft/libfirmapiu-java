@@ -324,16 +324,20 @@ final class CadesBESVerifier {
 		}
 		
 		//verifica che il certificato relativo il firmatario non sia stato revocato
+		//e che era valido al momento in cui i dati sono stati firmati
 		Object certStatus=null;
 		Date rvkdCertTime=null;
-		if(fields.contains(SIGNERCERTSTATUS)){
+		if(fields.contains(SIGNERCERTSTATUS) || fields.contains(SIGNERCERTREVOKED)){
 			//controllo lo status del certificato utente con OSCP. Se il controllo fallisce o lo status del certificato è "UNKNOWN"
 			//esegue il controllo con le CRL  
 			X509Certificate userCertificate=null;
 			try {
 				userCertificate = new JcaX509CertificateConverter().getCertificate(cert);
 			} catch (CertificateException e1) {
-				record.put(SIGNERCERTSTATUS, e1);
+				if (fields.contains(SIGNERCERTSTATUS)) 
+					record.put(SIGNERCERTSTATUS, e1);
+				if (fields.contains(SIGNERCERTREVOKED)) 
+					record.put(SIGNERCERTREVOKED, e1);
 			}
 			//se non è in grado di determinare lo user certificate di cui controllare lo status non deve proseguire oltre
 			if (userCertificate!=null) {
@@ -344,69 +348,69 @@ final class CadesBESVerifier {
 					X509Certificate issuerCertificate = signerCerthPathResult
 							.getTrustAnchor().getTrustedCert();
 					certStatus = getCertificateStatus(userCertificate, issuerCertificate);
-					//se certstatus è null il certificato è valido
-					if(certStatus==null)
-						record.put(SIGNERCERTSTATUS, CertStatus.GOOD);
+					//se certstatus è null il certificato è considerato valido
+					if(certStatus==null){
+						if (fields.contains(SIGNERCERTSTATUS))
+							record.put(SIGNERCERTSTATUS, CertStatus.GOOD);
+						if(fields.contains(SIGNERCERTREVOKED))
+							record.put(SIGNERCERTREVOKED, new Boolean(false));
+					}
 					else{
 						//se certStatus è una risposta ocsp
 						if (certStatus instanceof CertificateStatus){
 							CertificateStatus c1 =(CertificateStatus)certStatus;
 							if (c1 == CertificateStatus.GOOD) {
-								record.put(SIGNERCERTSTATUS, CertStatus.GOOD);
-							} else
+								if (fields.contains(SIGNERCERTSTATUS))
+									record.put(SIGNERCERTSTATUS, CertStatus.GOOD);
+								if(fields.contains(SIGNERCERTREVOKED))
+									record.put(SIGNERCERTREVOKED, new Boolean(false));
+							} 
+							else
 							// certificato revocato
 							if (c1 instanceof RevokedStatus) {
 								rvkdCertTime = ((RevokedStatus) c1).getRevocationTime();
-								record.put(SIGNERCERTSTATUS, CertStatus.REVOKED);
-							}	
+								if (fields.contains(SIGNERCERTSTATUS))
+									record.put(SIGNERCERTSTATUS, CertStatus.REVOKED);
+								if (fields.contains(SIGNERCERTREVOKED)){
+									//controlla se il certificato era già revocato al signing time
+									try {
+										if(isRevokedAtSigningTime(signer, rvkdCertTime))
+											record.put(SIGNERCERTREVOKED,
+													new Boolean(true));
+										else
+											record.put(SIGNERCERTREVOKED,
+													new Boolean(false));
+									} catch (FirmapiuException e) {
+										record.put(SIGNERCERTREVOKED, e);
+									}	
+								}//fine if (fields.contains(SIGNERCERTREVOKED)
+							} //fine if (c1 instanceof RevokedStatus)
 						}
-						//se il certStatus è una risposta CRL
+						//se il certStatus è una risposta CRL vuol dire che il certificato è revocato, altrimenti avrebbe restituito null
 						else if (certStatus instanceof X509CRLEntry){
 							rvkdCertTime = ((X509CRLEntry) certStatus).getRevocationDate();
-							record.put(SIGNERCERTSTATUS, CertStatus.REVOKED);
-						}
+							if (fields.contains(SIGNERCERTSTATUS))
+								record.put(SIGNERCERTSTATUS, CertStatus.REVOKED);
+							if (fields.contains(SIGNERCERTREVOKED)){
+								//controlla se il certificato era già revocato al signing time
+								try {
+									if(isRevokedAtSigningTime(signer, rvkdCertTime))
+										record.put(SIGNERCERTREVOKED,
+												new Boolean(true));
+									else
+										record.put(SIGNERCERTREVOKED,
+												new Boolean(false));
+								} catch (FirmapiuException e) {
+									record.put(SIGNERCERTREVOKED, e);
+								}
+							}//fine if (fields.contains(SIGNERCERTREVOKED))
+						}//fine else if (certStatus instanceof X509CRLEntry)
 					}//fine else
 				} catch (FirmapiuException e) {
 					record.put(SIGNERCERTSTATUS, e);
 				}
 			}//fine if (userCertificate!=null)
-		}//fine if(fields.contains(SIGNERCERTSTATUS))
-		
-		//verifica che il certificato relativo il firmatario non era revocato al momento in cui i dati sono stati firmati
-		Date signingTime=null;
-		if(fields.contains(SIGNERCERTREVOKED)){
-			//recupera il signing time del firmatario
-			try {
-				signingTime = getSigningTime(signer);
-			} catch (FirmapiuException e) {
-				record.put(SIGNERCERTREVOKED, e);
-			}
-			
-			//se esiste già un certstatus usa quello se no lo crea 
-//			if (certStatus!=null && signingTime!=null)
-//			{
-//				if(certStatus instanceof RevokedStatus){
-//					RevokedStatus rvkdCert=(RevokedStatus)certStatus;
-//					Date rvkdCertTime = rvkdCert.getRevocationTime();
-//					//il certificato è revocato se il signing time è >= della data di revoca
-//					if(signingTime.compareTo(rvkdCertTime)>=0)
-//						record.put(SIGNERCERTREVOKED, new Boolean(true));
-//					else
-//						record.put(SIGNERCERTREVOKED, new Boolean(false));
-//				}
-//			}
-			X509Certificate userCertificate=null;
-			try {
-				userCertificate = new JcaX509CertificateConverter().getCertificate(cert);
-			} catch (CertificateException e1) {
-				record.put(SIGNERCERTREVOKED, e1);
-			}
-			
-			//se non è in grado di determinare lo user certificate o il signing time di cui controllare lo status non deve proseguire oltre
-			if (userCertificate!=null && signingTime !=null ){
-				//TODO controllo rvktime
-			}//fine if (userCertificate!=null)
-		}
+		}//fine if(fields.contains(SIGNERCERTSTATUS) | fields.contains(SIGNERCERTREVOKED))
 		
 		//ritorna il record generato al chiamante
 		return record;
@@ -638,9 +642,21 @@ final class CadesBESVerifier {
 			return crlVerifier.getX509CRLEntry();
 		}//fine try-catch
 	}
-	
+
+	//controlla se il certificato era revocato al tempo di firma
+	private static boolean isRevokedAtSigningTime(SignerInformation signer,Date rvkdCertTime) throws FirmapiuException{
+		//controlla se il certificato era già revocato al signing time
+		Date signingTime=null;
+		//recupera il signing time del firmatario
+		signingTime = getSigningTime(signer);
+		if (signingTime.compareTo(rvkdCertTime) >= 0)
+			return true;
+		else
+			return false;
+	}//fine metodo
+
 	//recupera il signing time di un firmatario
-	private Date getSigningTime(SignerInformation signer) throws FirmapiuException{
+	private static Date getSigningTime(SignerInformation signer) throws FirmapiuException{
 		AttributeTable signedAttr = signer.getSignedAttributes();
 		Attribute signingTimeAttr = signedAttr.get(CMSAttributes.signingTime);
 		if (signingTimeAttr != null) {
@@ -668,5 +684,5 @@ final class CadesBESVerifier {
 			//TODO eccezioni ammodo
 			throw new FirmapiuException();	
 		} 
-	}
+	}//fine metodo
 }
