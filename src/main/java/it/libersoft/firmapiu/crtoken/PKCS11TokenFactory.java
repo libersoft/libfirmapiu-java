@@ -56,7 +56,7 @@ public class PKCS11TokenFactory extends DefaultFactory {
 			else {
 				ResourceBundle rb1 = ResourceBundle
 						.getBundle("it.libersoft.firmapiu.properties.pkcs11driverlocation");
-				pkcs11driverlocation = rb1.getString("linux.debian.path");
+				pkcs11driverlocation = rb1.getString("linux.debian.librarypath");
 			}
 			return new CRTSmartCardToken(pkcs11driverlocation);
 		} else
