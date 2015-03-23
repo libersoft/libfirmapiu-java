@@ -30,9 +30,12 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.smartcardio.Card;
+import javax.smartcardio.CardChannel;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import javax.smartcardio.CardTerminals;
+import javax.smartcardio.CommandAPDU;
+import javax.smartcardio.ResponseAPDU;
 import javax.smartcardio.TerminalFactory;
 
 /**
@@ -262,15 +265,28 @@ final class CRTSmartCardToken implements PKCS11Token {
 		return card.getATR().getBytes();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * 
 	 * 
 	 * @see it.libersoft.firmapiu.crtoken.PKCS11Token#setPin(char[], char[])
 	 */
 	@Override
 	public void setPin(char[] oldPin, char[] newPin) throws FirmapiuException {
-		// TODO Auto-generated method stub
-
+		String oldCode=new String(oldPin);
+		String newCode=new String(newPin);
+		try {
+			int result=changePIN(oldCode, newCode);
+			//levare sistem.out
+			System.out.println("Tentativi rimasti: "+result);
+		} catch (FirmapiuException e){
+			//cerca di rilasciare il lock esclusivo sulla carta a prescindere
+			try {
+				//TODO levare system.out
+				System.out.println("Errore, provo a slokkare lo stesso la carta");
+				this.card.endExclusive();
+			} catch (Exception e1) {}
+			throw e;
+		}
 	}
 
 	/*
@@ -384,4 +400,133 @@ final class CRTSmartCardToken implements PKCS11Token {
 	 * Integer.toString((dataInput[i] & 0xff) + 0x100, 16).substring(1); }
 	 * return result; }
 	 */
+	
+	/**
+	 * Changes the PIN code of the PIN. The (given) old code will be changed to
+	 * the given new code. The function returns the number of times left that
+	 * the user can attempt to verify the code of the given PIN. Be very careful
+	 * when using this operation in any kind of loop to avoid any accidental
+	 * repetition of the input of an invalid PIN. A good idea is to break out of
+	 * this loop when the number of tries left is 1.
+	 * 
+	 * @param oldCode
+	 *            is the former PIN code to change
+	 * @param newCode
+	 *            is the new PIN code to change to
+	 * @return the number of tries left
+	 * @throws FirmapiuException 
+	 * @throws CardNotFoundException
+	 *             indicates that the card wasn't present in the system or was
+	 *             reset, it could also be that no connection with the smart
+	 *             card has been made yet
+	 * @throws CardException
+	 *             if the card operation failed
+	 * @throws WrongPINException
+	 *             when the wrong PIN was entered
+	 * @throws InvalidSWException
+	 *             when the status words returned were not expected
+	 */
+	private int changePIN(String oldCode, String newCode) throws FirmapiuException{
+		// Handle the case when no connection has yet been made
+//		if (!isConnected()) {
+//			throw new CardNotFoundException(
+//					CardNotFoundException.CardNotFoundType.NOT_CONNECTED);
+//		}
+
+		if (this.card==null)
+		{
+			//TODO messaggi ammodo
+			throw new FirmapiuException(DEFAULT_ERROR, "carta non connessa!");
+		}
+				
+		
+		// Codes should have even number of characters
+		String evenLengthOldCode = oldCode;
+		String evenLengthNewCode = newCode;
+		if (2 * ((int) (evenLengthOldCode.length() / 2)) != evenLengthOldCode
+				.length()) {
+			evenLengthOldCode = evenLengthOldCode + "F";
+		}
+		if (2 * ((int) (evenLengthNewCode.length() / 2)) != evenLengthNewCode
+				.length()) {
+			evenLengthNewCode = evenLengthNewCode + "F";
+		}
+
+		// Write protect the verification of the PIN
+		//this.beginTransaction();
+		try {
+			//TODO System.out da levare
+			System.out.println("lokko la carta");
+			this.card.beginExclusive();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block CArd exception da fare eccezione ammodo
+			throw new FirmapiuException(DEFAULT_ERROR,e);
+		}
+		
+		// Insert two PINs in APDU field, one for old PIN and one for new one
+		final int PIN_LENGTH = 8;
+		byte[] pin = new byte[] { (byte) 0x2F, (byte) 0xFF, (byte) 0xFF,
+				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+				(byte) 0xFF, (byte) 0x2F, (byte) 0xFF, (byte) 0xFF,
+				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+				(byte) 0xFF, };
+
+		// Insert first PIN
+		pin[0] = (byte) (2 * 16 + evenLengthOldCode.length());
+		for (int i = 0; i < evenLengthOldCode.length(); i += 2) {
+			pin[(i / 2) + 1] = (byte) (Integer.parseInt(evenLengthOldCode
+					.substring(i, i + 2), 16));
+		}
+
+		// Insert second PIN
+		pin[PIN_LENGTH] = (byte) (2 * 16 + evenLengthNewCode.length());
+		for (int i = 0; i < evenLengthNewCode.length(); i += 2) {
+			pin[(i / 2) + 1 + PIN_LENGTH] = (byte) (Integer.parseInt(
+					evenLengthNewCode.substring(i, i + 2), 16));
+		}
+
+		// Send command
+		//TODO deve accedere al canale
+		CardChannel cardChannel=this.card.getBasicChannel();
+		ResponseAPDU rAPDU;
+		try {
+			rAPDU = cardChannel.transmit(new CommandAPDU(0x00, 0x24,
+					0x00, 0x01 /* hardcoded reference */, pin));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block CArd exception da fare eccezione ammodo
+						throw new FirmapiuException(DEFAULT_ERROR,e);
+		}
+//		ResponseAPDU rAPDU = this.transmitAPDU(new CommandAPDU(0x00, 0x24,
+//				0x00, 0x01 /* hardcoded reference */, pin));
+		
+		
+		
+		// End lock
+		//this.endTransaction();
+		//TODO levare system.out
+		try {
+			System.out.println("Slokko la carta");
+			this.card.endExclusive();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block CArd exception da fare eccezione ammodo
+						throw new FirmapiuException(DEFAULT_ERROR,e);
+		}
+		
+		// Check whether correct
+		if ((rAPDU.getSW1() == 0x90) && (rAPDU.getSW2() == 0x00)) {
+			// Correct PIN code
+			return 3;
+		} else if (rAPDU.getSW1() == 0x63) {
+			// See how many attempts are remaining
+//			throw new WrongPINException(evenLengthOldCode,
+//					(rAPDU.getSW2() % 16));
+			String errMsg= "Pin sbagliato: "+evenLengthOldCode+ " tentativi rimasti"+(rAPDU.getSW2() % 16) ; 
+			throw new FirmapiuException(DEFAULT_ERROR,errMsg);
+		} else {
+			String errMsg = Integer.toHexString(rAPDU.getSW1())+" : "+Integer.toHexString(rAPDU.getSW2());
+			//TODO
+			//throw new InvalidSWException(rAPDU.getSW1(), rAPDU.getSW2());
+			throw new FirmapiuException(DEFAULT_ERROR,errMsg);
+		}
+	}
 }

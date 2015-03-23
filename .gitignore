@@ -20,3 +20,6 @@ bin/
 #Ignora il build di gradle
 build/
 .gradle
+
+#ignora il keystore contenente la lista delle CA generato durante i test
+src/main/config/keystore.jks
