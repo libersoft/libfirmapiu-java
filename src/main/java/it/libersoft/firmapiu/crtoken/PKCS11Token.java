@@ -51,7 +51,7 @@ public interface PKCS11Token extends CRToken {
 	public byte[] getATR() throws FirmapiuException;
 
 	/**
-	 * Cambia il PIN della smartcard
+	 * Cambia il PIN della smartcard/token crittografico
 	 * 
 	 * @param oldPin
 	 * @param newPin
@@ -61,7 +61,7 @@ public interface PKCS11Token extends CRToken {
 	public void setPin(char[] oldPin, char[] newPin) throws FirmapiuException;
 
 	/**
-	 * Cambia il PUK della smartcard
+	 * Cambia il PUK della smartcard/token crittografico
 	 * 
 	 * @param pin
 	 * @param oldPuk
@@ -73,15 +73,17 @@ public interface PKCS11Token extends CRToken {
 			throws FirmapiuException;
 
 	/**
-	 * Sblocca la smartcard nel caso in cui questa dovesse essere bloccata<br>
+	 * Sblocca la smartcard/token crittografico nel caso in cui dovesse essere
+	 * bloccato<br>
 	 * (Ad esempio perché si è sbagliato ad inserire il pin)
 	 * 
 	 * @param pin
+	 *            il nuovo PIN della nuova smartcard/token
 	 * @param puk
-	 *            PUK da usare per sbloccare la carta
+	 *            PUK da usare per sbloccare la smartcard/token
 	 * @throws FirmapiuException
 	 *             in caso di errori applicativi
 	 */
-	public void unlockPKCS11Token(char[] pin, char[] puk)
+	public void unlockPKCS11Token(char[] puk, char[] pin)
 			throws FirmapiuException;
 }

@@ -9,9 +9,9 @@ import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 import it.libersoft.firmapiu.crtoken.*;
 
 /**
- * Classe di Test per verificare le funzionalità della libreria riguardo il cambio del pin
+ * Classe di Test NON-standard per verificare le funzionalità della libreria riguardo il cambio del pin/puk/sblocco pin
  * 
- * @author andy
+ * @author dellanna
  *
  */
 final class PinTest {
@@ -28,7 +28,12 @@ final class PinTest {
 		char[] oldPin=args[0].toCharArray();
 		char[] newPin=args[1].toCharArray();
 		
+		//TODO commentare e "scommentare" le parti di codice richieste per eseguire il test
+		//testa il cambio del pin
 		pkcs11Token.setPin(oldPin, newPin);
+		//testa lo sblocco del PIN
+		//pkcs11Token.unlockPKCS11Token(oldPin, newPin);
+		//testa il cambio del PUK
+		//pkcs11Token.setPuk(null, oldPin, newPin);
 	}
-
 }

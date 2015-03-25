@@ -55,6 +55,26 @@ final class CRTSmartCardToken implements PKCS11Token {
 	// classe
 	private static final ResourceBundle RB = ResourceBundle.getBundle(
 			"it.libersoft.firmapiu.lang.locale", Locale.getDefault());
+	//VERIFY CHV command: Comando usato per verificare PIN/PUK
+	private static final byte VERIFYCHV_COMMAND=0x20;
+	//CHANGE REFERENCE DATA Card Command: comando usato per cambiare PIN/PUK
+	private static final byte CHREFDATA_COMMAND=0x24;
+	//UNBLOCK CHV: comando usato per sbloccare il pin usando il puk
+	private static final byte UNBLOCKCHV_COMMAND=0x2C;
+	//parametro del comando usato per identificare il pin
+	private static final byte PIN_PARAMETER=0x10;
+	//parametro del comando per identificare il puk 0x11?? 0x81??
+	private static final byte PUK_PARAMETER=0x11;
+	
+	//magic numbers
+	//numero massimo caratteri pin/puk
+	private static final int MAXLENGTH=8;
+	//numero minimo caratteri pin/puk
+	private static final int MINLENGTH=1;
+	//numero massimo di dati da inviare con il comando APDU
+	private static final int MAXDATALENGTH=16;
+	
+	//parametro usato per cambiare il puk
 
 	// variabili private per accedere a lettore e smartcard
 	private TerminalFactory factory;
@@ -148,9 +168,9 @@ final class CRTSmartCardToken implements PKCS11Token {
 		// TODO da cambiare se si decide che il keystore debba essere gestito in
 		// maniera stand-alone o meno a seconda di proprietà da stabilire a
 		// monte.
-		// TODO Al momento il keystore può essere caricato in maniera "statica"
+		// Al momento il keystore può essere caricato in maniera "statica"
 		// passandogli il pin come parametro di questo metodo.
-		// TODO Tuttavia se è stato effettuato un login su questo token, il
+		// Tuttavia se è stato effettuato un login su questo token, il
 		// caricamento statico viene ignorato e il keystore viene caricato
 		// considerando il contesto della sessione a cui appartiene
 		try {
@@ -170,7 +190,7 @@ final class CRTSmartCardToken implements PKCS11Token {
 		} catch (CertificateException e) {
 			throw new FirmapiuException(CERT_DEFAULT_ERROR, e);
 		} catch (IOException e) {
-			throw new FirmapiuException(CRT_TOKENPIN_ERROR, e);
+			throw new FirmapiuException(CRT_TOKENPINPUK_VERIFY_ERROR, e);
 		} catch (NoSuchProviderException e) {
 			String msg = FirmapiuException
 					.getDefaultErrorCodeMessage(CRT_TOKEN_DEFAULT_ERROR);
@@ -199,7 +219,7 @@ final class CRTSmartCardToken implements PKCS11Token {
 			this.session = true;
 		} catch (LoginException e) {
 			Security.removeProvider(this.pkcs11Provider.getName());
-			throw new FirmapiuException(CRT_TOKENPIN_ERROR, e);
+			throw new FirmapiuException(CRT_TOKENPINPUK_VERIFY_ERROR, e);
 		}
 
 	}
@@ -240,31 +260,44 @@ final class CRTSmartCardToken implements PKCS11Token {
 
 		// verifico che la carta sia insertita
 		cardPresent = false;
+		CardTerminal tmpTerminal=null;
 		for (int i = 0; i < numberTerminals; i++) {
 			terminal = listTerminals.get(i);
 			// carta inserita
 			try {
 				if (terminal.isCardPresent()) {
 					// effettuo la connessione con la carta
-					card = terminal.connect("*");
-					cardPresent = true;
-					break;
+					//card = terminal.connect("*");
+					if(cardPresent)
+						throw new FirmapiuException(CRT_TOKEN_TOOMANY);
+					else{
+						cardPresent = true;
+						tmpTerminal=terminal;
+					}
 				}
 			} catch (SecurityException e1) {
 				throw new FirmapiuException(CRT_TOKEN_FORBIDDEN, e1);
 			} catch (CardException e) {
 				throw new FirmapiuException(CRT_TOKEN_DEFAULT_ERROR, e);
-			}
+			} 
 		}
 
 		// carta non inserita
 		if (!cardPresent)
 			throw new FirmapiuException(CRT_TOKEN_NOTFOUND);
-
+		else
+			try {
+				card = tmpTerminal.connect("*");
+			} catch (CardException e) {
+				throw new FirmapiuException(CRT_TOKEN_DEFAULT_ERROR, e);
+			}
+		
 		// ATR della carta in array di byte
 		return card.getATR().getBytes();
 	}
 
+	//TODO cè bisogno di un finalizzatore per disconnettersi dalla carta una volta che si è finito di usarla?
+	
 	/**
 	 * 
 	 * 
@@ -272,21 +305,7 @@ final class CRTSmartCardToken implements PKCS11Token {
 	 */
 	@Override
 	public void setPin(char[] oldPin, char[] newPin) throws FirmapiuException {
-		String oldCode=new String(oldPin);
-		String newCode=new String(newPin);
-		try {
-			int result=changePIN(oldCode, newCode);
-			//levare sistem.out
-			System.out.println("Tentativi rimasti: "+result);
-		} catch (FirmapiuException e){
-			//cerca di rilasciare il lock esclusivo sulla carta a prescindere
-			try {
-				//TODO levare system.out
-				System.out.println("Errore, provo a slokkare lo stesso la carta");
-				this.card.endExclusive();
-			} catch (Exception e1) {}
-			throw e;
-		}
+		commandAPDUProcedure(CHREFDATA_COMMAND, PIN_PARAMETER, oldPin, newPin);
 	}
 
 	/*
@@ -298,23 +317,33 @@ final class CRTSmartCardToken implements PKCS11Token {
 	@Override
 	public void setPuk(char[] pin, char[] oldPuk, char[] newPuk)
 			throws FirmapiuException {
-		// TODO Auto-generated method stub
-
+		commandAPDUProcedure(CHREFDATA_COMMAND, PUK_PARAMETER, oldPuk, newPuk);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
 	 * 
 	 * @see it.libersoft.firmapiu.crtoken.PKCS11Token#unlockPKCS11Token(char[],
 	 * char[])
 	 */
 	@Override
-	public void unlockPKCS11Token(char[] pin, char[] puk)
+	public void unlockPKCS11Token(char[] puk, char[] newPin)
 			throws FirmapiuException {
-		// TODO Auto-generated method stub
-
+		commandAPDUProcedure(UNBLOCKCHV_COMMAND, PIN_PARAMETER, puk, newPin);
+	}
+	
+	//TODO ramo di codice se in futuro si vuole usare funzionalità per verificare pin
+	public void verifyPIN(char[] pin) throws FirmapiuException{
+		char[] newCode ={};
+		commandAPDUProcedure(VERIFYCHV_COMMAND, PIN_PARAMETER, pin, newCode);
+		
 	}
 
+	//TODO ramo di codice se in futuro si vuole usare funzionalità per verificare PUK
+	public void verifyPUK(char[] puk) throws FirmapiuException{
+		char[] newCode ={};
+		commandAPDUProcedure(VERIFYCHV_COMMAND, PUK_PARAMETER, puk, newCode);
+	}
+	
 	// PROCEDURE PRIVATE
 
 	// assegna la lista dei lettori connessi alla variabile d'istanza
@@ -346,6 +375,114 @@ final class CRTSmartCardToken implements PKCS11Token {
 
 	}
 
+
+	//procedura privata per eseguire un comando APDU
+	private void commandAPDUProcedure(byte command,byte parameter,char[] oldCode, char[] newCode) throws FirmapiuException{
+		try {
+			int result=sendAPDUCommand(command,parameter,oldCode, newCode);
+			if(result==-1)
+				throw new RuntimeException("Programming error: You shouldn't see this exception");
+		} catch (FirmapiuException e){
+			//cerca di rilasciare il lock esclusivo sulla carta a prescindere
+			try {
+				this.card.endExclusive();
+			} catch (Exception e1) {}
+			throw e;
+		}
+	}
+	
+	//procedura privata per inviare i comandi APDU alla smartcard. Se ci sono degli errori lancia una FirmapiuException
+	private int sendAPDUCommand(byte command,byte parameter,char[] oldCode, char[] newCode) throws FirmapiuException{
+		if (this.card==null)
+		{
+			//La carta non è ancora connessa lancia un errore.
+			throw new FirmapiuException(CRT_TOKEN_SESSION_NOTFOUND);
+		}
+				
+		
+		// Codes should have even number of characters
+//		String evenLengthOldCode = oldCode;
+//		String evenLengthNewCode = newCode;
+//		if (2 * ((int) (evenLengthOldCode.length() / 2)) != evenLengthOldCode
+//				.length()) {
+//			evenLengthOldCode = evenLengthOldCode + "F";
+//		}
+//		if (2 * ((int) (evenLengthNewCode.length() / 2)) != evenLengthNewCode
+//				.length()) {
+//			evenLengthNewCode = evenLengthNewCode + "F";
+//		}
+
+		try {
+			//accesso esclusivo alla carta
+			this.card.beginExclusive();
+		} catch (Exception e) {
+			throw new FirmapiuException(CRT_TOKEN_DEFAULT_ERROR,e);
+		}
+
+		//dati da inviare insieme al comando APDU
+		byte[] pin=new byte[MAXDATALENGTH];
+		//TODO if da cambiare se in futuro si deve implementare l'operazione di verifica di PIN/PUK
+		if (oldCode.length >MAXLENGTH || newCode.length>MAXLENGTH || oldCode.length <MINLENGTH || newCode.length<MINLENGTH)
+		{
+			throw new FirmapiuException(CRT_TOKENPINPUK_LENGTH_ERROR);
+		}
+		int i;
+		if (oldCode!=null) {
+			for (i = 0; i < oldCode.length; i++)
+				pin[i] = (byte) oldCode[i];
+			for (i = oldCode.length; i < 8; i++)
+				pin[i] = (byte) 0xFF;
+		}
+		if (newCode!=null) {
+			for (i = 8; i < newCode.length + 8; i++)
+				pin[i] = (byte) newCode[i - 8];
+			for (i = newCode.length + 8; i < 16; i++)
+				pin[i] = (byte) 0xFF;
+		}
+		//accede al canale
+		CardChannel cardChannel=this.card.getBasicChannel();
+		ResponseAPDU rAPDU;
+		try {
+			// Send command
+			rAPDU = cardChannel.transmit(new CommandAPDU(0x00, command, 0x00,
+						parameter /* hardcoded reference */, pin));
+		} catch (Exception e) {
+			throw new FirmapiuException(CRT_TOKEN_DEFAULT_ERROR,e);
+		}
+
+		// End lock
+		try {
+			this.card.endExclusive();
+		} catch (Exception e) {
+			throw new FirmapiuException(CRT_TOKEN_DEFAULT_ERROR,e);
+		}
+		
+		// Check whether correct
+		if ((rAPDU.getSW1() == 0x90) && (rAPDU.getSW2() == 0x00)) {
+			// Correct PIN code
+			return 3;
+		} else if (rAPDU.getSW1() == 0x63) {
+			// See how many attempts are remaining
+//			throw new WrongPINException(evenLengthOldCode,
+//					(rAPDU.getSW2() % 16));
+//			String errMsg= "Pin sbagliato: "+evenLengthOldCode+ " tentativi rimasti hex: "+Integer.toHexString(rAPDU.getSW2())+" int: "+rAPDU.getSW2(); 
+			if (command==CHREFDATA_COMMAND)
+				throw new FirmapiuException(CRT_TOKENPINPUK_UPDATE_ERROR);
+			else if (command==UNBLOCKCHV_COMMAND)
+				throw new FirmapiuException(CRT_TOKENPINPUK_UNLOCK_ERROR);
+			else if (command==VERIFYCHV_COMMAND)
+				throw new FirmapiuException(CRT_TOKENPINPUK_VERIFY_ERROR);
+			//il codice non dovrebbe raggiungere mai questo ramo di esecuzione
+			return -1;
+		} else {
+			String errMsg = FirmapiuException.getDefaultErrorCodeMessage(CRT_TOKEN_DEFAULT_ERROR);
+			errMsg += " : "+Integer.toHexString(rAPDU.getSW1())+" , "+Integer.toHexString(rAPDU.getSW2());
+			//TODO bisognerebbe implementare messaggi di errore in linea con i codici di errore restituiti dalla Response APDU
+			//vedi: http://web.archive.org/web/20090623030155/http://cheef.ru/docs/HowTo/SW1SW2.info
+			throw new FirmapiuException(CRT_TOKEN_DEFAULT_ERROR,errMsg);
+		}
+	}
+	
 	//
 	// restituisce il path assoluto della libreria per la smart card
 	// identificata dal suo atr e il nome della smart card
@@ -400,133 +537,4 @@ final class CRTSmartCardToken implements PKCS11Token {
 	 * Integer.toString((dataInput[i] & 0xff) + 0x100, 16).substring(1); }
 	 * return result; }
 	 */
-	
-	/**
-	 * Changes the PIN code of the PIN. The (given) old code will be changed to
-	 * the given new code. The function returns the number of times left that
-	 * the user can attempt to verify the code of the given PIN. Be very careful
-	 * when using this operation in any kind of loop to avoid any accidental
-	 * repetition of the input of an invalid PIN. A good idea is to break out of
-	 * this loop when the number of tries left is 1.
-	 * 
-	 * @param oldCode
-	 *            is the former PIN code to change
-	 * @param newCode
-	 *            is the new PIN code to change to
-	 * @return the number of tries left
-	 * @throws FirmapiuException 
-	 * @throws CardNotFoundException
-	 *             indicates that the card wasn't present in the system or was
-	 *             reset, it could also be that no connection with the smart
-	 *             card has been made yet
-	 * @throws CardException
-	 *             if the card operation failed
-	 * @throws WrongPINException
-	 *             when the wrong PIN was entered
-	 * @throws InvalidSWException
-	 *             when the status words returned were not expected
-	 */
-	private int changePIN(String oldCode, String newCode) throws FirmapiuException{
-		// Handle the case when no connection has yet been made
-//		if (!isConnected()) {
-//			throw new CardNotFoundException(
-//					CardNotFoundException.CardNotFoundType.NOT_CONNECTED);
-//		}
-
-		if (this.card==null)
-		{
-			//TODO messaggi ammodo
-			throw new FirmapiuException(DEFAULT_ERROR, "carta non connessa!");
-		}
-				
-		
-		// Codes should have even number of characters
-		String evenLengthOldCode = oldCode;
-		String evenLengthNewCode = newCode;
-		if (2 * ((int) (evenLengthOldCode.length() / 2)) != evenLengthOldCode
-				.length()) {
-			evenLengthOldCode = evenLengthOldCode + "F";
-		}
-		if (2 * ((int) (evenLengthNewCode.length() / 2)) != evenLengthNewCode
-				.length()) {
-			evenLengthNewCode = evenLengthNewCode + "F";
-		}
-
-		// Write protect the verification of the PIN
-		//this.beginTransaction();
-		try {
-			//TODO System.out da levare
-			System.out.println("lokko la carta");
-			this.card.beginExclusive();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block CArd exception da fare eccezione ammodo
-			throw new FirmapiuException(DEFAULT_ERROR,e);
-		}
-		
-		// Insert two PINs in APDU field, one for old PIN and one for new one
-		final int PIN_LENGTH = 8;
-		byte[] pin = new byte[] { (byte) 0x2F, (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, (byte) 0x2F, (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, };
-
-		// Insert first PIN
-		pin[0] = (byte) (2 * 16 + evenLengthOldCode.length());
-		for (int i = 0; i < evenLengthOldCode.length(); i += 2) {
-			pin[(i / 2) + 1] = (byte) (Integer.parseInt(evenLengthOldCode
-					.substring(i, i + 2), 16));
-		}
-
-		// Insert second PIN
-		pin[PIN_LENGTH] = (byte) (2 * 16 + evenLengthNewCode.length());
-		for (int i = 0; i < evenLengthNewCode.length(); i += 2) {
-			pin[(i / 2) + 1 + PIN_LENGTH] = (byte) (Integer.parseInt(
-					evenLengthNewCode.substring(i, i + 2), 16));
-		}
-
-		// Send command
-		//TODO deve accedere al canale
-		CardChannel cardChannel=this.card.getBasicChannel();
-		ResponseAPDU rAPDU;
-		try {
-			rAPDU = cardChannel.transmit(new CommandAPDU(0x00, 0x24,
-					0x00, 0x01 /* hardcoded reference */, pin));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block CArd exception da fare eccezione ammodo
-						throw new FirmapiuException(DEFAULT_ERROR,e);
-		}
-//		ResponseAPDU rAPDU = this.transmitAPDU(new CommandAPDU(0x00, 0x24,
-//				0x00, 0x01 /* hardcoded reference */, pin));
-		
-		
-		
-		// End lock
-		//this.endTransaction();
-		//TODO levare system.out
-		try {
-			System.out.println("Slokko la carta");
-			this.card.endExclusive();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block CArd exception da fare eccezione ammodo
-						throw new FirmapiuException(DEFAULT_ERROR,e);
-		}
-		
-		// Check whether correct
-		if ((rAPDU.getSW1() == 0x90) && (rAPDU.getSW2() == 0x00)) {
-			// Correct PIN code
-			return 3;
-		} else if (rAPDU.getSW1() == 0x63) {
-			// See how many attempts are remaining
-//			throw new WrongPINException(evenLengthOldCode,
-//					(rAPDU.getSW2() % 16));
-			String errMsg= "Pin sbagliato: "+evenLengthOldCode+ " tentativi rimasti"+(rAPDU.getSW2() % 16) ; 
-			throw new FirmapiuException(DEFAULT_ERROR,errMsg);
-		} else {
-			String errMsg = Integer.toHexString(rAPDU.getSW1())+" : "+Integer.toHexString(rAPDU.getSW2());
-			//TODO
-			//throw new InvalidSWException(rAPDU.getSW1(), rAPDU.getSW2());
-			throw new FirmapiuException(DEFAULT_ERROR,errMsg);
-		}
-	}
 }

@@ -44,6 +44,7 @@ public class Prova {
 		
 		//ricava il file di configurazione
 		//FileInputStream filein=new FileInputStream(new File(args[0]));
+		//String pcsc = "name=pcsc\nlibrary=/usr/local/lib/libsiecap11.so";
 		String pcsc = "name=pcsc\nlibrary=/usr/lib/libbit4xpki.so";
 		//String pcsc = "name=pcsc\nlibrary=/lib64/libASEP11.so";
 		Provider p = new sun.security.pkcs11.SunPKCS11(new ByteArrayInputStream(pcsc.getBytes()));
