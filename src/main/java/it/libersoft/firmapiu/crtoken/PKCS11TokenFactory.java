@@ -45,20 +45,38 @@ public class PKCS11TokenFactory extends DefaultFactory {
 	public PKCS11Token getToken(String choice) throws IllegalArgumentException,
 			FirmapiuException {
 		if (choice.equals(CRTSMARTCARD)) {
-			// cerca il file contenente i riferimenti ai driver utilizzati per
-			// caricare il provider pkcs#11
 			Map<String, Object> properties = this.getProperties();
 
+			// cerca il file contenente i riferimenti ai driver utilizzati per
+			// caricare il provider pkcs#11
 			String pkcs11driverlocation;
 			if (properties.containsKey(CRT_TOKEN_PKCS11_LIBRARYPATH))
-				pkcs11driverlocation = (String) properties
-						.get(CRT_TOKEN_PKCS11_LIBRARYPATH);
+				pkcs11driverlocation = (String) properties.get(CRT_TOKEN_PKCS11_LIBRARYPATH);
 			else {
 				ResourceBundle rb1 = ResourceBundle
 						.getBundle("it.libersoft.firmapiu.properties.pkcs11driverlocation");
-				pkcs11driverlocation = rb1.getString("linux.debian.librarypath");
+				pkcs11driverlocation = rb1
+						.getString("linux.debian.librarypath");
 			}
-			return new CRTSmartCardToken(pkcs11driverlocation);
+
+			// cerca la proprietà per impostare che il PIN/PUK siano formati
+			// soltanto da numeri o meno
+			boolean onlyNumbers = false;
+			if (properties.containsKey(CRT_TOKEN_PIN_ONLYNUMBER))
+				onlyNumbers = (Boolean) properties
+						.get(CRT_TOKEN_PIN_ONLYNUMBER);
+
+			// cerca le proprietà contenenti il numero massimo e minimo di
+			// caratteri di cui pin/puk possono essere formati
+			int minlength = 1;
+			if (properties.containsKey(CRT_TOKEN_PIN_MINLENGTH))
+				minlength = (Integer) properties.get(CRT_TOKEN_PIN_MINLENGTH);
+			int maxlength = 8;
+			if (properties.containsKey(CRT_TOKEN_PIN_MAXLENGTH))
+				maxlength = (Integer) properties.get(CRT_TOKEN_PIN_MAXLENGTH);
+
+			return new CRTSmartCardToken(pkcs11driverlocation, onlyNumbers,
+					minlength, maxlength);
 		} else
 			throw new IllegalArgumentException(RB.getString("factoryerror3")
 					+ " : " + choice);

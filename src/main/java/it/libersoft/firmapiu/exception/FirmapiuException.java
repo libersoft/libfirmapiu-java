@@ -136,7 +136,7 @@ public final class FirmapiuException extends Exception {
 	public static final int CRT_TOKENPINPUK_VERIFY_ERROR=604;
 	
 	/**
-	 * Errore se il PIN/PUK del token crittografico non è stato cambiato poichè il PIN/PUK vecchio passato come parametro era errato
+	 * Errore se il PIN/PUK del token crittografico non è stato cambiato poichè il PIN/PUK passato come parametro era errato
 	 * */
 	public static final int CRT_TOKENPINPUK_UPDATE_ERROR=605;
 	
@@ -159,6 +159,11 @@ public final class FirmapiuException extends Exception {
 	 * Errore se è non è presente una sessione attiva sul token
 	 * */
 	public static final int CRT_TOKEN_SESSION_NOTFOUND=611;
+	
+	/**
+	 * Errore se è non è possibile determinare quanti tentativi sono rimasti prima che il token si blocchi
+	 * */
+	public static final int CRT_TOKEN_ATTEMPT_ERROR=612;
 	
 	/**
 	 * Errore se non è stato trovato il file di configurazione contente i driver per accedere al token crittografico utilizzato

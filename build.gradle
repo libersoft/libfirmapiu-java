@@ -41,14 +41,6 @@ dependencies {
     testCompile 'log4j:log4j-1.2:1.2.17'
 }
 
-sourceSets {
-  main {
-    java {
-      exclude 'it/libersoft/firmapiu/crtoken/SmartCard.java'
-    }
-  }
-}
-
 task simpleTestCards(type: Test) {		
 		//println('Testa le funzionalità di accesso base alle carte Incard, Oberthur e Athena')
 		//println("Salva i report in $buildDir/reports/simple-test-cards")
