@@ -17,6 +17,8 @@ import java.security.Provider;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -159,8 +161,13 @@ final class CadesBESSigner {
 		} catch (OperatorCreationException e) {
 			throw new FirmapiuException(SIGNER_DEFAULT_ERROR, e);
 		}
-		//recupera il certificato del firmatario
+		//recupera il certificato del firmatario se è scaduto lancia un errore
 		X509Certificate signCert=x509certList[0];
+		try {
+			signCert.checkValidity();
+		} catch (CertificateExpiredException | CertificateNotYetValidException e1) {
+			throw new FirmapiuException(CERT_INVALID_CURRENTDATE, e1);
+		}
 		
 		//aggiunta degli attributi obbligatori per rendere i dati firmati conformi al formato Cades-Bes definito in  ETSI TS 101 733
 		//e richiesto dalla  DELIBERAZIONE ministeriale del N . 45 DEL 21 MAGGIO 2009 art.21 comma 1

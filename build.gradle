@@ -39,7 +39,8 @@ dependencies {
     testCompile 'org.slf4j:slf4j-api:1.7.5'
     testCompile 'org.slf4j:slf4j-log4j12:1.7.5'
     testCompile 'log4j:log4j-1.2:1.2.17'
-    
+}
+
 task simpleTestCards(type: Test) {		
 		//println('Testa le funzionalità di accesso base alle carte Incard, Oberthur e Athena')
 		//println("Salva i report in $buildDir/reports/simple-test-cards")
@@ -54,7 +55,6 @@ task simpleTestCards(type: Test) {
   		
   		reports.html.destination = ("$buildDir/reports/simple-test-cards")
 	}
-}
 
 task simpleTestKeystore(type: Test) {		
 		//println('Testa le funzionalità di accesso base alle carte Incard, Oberthur e Athena')

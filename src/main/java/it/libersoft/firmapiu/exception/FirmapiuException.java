@@ -124,11 +124,46 @@ public final class FirmapiuException extends Exception {
 	 * Errore se l'accesso alla smartcard o al token crittografico richiesto non è permesso
 	 * */
 	public static final int CRT_TOKEN_FORBIDDEN=602;
+	
+	/**
+	 * Errore se è presente più di una smartcard o token crittografico
+	 * */
+	public static final int CRT_TOKEN_TOOMANY=603;
 
 	/**
-	 * Errore se il pin del token crittografico utilizzato non è presente/è stato omesso
+	 * Errore se il PIN/PUK del token crittografico utilizzato non è presente/è stato omesso/ è sbagliato
 	 * */
-	public static final int CRT_TOKENPIN_ERROR=603;
+	public static final int CRT_TOKENPINPUK_VERIFY_ERROR=604;
+	
+	/**
+	 * Errore se il PIN/PUK del token crittografico non è stato cambiato poichè il PIN/PUK passato come parametro era errato
+	 * */
+	public static final int CRT_TOKENPINPUK_UPDATE_ERROR=605;
+	
+	/**
+	 * Errore se il PIN del token crittografico non è stato cambiato/sbloccato poiché il PUK passato come parametro è errato
+	 * */
+	public static final int CRT_TOKENPINPUK_UNLOCK_ERROR=606;
+	
+	/**
+	 * Errore se il PIN/PUK passato come parametro all'operazione è troppo lungo o troppo corto
+	 * */
+	public static final int CRT_TOKENPINPUK_LENGTH_ERROR=607;
+	
+	/**
+	 * Errore se non è possibile attivare una sessione sul token
+	 * */
+	public static final int CRT_TOKEN_SESSION_FORBIDDEN=610;
+	
+	/**
+	 * Errore se è non è presente una sessione attiva sul token
+	 * */
+	public static final int CRT_TOKEN_SESSION_NOTFOUND=611;
+	
+	/**
+	 * Errore se è non è possibile determinare quanti tentativi sono rimasti prima che il token si blocchi
+	 * */
+	public static final int CRT_TOKEN_ATTEMPT_ERROR=612;
 	
 	/**
 	 * Errore se non è stato trovato il file di configurazione contente i driver per accedere al token crittografico utilizzato
@@ -209,6 +244,11 @@ public final class FirmapiuException extends Exception {
 	 * Errore nel caso in cui si cerca di creare o accedere al keystore ma l'operazione non è permessa
 	 * */
 	public static final int CERT_KEYSTOSTORE_FORBIDDEN=803;
+	
+	/**
+	 * Errore nel caso in cui il certificato non è valido alla data corrente. (O perché è scaduto o perché non è ancora valido)
+	 * */
+	public static final int CERT_INVALID_CURRENTDATE=804;
 	
 	/**
 	 * Errore di default in caso di un errore generico su un keystore

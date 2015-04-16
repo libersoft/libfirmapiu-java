@@ -61,6 +61,34 @@ public final class FactoryPropConsts {
 	public static final String CRT_TOKEN_TSLXMLKEYSTORE_CONFIGFILEPATH = "tslxmlkeystoreconfigfilepath";
 
 	/**
+	 * <b>Chiave:</b> Proprietà utilizzata per impostare il fatto che il pin del
+	 * token può essere formato solo da numeri<br>
+	 * <b>Valore associato: java.lang.Boolean -</b> true - Il pin del token può
+	 * essere formato solo da numeri. false - Il pin può essere formato anche da
+	 * altri caratteri oltre che numeri. <b>Default: Se la proprietà non viene
+	 * definita il pin del token può essere formato da qualsiasi carattere
+	 * */
+	public static final String CRT_TOKEN_PIN_ONLYNUMBER = "crtTokenPINonlyNumber";
+
+	/**
+	 * <b>Chiave:</b> Proprietà utilizzata per impostare il numero minimo di
+	 * caratteri che pin del token deve contenere<br>
+	 * <b>Valore associato: java.lang.Integer -</b> <b>Default: Se la proprietà
+	 * non viene definita il valore è =1. Se il valore esiste ed è <1 o >8 di
+	 * default il valore viene impostato a 1.
+	 * */
+	public static final String CRT_TOKEN_PIN_MINLENGTH = "crtTokenPINMinLength";
+
+	/**
+	 * <b>Chiave:</b> Proprietà utilizzata per impostare il numero massimo di
+	 * caratteri che pin del token deve contenere<br>
+	 * <b>Valore associato: java.lang.Integer -</b> <b>Default: Se la proprietà
+	 * non viene definita il valore è =8. Se il valore esiste ed è <1 o >8 di
+	 * default il valore viene impostato a 8.
+	 * */
+	public static final String CRT_TOKEN_PIN_MAXLENGTH = "crtTokenPINMaxLength";
+
+	/**
 	 * <b>Chiave:</b> (Proprietà di DataFactory) I percorsi dei file/url vengono
 	 * normalizzati nei confronti del loro path relativo e dei loro link
 	 * simbolici, in modo da garantire che i percorsi siano delle chiavi e che
