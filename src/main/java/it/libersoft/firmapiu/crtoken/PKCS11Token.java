@@ -51,7 +51,7 @@ public interface PKCS11Token extends CRToken {
 	public byte[] getATR() throws FirmapiuException;
 
 	/**
-	 * Cambia il PIN della smartcard
+	 * Cambia il PIN della smartcard/token crittografico
 	 * 
 	 * @param oldPin
 	 * @param newPin
@@ -61,7 +61,7 @@ public interface PKCS11Token extends CRToken {
 	public void setPin(char[] oldPin, char[] newPin) throws FirmapiuException;
 
 	/**
-	 * Cambia il PUK della smartcard
+	 * Cambia il PUK della smartcard/token crittografico
 	 * 
 	 * @param pin
 	 * @param oldPuk
@@ -73,15 +73,55 @@ public interface PKCS11Token extends CRToken {
 			throws FirmapiuException;
 
 	/**
-	 * Sblocca la smartcard nel caso in cui questa dovesse essere bloccata<br>
+	 * Verifica che il pin della smartcard/token crittografico sia corretto
+	 * 
+	 * @param pin
+	 * @return true se il pin è corretto, false altrimenti
+	 * @throws FirmapiuException
+	 */
+	public boolean verifyPin(char[] pin) throws FirmapiuException;
+
+	/**
+	 * Verifica che il puk della smartcard/token crittografico sia corretto
+	 * 
+	 * @param puk
+	 * @return true se il puk è corretto, false altrimenti
+	 * @throws FirmapiuException
+	 */
+	public boolean verifyPuk(char[] puk) throws FirmapiuException;
+
+	/**
+	 * Restituisce il numero di tentativi rimasti (per
+	 * cambio/verifica/login/logout PIN/PUK) per il pin prima che il token
+	 * crittografico si blocchi
+	 * 
+	 * @return il numero di tentativi rimasti
+	 * @throws FirmapiuException
+	 */
+	public int getPinRemainingAttempts() throws FirmapiuException;
+
+	/**
+	 * Restituisce il numero di tentativi rimasti (per
+	 * cambio/verifica/login/logout PIN/PUK) per il puk prima che il token
+	 * crittografico si blocchi
+	 * 
+	 * @return il numero di tentativi rimasti
+	 * @throws FirmapiuException
+	 */
+	public int getPukRemainingAttempts() throws FirmapiuException;
+
+	/**
+	 * Sblocca la smartcard/token crittografico nel caso in cui dovesse essere
+	 * bloccato<br>
 	 * (Ad esempio perché si è sbagliato ad inserire il pin)
 	 * 
 	 * @param pin
+	 *            il nuovo PIN della nuova smartcard/token
 	 * @param puk
-	 *            PUK da usare per sbloccare la carta
+	 *            PUK da usare per sbloccare la smartcard/token
 	 * @throws FirmapiuException
 	 *             in caso di errori applicativi
 	 */
-	public void unlockPKCS11Token(char[] pin, char[] puk)
+	public void unlockPKCS11Token(char[] puk, char[] pin)
 			throws FirmapiuException;
 }

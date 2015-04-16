@@ -100,7 +100,7 @@ final class TSLXmlKeyStoreToken implements KeyStoreToken {
 		if (prop.getProperty("password") != null) {
 			this.password = prop.getProperty("password").toCharArray();
 			if (this.password == null)
-				throw new FirmapiuException(CRT_TOKENPIN_ERROR);
+				throw new FirmapiuException(CRT_TOKENPINPUK_VERIFY_ERROR);
 		} else
 			// TODO gestire con un errore più specifico
 			throw new FirmapiuException(DEFAULT_ERROR);
@@ -152,7 +152,7 @@ final class TSLXmlKeyStoreToken implements KeyStoreToken {
 			msg += " : " + this.keystorePath;
 			throw new FirmapiuException(FILE_NOTFOUND, msg, e);
 		} catch (IOException e) {
-			throw new FirmapiuException(CRT_TOKENPIN_ERROR, e);
+			throw new FirmapiuException(CRT_TOKENPINPUK_VERIFY_ERROR, e);
 		}
 		return this.keystore;
 	}
