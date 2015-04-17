@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.security.ProviderException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -168,7 +169,16 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 			} catch (CMSException e){
 				FirmapiuException fe1 =new FirmapiuException(SIGNER_CADESBES_ERROR, e);
 				result.put(dataFileIn.getAbsolutePath(), fe1);
-			}catch (FirmapiuException e) {
+			}catch (ProviderException e){
+				//questa eccezione potrebbe essere lanciata se si rimuove il token pkcs11 durante il processo di firma
+				//se il token è PKCS11token si slogga e rilancia l'eccezione firmapiuexception al chiamante
+				if((token!=null)&&(token instanceof PKCS11Token)){
+					((PKCS11Token)token).logout();
+				}
+				FirmapiuException fe1 =new FirmapiuException(SIGNER_TOKEN_REMOVED, e);
+				throw fe1;
+			}
+			catch (FirmapiuException e) {
 				//se il token è PKCS11token si slogga e rilancia l'eccezione firmapiuexception al chiamante
 				if((token!=null)&&(token instanceof PKCS11Token)){
 					((PKCS11Token)token).logout();

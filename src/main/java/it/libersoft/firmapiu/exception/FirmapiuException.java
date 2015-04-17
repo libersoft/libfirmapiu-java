@@ -37,6 +37,12 @@ public final class FirmapiuException extends Exception {
 	 * Errore durante l'operazione di firma: Il sistema non è riuscito a imbustare nella busta crittografica CADES-bes i dati richiesti  
 	 * */
 	public static final int SIGNER_CADESBES_ERROR=100;
+	
+	/**
+	 * Errore se il token crittografico è stato rimosso durante l'operazione di firma 
+	 * */
+	public static final int SIGNER_TOKEN_REMOVED=101;
+	
 	/**
 	 * Errore se il token utilizzato non contiene un alias valido per la firma certificata
 	 * conforme alla DELIBERAZIONE ministeriale del N . 45 DEL 21 MAGGIO 2009.
