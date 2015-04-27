@@ -5,6 +5,7 @@ package it.libersoft.firmapiu;
 
 import it.libersoft.firmapiu.exception.FirmapiuException;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -32,4 +33,16 @@ public interface Data<T> {
 	 * @throws FirmapiuException In caso di errori di carattere applicativo
 	 */
 	public Set<T> getDataSet() throws FirmapiuException;
+	
+	//restituisce l'identificatore univoco dei tipi di dato passati come parametro
+	public String getDataId(T data) throws FirmapiuException;
+	
+	//rappresentazione in array di byte dei dati passati come parametro
+	public byte[] getArrayData(T data) throws FirmapiuException;
+	
+	//setta gli argomenti associati ai dati
+	public void setArgument(String key,String value) throws FirmapiuException;
+	
+	//recupera gli argomenti associati ai dati
+	public Map<String,String> getArgumentMap() throws FirmapiuException;
 }

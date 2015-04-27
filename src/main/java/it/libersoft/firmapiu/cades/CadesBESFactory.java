@@ -30,7 +30,7 @@ public final class CadesBESFactory extends DefaultFactory {
 	 * super factory ad essa associata che inizializza le proprietà di default
 	 * di questo oggetto.
 	 */
-	public CadesBESFactory() {
+	protected CadesBESFactory() {
 		super();
 	}
 
@@ -42,7 +42,7 @@ public final class CadesBESFactory extends DefaultFactory {
 	 *             Se l'oggetto richiesto non esiste
 	 */
 	@Override
-	public CadesBESCommandInterface getCadesBESCommandInterface(String choice)
+	public P7FileCommandInterface getCadesBESCommandInterface(String choice)
 			throws IllegalArgumentException {
 		if (choice.equals(P7MFILE)) {
 			// recupera i token crittografici da utilizzare per effettuare le
@@ -50,7 +50,7 @@ public final class CadesBESFactory extends DefaultFactory {
 			String signTokenType = (String) this.getProperty(CRT_SIGN_TOKEN);
 			String verifyTokenType = (String) this
 					.getProperty(CRT_VERIFY_TOKEN);
-			return new P7MFileCommandInterface(signTokenType, verifyTokenType);
+			return new P7FileCommandInterfaceImpl(signTokenType, verifyTokenType);
 		} else if (choice.equals(P7SFILE))
 			// TODO possibile estensione della libreria con supporto ai .p7s
 			throw new IllegalArgumentException(RB.getString("factoryerror3")

@@ -12,7 +12,7 @@ import it.libersoft.firmapiu.CRToken;
 import it.libersoft.firmapiu.DataFilePath;
 import it.libersoft.firmapiu.GenericArgument;
 import it.libersoft.firmapiu.MasterFactoryBuilder;
-import it.libersoft.firmapiu.cades.CadesBESCommandInterface;
+import it.libersoft.firmapiu.cades.P7FileCommandInterface;
 import it.libersoft.firmapiu.crtoken.KeyStoreToken;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
@@ -45,7 +45,7 @@ final class FirmapiulibTest {
 		}
 		
 		//Crea una cadesbescommandinterface per creare o verificare file P7M
-		CadesBESCommandInterface commandInterface=MasterFactoryBuilder.getFactory(CADESBESFACTORY).getCadesBESCommandInterface(P7MFILE);
+		P7FileCommandInterface commandInterface=MasterFactoryBuilder.getFactory(CADESBESFACTORY).getCadesBESCommandInterface(P7MFILE);
 		
 		//Testa le funzionalità di verifica messe a disposizione dall'interfaccia dei comandi
 		//crea la struttura dati per passare i dati da verificare come parametro

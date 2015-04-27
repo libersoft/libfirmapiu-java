@@ -9,6 +9,7 @@ import it.libersoft.firmapiu.DataFilePath;
 import it.libersoft.firmapiu.Argument;
 import it.libersoft.firmapiu.GenericArgument;
 import it.libersoft.firmapiu.MasterFactoryBuilder;
+import it.libersoft.firmapiu.ResultInterface;
 import it.libersoft.firmapiu.crtoken.KeyStoreToken;
 import it.libersoft.firmapiu.crtoken.PKCS11Token;
 import it.libersoft.firmapiu.exception.FirmapiuException;
@@ -40,13 +41,15 @@ import org.bouncycastle.cms.CMSTypedData;
 
 
 /**
- * La classe offre operazioni per firmare e la verificare  un insieme di files firmati elettronicamente (.p7m) 
- * secondo la DELIBERAZIONE ministeriale del N . 45 DEL 21 MAGGIO 2009.
+ * Classe concreta utilizzata per implementare le operazioni di firma, verifica e recupero del contenuto originale di dati
+ * nel formato Cades-BES secondo la DELIBERAZIONE ministeriale del N . 45 DEL 21 MAGGIO 2009.
+ * 
+ * La classe offre operazioni per firmare e la verificare  un insieme di files firmati elettronicamente (.p7m .p7s) 
  * 
  * @author dellanna
  *
  */
-final class P7MFileCommandInterface implements CadesBESCommandInterface {
+final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 
 	// inizializza i resourcebundle per il recupero dei messaggi lanciati dalla
 	// classe
@@ -68,7 +71,7 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 	 * di files firmati elettronicamente in formato CADES-bes (attacched)  
 	 * @see it.libersoft.firmapiu.consts.FactoryPropConsts
 	 */
-	protected P7MFileCommandInterface(String signTokenType,String verifyTokenType) {
+	protected P7FileCommandInterfaceImpl(String signTokenType,String verifyTokenType) {
 		this.signTokenType=signTokenType;
 		this.verifyTokenType=verifyTokenType;
 	}
@@ -141,7 +144,7 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 				
 				//se non è già stata inizializzata, inizializza una sessione di login se il token usato per firmare è pkcs#11
 				if(signer==null){
-					//crea il token crittografico a seconda del tipo passato come parametro alla P7MFileCommandInterface
+					//crea il token crittografico a seconda del tipo passato come parametro alla P7FileCommandInterfaceImpl
 					token=MasterFactoryBuilder.getFactory(this.signTokenType).getToken(CRTSMARTCARD);
 					//se il token è di tipo PKCS11Token, inizializza la sessione
 					if(token instanceof PKCS11Token)
@@ -438,6 +441,25 @@ final class P7MFileCommandInterface implements CadesBESCommandInterface {
 				fileInStream.close();
 			} catch (Exception e) {}
 		}
+	}
+
+	@Override
+	public ResultInterface verify(Data data) throws FirmapiuException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ResultInterface getContentSignedData(Data signedData)
+			throws FirmapiuException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ResultInterface sign(Data data) throws FirmapiuException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	//procedura privata per trovare il percorso canonico di un file da un path generico

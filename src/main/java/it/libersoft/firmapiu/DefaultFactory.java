@@ -3,7 +3,7 @@
  */
 package it.libersoft.firmapiu;
 
-import it.libersoft.firmapiu.cades.CadesBESCommandInterface;
+import it.libersoft.firmapiu.cades.P7FileCommandInterface;
 import it.libersoft.firmapiu.crtoken.PKCS11Token;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryPropConsts.*;
@@ -63,7 +63,7 @@ public class DefaultFactory {
 	 *             Se la factory utilizzata non implementa questo metodo
 	 * @see it.libersoft.firmapiu.consts.FactoryConsts
 	 */
-	public CadesBESCommandInterface getCadesBESCommandInterface(String choice)
+	public P7FileCommandInterface getCadesBESCommandInterface(String choice)
 			throws IllegalArgumentException {
 		throw new IllegalArgumentException(RB.getString("factoryerror1")
 				+ " : " + this.getClass().getCanonicalName());

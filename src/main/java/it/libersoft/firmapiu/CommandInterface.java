@@ -12,36 +12,38 @@ import java.util.Map;
  * 
  * @author dellanna
  *
+ * @param <K> Parametro utilizzato per parametrizzare i tipi di chiavi utilizzate da Data<K>
+ * @param <V> Parametro utilizzato per parametrizzare i tipi di dati dei valori restituiti da ResultInterface<K,V>
  */
-public interface CommandInterface {
+public interface CommandInterface<K,V> {
 
 	/**
 	 * Firma un insieme di dati passati come parametro, restituendo l'esito dell'operazione eseguita
 	 * 
-	 * @param data I dati da firmare 
-	 * @param option argomenti associati all'operazione da eseguire
-	 * @return l'esito dell'operazione
+	 * @param data I dati da firmare<br> 
+	 * (I dati da firmare dovrebbero essere delle chiavi univoche, per non firmare più di una volta gli stessi dati)
+	 * @return l'esito dell'operazione per ogni dato da firmare
 	 * @throws FirmapiuException Se l'esecuzione del metodo ha generato un errore applicativo
 	 */
-	public Map<?,?> sign(Data<?> data, Argument<?,?> option) throws FirmapiuException;
+	public ResultInterface<K,V> sign(Data<K> data) throws FirmapiuException;
 	
 	/**
 	 * Verifica la firma di un insieme di dati passati come parametro restituendo l'esito dell'operazione eseguita
 	 * 
 	 * @param data I dati da verificare
-	 * @param option Opzioni associate all'operazione da eseguire
-	 * @return l'esito dell'operazione
+	 * (I dati da verificare dovrebbero essere delle chiavi univoche, per non firmare più di una volta gli stessi dati)
+	 * @return Un report di verifica per ogni dato da verificare
 	 * @throws FirmapiuException Se l'esecuzione del metodo ha generato un errore applicativo
 	 */
-	public Map<?,?> verify(Data<?> data, Argument<?,?> option) throws FirmapiuException;
+	public ResultInterface<K,Report> verify(Data<K> data) throws FirmapiuException;
 	
 	/**
 	 * Restituisce il contenuto di un insieme di dati firmati
 	 * 
 	 * @param signedData I dati firmati (probabilmente in una busta crittografica tipo CMS, PAdes, CAdes Xades ecc...)
-	 * @param option Opzioni associate all'operazione da eseguire
-	 * @return Il contenuto originale dei dati firmati
+	 * (I dati dovrebbero essere delle chiavi univoche, per non effettuare l'operazione più di una volta gli stessi dati)
+	 * @return Il contenuto originale dei dati firmati per ogni chiave passata come paramtero
 	 * @throws FirmapiuException In caso di errore applicativo
 	 */
-	public Map<?,?> getContentSignedData(Data<?> signedData, Argument<?,?> option) throws FirmapiuException;
+	public ResultInterface<K,V> getContentSignedData(Data<K> signedData) throws FirmapiuException;
 }

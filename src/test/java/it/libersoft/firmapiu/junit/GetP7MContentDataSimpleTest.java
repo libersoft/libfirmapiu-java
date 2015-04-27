@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
 import it.libersoft.firmapiu.DataFilePath;
 import it.libersoft.firmapiu.GenericArgument;
 import it.libersoft.firmapiu.MasterFactoryBuilder;
-import it.libersoft.firmapiu.cades.CadesBESCommandInterface;
+import it.libersoft.firmapiu.cades.P7FileCommandInterface;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 import static it.libersoft.firmapiu.consts.ArgumentConsts.*;
@@ -38,7 +38,7 @@ public final class GetP7MContentDataSimpleTest {
 	//livello di logging del logger
 	private static Log4jLoggerAdapter LOG;
 	//private final static Level LOGLEVEL=Level.ALL;
-	private static CadesBESCommandInterface p7mFileInterface;
+	private static P7FileCommandInterface p7mFileInterface;
 	
 	//path sul quale tutto dovrebbe andar bene
 	private final static String OK_FILEPATH="/home/andy/Scrivania/p7mfiles2/README.txt.p7m";
@@ -97,7 +97,7 @@ public final class GetP7MContentDataSimpleTest {
 
 	/**
 	 * 
-	 * Test method for {@link it.libersoft.firmapiu.cades.P7MFileCommandInterface#getContentSignedData(it.libersoft.firmapiu.Data, it.libersoft.firmapiu.Argument)}.<p>
+	 * Test method for {@link it.libersoft.firmapiu.cades.P7FileCommandInterfaceImpl#getContentSignedData(it.libersoft.firmapiu.Data, it.libersoft.firmapiu.Argument)}.<p>
 	 *
 	 * Testa il metodo su una serie di file senza passare argomenti opzionali
 	 */
@@ -110,7 +110,7 @@ public final class GetP7MContentDataSimpleTest {
 
 	/**
 	 * 
-	 * Test method for {@link it.libersoft.firmapiu.cades.P7MFileCommandInterface#getContentSignedData(it.libersoft.firmapiu.Data, it.libersoft.firmapiu.Argument)}.<p>
+	 * Test method for {@link it.libersoft.firmapiu.cades.P7FileCommandInterfaceImpl#getContentSignedData(it.libersoft.firmapiu.Data, it.libersoft.firmapiu.Argument)}.<p>
 	 *
 	 * Testa il metodo su una serie di file passandogli la directory nella quale ddevono essere salvati. NON crea la directory
 	 */
@@ -124,7 +124,7 @@ public final class GetP7MContentDataSimpleTest {
 	
 	/**
 	 * 
-	 * Test method for {@link it.libersoft.firmapiu.cades.P7MFileCommandInterface#getContentSignedData(it.libersoft.firmapiu.Data, it.libersoft.firmapiu.Argument)}.<p>
+	 * Test method for {@link it.libersoft.firmapiu.cades.P7FileCommandInterfaceImpl#getContentSignedData(it.libersoft.firmapiu.Data, it.libersoft.firmapiu.Argument)}.<p>
 	 *
 	 * Testa il metodo su una serie di file passandogli la directory nella quale ddevono essere salvati. CREA la directory
 	 */
