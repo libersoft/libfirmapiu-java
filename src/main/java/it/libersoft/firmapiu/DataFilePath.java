@@ -8,19 +8,27 @@ import static it.libersoft.firmapiu.exception.FirmapiuException.*;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
  * Questa classe implementa un "contenitore" che contiene il percorso di un insieme di file da passare come parametro di input<br>
- * alle operazioni di firma/verifica da effettuare sui file stessi  
+ * alle operazioni di firma/verifica da effettuare sui file stessi<p>
+ * 
+ * I file presi in considerazioni devono essere delle "chiavi"
+ * in modo tale che il sistema non firmi lo stesso file più di una volta<br>
+ * I percorsi dei file da firmare devono essere percorsi assoluti.
  * 
  * @author dellanna
  * @see it.libersoft.firmapiu.Data
- *
+ * @see it.libersoft.firmapiu.consts.ArgumentConsts
  */
 public final class DataFilePath implements Data<String> {
 
@@ -29,10 +37,13 @@ public final class DataFilePath implements Data<String> {
 	
 	//insieme contenete il percorso dei file su cui bisogna fare le operazioni di firma/verifica
 	private final TreeSet<String> filepathset;
+	//insieme contenente gli argomenti opzionali da passare al comando di firma/verifica
+	private final TreeMap<String,String> commandArgs;
 	
-	protected DataFilePath(boolean normalize){
+	protected DataFilePath(){
 		//TODO vedere se ce bisogno di sincronizzare o meno
 		this.filepathset=new TreeSet<String>();
+		this.commandArgs=new TreeMap<String,String>();
 		//this.normalize=normalize;
 	}
 	
@@ -71,6 +82,74 @@ public final class DataFilePath implements Data<String> {
 	@Override
 	public Set<String> getDataSet() {
 		return (Set<String>) this.filepathset.clone();
+	}
+
+	/**
+	 * Restituisce l'identificativo univoco del file passato come parametro<br>
+	 * (Il suo percorso assoluto)
+	 * 
+	 * @return null se il parametro non è stato definito in setData
+	 * 
+	 * @see it.libersoft.firmapiu.Data#getDataId(java.lang.Object)
+	 */
+	@Override
+	public String getDataId(String data) throws FirmapiuException {
+		if(this.filepathset.contains(data))
+			return data;
+		else return null;
+	}
+
+	/**
+	 * Restituisce una rappresentazione in array di byte del contenuto del file passato come parametro
+	 * 
+	 * @return null se il parametro non è stato definito in setData
+	 * 
+	 * @see it.libersoft.firmapiu.Data#getArrayData(java.lang.Object)
+	 */
+	@Override
+	public byte[] getArrayData(String data) throws FirmapiuException {
+		if(!this.filepathset.contains(data))
+			return null;
+		
+		File file =new File(data);
+		FileInputStream filein=null;
+		try {
+			filein = new FileInputStream(file);
+			byte[] b = new byte[filein.available()];
+			filein.read(b);
+			return b;
+		} catch (FileNotFoundException e) {
+			throw new FirmapiuException(FILE_NOTFOUND, e);
+		} catch (IOException e) {
+			throw new FirmapiuException(IO_DEFAULT_ERROR, e);
+		} finally{
+			try {
+				filein.close();
+			} catch (IOException e) {
+			}
+		}
+	}
+
+	/**
+	 * Setta gli argomenti opzionali dei dati che il comando deve eseguire
+	 * 
+	 * @see it.libersoft.firmapiu.Data#setArgument(java.lang.String, java.lang.String)
+	 * @see it.libersoft.firmapiu.consts.ArgumentConsts
+	 */
+	@Override
+	public void setArgument(String key, String value) throws FirmapiuException {
+		this.commandArgs.put(key, value);
+	}
+
+	/**
+	 * Recupera gli argomenti associati ai dati
+	 * 
+	 * @see it.libersoft.firmapiu.Data#getArgumentMap()
+	 * @see it.libersoft.firmapiu.consts.ArgumentConsts
+	 */
+	@Override
+	public Map<String, String> getArgumentMap() throws FirmapiuException {
+		return (Map<String,String>) this.commandArgs.clone();
 	}
 
 	

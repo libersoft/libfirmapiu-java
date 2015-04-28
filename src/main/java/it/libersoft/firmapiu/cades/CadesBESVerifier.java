@@ -157,6 +157,28 @@ final class CadesBESVerifier {
 	}
 
 	/**
+	 * Genera una lista contenente tutti i firmatari presenti nella busta crittografica
+	 * 
+	 * @return la lista con tutti i firmatari 
+	 */
+	List<SignerInformation> getAllSigners() {
+		//genera la lista
+		List<SignerInformation> sigInfoList= new LinkedList<SignerInformation>();
+		
+		//recupera i firmatari
+		SignerInformationStore  signers = signedData.getSignerInfos();
+		Collection<?>  c = signers.getSigners();
+		Iterator<?>  it = c.iterator();
+		while (it.hasNext())
+		{	
+			SignerInformation   signer = (SignerInformation)it.next();
+			sigInfoList.add(signer);
+		}//fine while
+		
+		return sigInfoList;
+	}
+	
+	/**
 	 * Verifica la correttezza della firma elettronica per tutti i firmatari
 	 * presenti nella busta crittografica, controllando tutti i campi di
 	 * verifica
@@ -190,13 +212,10 @@ final class CadesBESVerifier {
 		List<Map<String, Object>> report = new LinkedList<Map<String, Object>>();
 		
 		//per ogni firmatario effettua la verifica
-		SignerInformationStore  signers = signedData.getSignerInfos();
-		Collection<?>  c = signers.getSigners();
-		Iterator<?>  it = c.iterator();
+		Iterator<SignerInformation>  it = this.getAllSigners().iterator();
 		while (it.hasNext())
 		{	
-			SignerInformation   signer = (SignerInformation)it.next();
-			Map<String,Object> record =this.verifySigner(signer);
+			Map<String,Object> record =this.verifySigner(it.next());
 			//aggiunge l'esito della verifica nella lista dei firmatari
 			report.add(record);
 		}//fine while

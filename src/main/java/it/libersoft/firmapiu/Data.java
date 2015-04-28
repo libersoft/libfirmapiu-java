@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ *TODO commenti ammodo
+ * 	 * @see it.libersoft.firmapiu.consts.ArgumentConsts
+ * 
  * Insieme di "dati" che devono essere firmati o verificati dalle factory concrete che realizzano firmapiu.<br>
  * Le classi concrete che realizzano questa interfaccia devono definire la tipologia specifica dei dati da utilizzare
  * 
@@ -34,15 +37,41 @@ public interface Data<T> {
 	 */
 	public Set<T> getDataSet() throws FirmapiuException;
 	
-	//restituisce l'identificatore univoco dei tipi di dato passati come parametro
+	/**
+	 * restituisce un identificatore univoco dei tipi di dato passati come parametro
+	 * 
+	 * @param data il dato passato come parametro
+	 * @return una stringa che identifica l'identificatore univoco
+	 * @throws FirmapiuException In caso di errori di carattere applicativo
+	 */
 	public String getDataId(T data) throws FirmapiuException;
 	
-	//rappresentazione in array di byte dei dati passati come parametro
+	/**
+	 * Restituisce una rappresentazione in array di byte dei dati passati come parametro
+	 * @param data il dato passato come parametro
+	 * @return Una rappresentazione del dato in array di byte
+	 * @throws FirmapiuException In caso di errori di carattere applicativo
+	 */
 	public byte[] getArrayData(T data) throws FirmapiuException;
 	
-	//setta gli argomenti associati ai dati
+	/**
+	 * Setta gli argomenti opzionali associati ai dati da passare come argomento ai comandi
+	 * 
+	 * @param key Il nome dell'argomento da settare
+	 * @param value
+	 * @throws FirmapiuException in caso di errori applicativi
+	 * 
+	 * @see it.libersoft.firmapiu.consts.ArgumentConsts
+	 */
 	public void setArgument(String key,String value) throws FirmapiuException;
 	
-	//recupera gli argomenti associati ai dati
+	/**
+	 * Recupera gli argomenti associati ai dati
+	 * 
+	 * @return una Map contenente gli argomenti settati da passare al comando
+	 * @throws FirmapiuException
+	 * 
+	 * @see it.libersoft.firmapiu.consts.ArgumentConsts
+	 */
 	public Map<String,String> getArgumentMap() throws FirmapiuException;
 }
