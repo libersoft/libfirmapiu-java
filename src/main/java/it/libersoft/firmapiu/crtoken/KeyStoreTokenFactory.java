@@ -7,8 +7,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import it.libersoft.firmapiu.CRToken;
-import it.libersoft.firmapiu.DefaultFactory;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 import static it.libersoft.firmapiu.consts.FactoryPropConsts.*;
@@ -21,7 +19,7 @@ import static it.libersoft.firmapiu.consts.FactoryPropConsts.*;
  * @author dellanna
  *
  */
-public final class KeyStoreTokenFactory extends DefaultFactory {
+public final class KeyStoreTokenFactory extends DefaultTokenFactory {
 
 	// inizializza il resourcebundle per il recupero dei messaggi lanciati dalla
 	// classe
@@ -33,16 +31,15 @@ public final class KeyStoreTokenFactory extends DefaultFactory {
 	 * super factory ad essa associata che inizializza le proprietà di default
 	 * di questo oggetto.
 	 */
-	public KeyStoreTokenFactory() {
-		// TODO Auto-generated constructor stub
+	protected KeyStoreTokenFactory() {
 	}
 
 	/**
 	 * 
-	 * @see it.libersoft.firmapiu.DefaultFactory#getToken(java.lang.String)
+	 * @see it.libersoft.firmapiu.DefaultTokenFactory#getKeyStoreToken(java.lang.String)
 	 */
 	@Override
-	public KeyStoreToken getToken(String choice)
+	public KeyStoreToken getKeyStoreToken(String choice)
 			throws IllegalArgumentException, FirmapiuException {
 		if (choice.equals(TSLXMLKEYSTORE)) {
 			// crea un token TSLXmlKeyStoreToken prendendo un file di

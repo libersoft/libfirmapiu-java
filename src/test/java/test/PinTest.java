@@ -27,7 +27,7 @@ final class PinTest {
 		
 		//TODO commentare e "scommentare" le parti di codice richieste per eseguire il test
 		//imposta le proprietà della factory
-		//DefaultFactory factory = MasterFactoryBuilder.getFactory(PKCS11TOKENFACTORY);
+		//DefaultTokenFactory factory = TokenFactoryBuilder.getFactory(PKCS11TOKENFACTORY);
 		//factory.setProperty(CRT_TOKEN_PIN_ONLYNUMBER, true);
 		//factory.setProperty(CRT_TOKEN_PIN_MINLENGTH, 5);
 		//factory.setProperty(CRT_TOKEN_PIN_MAXLENGTH, 8);

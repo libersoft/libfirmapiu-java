@@ -5,10 +5,8 @@ package it.libersoft.firmapiu.crtoken;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.ResourceBundle;
 
-import it.libersoft.firmapiu.DefaultFactory;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 import static it.libersoft.firmapiu.consts.FactoryPropConsts.*;
@@ -22,7 +20,7 @@ import static it.libersoft.firmapiu.consts.FactoryPropConsts.*;
  * @author dellanna
  *
  */
-public class PKCS11TokenFactory extends DefaultFactory {
+public class PKCS11TokenFactory extends DefaultTokenFactory {
 
 	// inizializza il resourcebundle per il recupero dei messaggi lanciati dalla
 	// classe
@@ -34,16 +32,15 @@ public class PKCS11TokenFactory extends DefaultFactory {
 	 * super factory ad essa associata che inizializza le proprietà di default
 	 * di questo oggetto.
 	 */
-	public PKCS11TokenFactory() {
-		// TODO Auto-generated constructor stub
+	protected PKCS11TokenFactory() {
 	}
 
 	/**
-	 * @see it.libersoft.firmapiu.DefaultFactory#getPKCS11Token(java.lang.String)
+	 * @see it.libersoft.firmapiu.crtoken.DefaultTokenFactory#getPKCS11Token(java.lang.String)
 	 */
 	@Override
-	public PKCS11Token getToken(String choice) throws IllegalArgumentException,
-			FirmapiuException {
+	public PKCS11Token getPKCS11Token(String choice)
+			throws IllegalArgumentException, FirmapiuException {
 		if (choice.equals(CRTSMARTCARD)) {
 			Map<String, Object> properties = this.getProperties();
 
@@ -51,7 +48,8 @@ public class PKCS11TokenFactory extends DefaultFactory {
 			// caricare il provider pkcs#11
 			String pkcs11driverlocation;
 			if (properties.containsKey(CRT_TOKEN_PKCS11_LIBRARYPATH))
-				pkcs11driverlocation = (String) properties.get(CRT_TOKEN_PKCS11_LIBRARYPATH);
+				pkcs11driverlocation = (String) properties
+						.get(CRT_TOKEN_PKCS11_LIBRARYPATH);
 			else {
 				ResourceBundle rb1 = ResourceBundle
 						.getBundle("it.libersoft.firmapiu.properties.pkcs11driverlocation");

@@ -44,7 +44,7 @@ final class FirmapiulibTest {
 			e.printStackTrace();
 		}
 		
-		//Crea una cadesbescommandinterface per creare o verificare file P7M
+		//Crea una cadesbescommandinterface per creare o verificare file P7MFILE
 		P7FileCommandInterface commandInterface=MasterFactoryBuilder.getFactory(CADESBESFACTORY).getCadesBESCommandInterface(P7MFILE);
 		
 		//Testa le funzionalità di verifica messe a disposizione dall'interfaccia dei comandi

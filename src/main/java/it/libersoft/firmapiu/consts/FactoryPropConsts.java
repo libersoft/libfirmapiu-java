@@ -4,8 +4,8 @@
 package it.libersoft.firmapiu.consts;
 
 /**
- * Questa classe contiene una serie di costanti utilizzabili dalle Factories per
- * impostarne le proprietà
+ * Questa classe contiene una serie di costanti utilizzabili dai metodi
+ * setProperty delle Factories per impostarne le proprietà
  * 
  * @author dellanna
  *
@@ -17,19 +17,23 @@ public final class FactoryPropConsts {
 
 	/**
 	 * <b>Chiave:</b> Token crittografico utilizzato per firmare dei dati<br>
-	 * <b>Valore associato: String -</b> Viene specificata la factory utilizzata
-	 * per creare il token crittografico <br>
-	 * <b>Default: <i>PKCS11TOKENFACTORY</i> -</b> di Default viene utilizzata
-	 * la factory per creare un token crittografico pkcs#11 (ad esempio
-	 * smartcard, penna USB etc etc...)
+	 * <b>Valore associato: String -</b> 
+	 * TODO semantica cambiata nella versione della libreria con le firme nuove, togliere questo commento se tutto va bene
+	 * Cerca di creare il token usando il fully qualified name della classe o della factory definita nel valore di questa proprietà. 
+	 * La classe deve avere un cotruttore senza parametri e deve implementare l'interfaccia CRTToken oppure deve essere una delle 
+	 * factories definite dalla libreria per la creazione di token 
 	 */
 	public static final String CRT_SIGN_TOKEN = "crtToken";
 
 	/**
 	 * <b>Chiave:</b> Token crittografico utilizzato per la verifica di dati
 	 * firmati elettronicamente<br>
-	 * <b>Valore associato: String -</b> Viene specificata la factory utilizzata
-	 * per creare il token crittografico <br>
+	 * <b>Valore associato: String -</b> 
+	 * TODO semantica cambiata nella versione della libreria con le firme nuove, togliere questo commento se tutto va bene
+	 * Cerca di creare il token usando il fully qualified name della classe o della factory definita nel valore di questa proprietà. 
+	 * La classe deve avere un cotruttore senza parametri e deve implementare l'interfaccia CRTToken oppure deve essere una delle 
+	 * factories definite dalla libreria per la creazione di token
+	 * <br>
 	 * */
 	public static final String CRT_VERIFY_TOKEN = "crtVerifyToken";
 
@@ -99,5 +103,21 @@ public final class FactoryPropConsts {
 	 * <b>Default: <i>true</i> -</b> I percorsi vengono normalizzati
 	 * */
 	public static final String NORMALIZE_DATAPATH = "normalizeDatapath";
+
+	/**
+	 * <b>Chiave:</b> (Proprietà di CadesBESFactory) DigestCalculatorProvider
+	 * utilizzato dalle API BOuncy Castles nell'operazione di firma. Questa
+	 * proprietà serve se si vuole imporre a BC di usare un DigestCalculator
+	 * diverso da quello solitamente utilizzato. (Ad esempio se si vuole passare
+	 * a BC un digest già precomputato) <b>Valore associato: String -</b> il
+	 * fully quilified name della classe utilizzata come
+	 * DigestCalculatorProvider (Ad esempio
+	 * it.libersoft.firmapiu.util.NoSHA256DigestCalculatorProvider se si vuole
+	 * passare alle Bouncy Castle un digest SHA-256 già precomputato)
+	 * <b>Default: <i> Se la proprietà non è definita BC usa il digest calulator
+	 * standard
+	 * 
+	 * */
+	public static final String DIGEST_CALCULATOR_PROVIDER = "digestCalculatorProvider";
 
 }

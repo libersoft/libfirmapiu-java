@@ -46,4 +46,16 @@ public interface CommandInterface<K,V> {
 	 * @throws FirmapiuException In caso di errore applicativo
 	 */
 	public ResultInterface<K,V> getContentSignedData(Data<K> signedData) throws FirmapiuException;
+	
+	/**
+	 * @return il token crittografico utilizzato nell'operazione di firma
+	 * @throws FirmapiuException
+	 */
+	public CRToken getSignToken() throws FirmapiuException;
+	
+	/**
+	 * @return il token crittografico utilizzato nell'operazione di verifica
+	 * @throws FirmapiuException
+	 */
+	public CRToken getVerifyCrToken() throws FirmapiuException;
 }

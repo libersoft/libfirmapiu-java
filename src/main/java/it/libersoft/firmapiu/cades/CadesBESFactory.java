@@ -5,10 +5,17 @@ package it.libersoft.firmapiu.cades;
 
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 import static it.libersoft.firmapiu.consts.FactoryPropConsts.*;
+import it.libersoft.firmapiu.CRToken;
 import it.libersoft.firmapiu.DefaultFactory;
+import it.libersoft.firmapiu.crtoken.PKCS11TokenFactory;
+import it.libersoft.firmapiu.crtoken.TokenFactoryBuilder;
+import it.libersoft.firmapiu.exception.FirmapiuException;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.TreeMap;
+
+import sun.security.ssl.SSLContextImpl.TLS10Context;
 
 /**
  * Costruisce l'interfaccia di comandi utilizzata per la firma e verifica di
@@ -18,46 +25,100 @@ import java.util.ResourceBundle;
  * @author dellanna
  *
  */
-public final class CadesBESFactory extends DefaultFactory {
-
-	// inizializza il resourcebundle per il recupero dei messaggi lanciati dalla
-	// classe
-	private static final ResourceBundle RB = ResourceBundle.getBundle(
-			"it.libersoft.firmapiu.lang.localefactory", Locale.getDefault());
-
+public class CadesBESFactory extends DefaultFactory{
+	
 	/**
-	 * Questa classe non dovrebbe essere inizializzata dal costruttore ma dalla
-	 * super factory ad essa associata che inizializza le proprietà di default
-	 * di questo oggetto.
+	 * 
 	 */
 	protected CadesBESFactory() {
 		super();
 	}
 
 	/**
+	 * Inizializza la Cades-BES factory
 	 * 
-	 * @see it.libersoft.firmapiu.DefaultFactory#getCadesBESCommandInterface(String
-	 *      choice)
-	 * @throws IllegalArgumentException
-	 *             Se l'oggetto richiesto non esiste
+	 * @return la factory creata
 	 */
-	@Override
-	public P7FileCommandInterface getCadesBESCommandInterface(String choice)
-			throws IllegalArgumentException {
-		if (choice.equals(P7MFILE)) {
-			// recupera i token crittografici da utilizzare per effettuare le
-			// operazioni di firma e verifica
-			String signTokenType = (String) this.getProperty(CRT_SIGN_TOKEN);
-			String verifyTokenType = (String) this
-					.getProperty(CRT_VERIFY_TOKEN);
-			return new P7FileCommandInterfaceImpl(signTokenType, verifyTokenType);
-		} else if (choice.equals(P7SFILE))
-			// TODO possibile estensione della libreria con supporto ai .p7s
-			throw new IllegalArgumentException(RB.getString("factoryerror3")
-					+ " : " + choice);
-		else
-			throw new IllegalArgumentException(RB.getString("factoryerror3")
-					+ " : " + choice);
+	public static CadesBESFactory getFactory(){
+		return new CadesBESFactory();
 	}
-
+	
+	/**
+	 * Crea una interfaccia di comandi specializzata per la creazione e la verifica e la gestione di file .p7m .p7s
+	 * 
+	 * @param filetype Il tipo di file considerato .p7m .p7s
+	 * @param signToken il token utilizzato per le operazioni di firma
+	 * @param verifyToken il token utilizzato per le operazioni di verifica
+	 * @return un interfaccia P7FileCommandInterface di comandi specializzata per la gestione di file .p7m .p7s
+	 * imbustati secondo la busta crittografica Cades-BES
+	 * 
+	 * @see it.libersoft.firmapiu.consts.FactoryConsts
+	 */
+	public P7FileCommandInterface getP7FileCommandInterface(String filetype,CRToken signToken,CRToken verifyToken){
+		return new P7FileCommandInterfaceImpl(filetype, signToken, verifyToken);
+	}
+	
+	
+	/**
+	 * Crea una interfaccia di comandi specializzata per la creazione e la verifica e la gestione di file .p7m .p7s
+	 * Tenta di inizializzare i Token di firma e verifica usando le proprietà definite nella CadesBESFactory
+	 * 
+	 * @param filetype Il tipo di file considerato .p7m .p7s
+	 * @return un interfaccia P7FileCommandInterface di comandi specializzata per la gestione di file .p7m .p7s
+	 * imbustati secondo la busta crittografica Cades-BES
+	 * 
+	 * @see it.libersoft.firmapiu.consts.FactoryConsts
+	 */
+	public P7FileCommandInterface getP7FileCommandInterface(String filetype) throws FirmapiuException{
+		//recupera le proprietà
+		//token per la firma
+		String signTokenType = (String) this.getProperty(CRT_SIGN_TOKEN);
+		CRToken signToken=null;
+		if (signTokenType!=null)
+		{
+			try {
+				//cerca di caricare il token usando un classloader
+				Class<?> signClass = ClassLoader.getSystemClassLoader().loadClass(signTokenType);
+				signToken =(CRToken)signClass.newInstance();
+			} catch (Exception e) {
+				signToken = TokenFactoryBuilder.getFactory(PKCS11TOKENFACTORY).getPKCS11Token(CRTSMARTCARD);
+			}
+		}//se la proprietà non è definita, crea il token con la factory tokenfactory
+		else
+			signToken = TokenFactoryBuilder.getFactory(PKCS11TOKENFACTORY).getPKCS11Token(CRTSMARTCARD);
+		//token per la firma
+		String verifyTokenType = (String) this.getProperty(CRT_VERIFY_TOKEN);
+		CRToken verifyToken=null;
+		if (verifyTokenType!=null)
+		{
+			try {
+				//cerca di caricare il token usando un classloader
+				Class<?> verifyClass = ClassLoader.getSystemClassLoader().loadClass(verifyTokenType);
+				verifyToken =(CRToken)verifyClass.newInstance();
+			} catch (Exception e) {
+				verifyToken = TokenFactoryBuilder.getFactory(KEYSTORETOKENFACTORY).getPKCS11Token(CRTSMARTCARD);
+			}
+		}//se la proprietà non è definita, crea il token con la factory tokenfactory
+		else
+			verifyToken = TokenFactoryBuilder.getFactory(KEYSTORETOKENFACTORY).getPKCS11Token(TSLXMLKEYSTORE);
+		
+		return new P7FileCommandInterfaceImpl(filetype, signToken, verifyToken);
+	}
+	
+	/**
+	 * Crea una interfaccia di comandi specializzata per la creazione e la verifica e la gestione di file .p7m .p7s
+	 * rappresentati come array di bytes
+	 * 
+	 * @param filetype Il tipo di file considerato .p7m .p7s
+	 * @param signToken il token utilizzato per le operazioni di firma
+	 * @param verifyToken il token utilizzato per le operazioni di verifica
+	 * @return un interfaccia P7ByteCommandInterface di comandi specializzata per la gestione di file .p7m .p7s
+	 * imbustati secondo la busta crittografica Cades-BES e rappresentati come array di bytes
+	 * 
+	 * @see it.libersoft.firmapiu.consts.FactoryConsts
+	 */
+	public P7ByteCommandInterface getP7ByteCommandInterface(String filetype,CRToken signToken,CRToken verifyToken){
+		//TODO
+		return null;
+	}
 }

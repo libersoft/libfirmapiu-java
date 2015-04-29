@@ -13,7 +13,7 @@ import java.util.TreeMap;
  * @author dellanna
  *
  */
-public class P7SDataFilePath extends TreeMap<String,String> implements Data<String> {
+public class P7SDataFilePath<K> extends TreeMap<String,String> implements Data<K> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -25,25 +25,25 @@ public class P7SDataFilePath extends TreeMap<String,String> implements Data<Stri
 	}
 
 	@Override
-	public void setData(String data) throws FirmapiuException {
+	public void setData(K data) throws FirmapiuException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public Set<String> getDataSet() throws FirmapiuException {
+	public Set<K> getDataSet() throws FirmapiuException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getDataId(String data) throws FirmapiuException {
+	public String getDataId(K data) throws FirmapiuException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public byte[] getArrayData(String data) throws FirmapiuException {
+	public byte[] getArrayData(K data) throws FirmapiuException {
 		// TODO Auto-generated method stub
 		return null;
 	}

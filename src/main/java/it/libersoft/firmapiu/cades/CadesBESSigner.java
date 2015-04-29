@@ -6,6 +6,8 @@ package it.libersoft.firmapiu.cades;
 import it.libersoft.firmapiu.CRToken;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.exception.FirmapiuException.*;
+import static it.libersoft.firmapiu.consts.FactoryConsts.P7MFILE;
+import static it.libersoft.firmapiu.consts.FactoryConsts.P7SFILE;
 
 import java.security.Key;
 import java.security.KeyStore;
@@ -211,12 +213,20 @@ final class CadesBESSigner {
 	    //cmsGenerator.addAttributeCertificate(new X509AttributeCertificateHolder(certHAttribute.getEncoded()));
 	}
 	
-	CMSSignedData sign(CMSTypedData data) throws CMSException{
+	/**
+	 * firma i dati passati come parametro generando la busta crittografica Cades-Bes
+	 * 
+	 * @param data i dati da firmare
+	 * @param attached Se i dati devono essere "attached" o "detached" dalla busta crittografica
+	 * @return la busta crittografica generata
+	 * @throws CMSException
+	 */
+	CMSSignedData sign(CMSTypedData data,boolean attached) throws CMSException{
 		
 		//TODO gestione del treadsafe?
         //genera i dati codificati in p7m (attached) secondo lo standard pkcs7 e 
 		//secondo la DELIBERAZIONE ministeriale del N . 45 DEL 21 MAGGIO 2009 art.21 comma 5,6
-			return this.cmsGenerator.generate(data, true);
+		return this.cmsGenerator.generate(data, attached);
 	}
 	
 //	void close(){

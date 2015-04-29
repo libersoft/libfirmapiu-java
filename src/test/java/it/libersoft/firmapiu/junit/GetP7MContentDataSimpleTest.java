@@ -7,6 +7,8 @@ import static org.junit.Assert.*;
 import it.libersoft.firmapiu.DataFilePath;
 import it.libersoft.firmapiu.GenericArgument;
 import it.libersoft.firmapiu.MasterFactoryBuilder;
+import it.libersoft.firmapiu.ResultInterface;
+import it.libersoft.firmapiu.cades.CadesBESFactory;
 import it.libersoft.firmapiu.cades.P7FileCommandInterface;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
@@ -40,6 +42,8 @@ public final class GetP7MContentDataSimpleTest {
 	//private final static Level LOGLEVEL=Level.ALL;
 	private static P7FileCommandInterface p7mFileInterface;
 	
+	private static DataFilePath signedData;
+	
 	//path sul quale tutto dovrebbe andar bene
 	private final static String OK_FILEPATH="/home/andy/Scrivania/p7mfiles2/README.txt.p7m";
 	//path di un file sul quale deve essere restituito un errore di encoding
@@ -59,7 +63,8 @@ public final class GetP7MContentDataSimpleTest {
 	public static void setUpBeforeClass() throws Exception {
 		//PropertyConfigurator.configure("/home/andy/libersoftspace/firmapiulib/src/test/resources/log4j.properties");
 		LOG = (Log4jLoggerAdapter)LoggerFactory.getLogger(GetP7MContentDataSimpleTest.class);
-		p7mFileInterface=MasterFactoryBuilder.getFactory(CADESBESFACTORY).getCadesBESCommandInterface(P7MFILE);
+		//p7mFileInterface=MasterFactoryBuilder.getFactory(CADESBESFACTORY).getCadesBESCommandInterface(P7MFILE);
+		p7mFileInterface= CadesBESFactory.getFactory().getP7FileCommandInterface(P7MFILE,null,null);
 		LOG.info("Oggetto da testare creato: inizio batteria di test su: "+p7mFileInterface.getClass().getCanonicalName()+"\n\n");
 	}
 
@@ -85,6 +90,14 @@ public final class GetP7MContentDataSimpleTest {
 	@Before
 	public void setUp() throws Exception {
 		System.out.println();
+		DataFilePath sigData = (DataFilePath)MasterFactoryBuilder.getFactory(DATAFACTORY).getData(DATAFILEPATH);
+		sigData.setData(OK_FILEPATH);
+		sigData.setData(OK_FILEPATH);
+		sigData.setData(ENCODINGERRORP7M_FILEPATH);
+		sigData.setData(NOTP7M_FILEPATH);
+		sigData.setData(FILENOTFOUND_FILEPATH);
+		
+		signedData=sigData;
 	}
 
 	/**
@@ -104,8 +117,8 @@ public final class GetP7MContentDataSimpleTest {
 	@Test
 	public final void testGetContentSignedDataWithoutOPT() throws FirmapiuException{
 		LOG.info("Testo i file salvando i risultati nella stessa directory in cui i file sono testati");
-		GenericArgument option = (GenericArgument)MasterFactoryBuilder.getFactory(ARGUMENTFACTORY).getArgument(GENERICARGUMENT);
-		testContentData(option);
+		//GenericArgument option = (GenericArgument)MasterFactoryBuilder.getFactory(ARGUMENTFACTORY).getArgument(GENERICARGUMENT);
+		testContentData(signedData);
 	}//fine test
 
 	/**
@@ -117,9 +130,10 @@ public final class GetP7MContentDataSimpleTest {
 	@Test
 	public final void testGetContentSignedDataWithOPT1() throws FirmapiuException{
 		LOG.info("Testo i file salvandoli nella scrivania");
-		GenericArgument option = (GenericArgument)MasterFactoryBuilder.getFactory(ARGUMENTFACTORY).getArgument(GENERICARGUMENT);
-		option.setArgument(OUTDIR, "/home/andy/Scrivania");
-		testContentData(option);
+		//GenericArgument option = (GenericArgument)MasterFactoryBuilder.getFactory(ARGUMENTFACTORY).getArgument(GENERICARGUMENT);
+		signedData.setArgument(OUTDIR, "/home/andy/Scrivania");
+		//option.setArgument(OUTDIR, "/home/andy/Scrivania");
+		testContentData(signedData);
 	}//fine test
 	
 	/**
@@ -131,57 +145,51 @@ public final class GetP7MContentDataSimpleTest {
 	@Test
 	public final void testGetContentSignedDataWithOPT2() throws FirmapiuException{
 		LOG.info("Testo i file salvando i risultati creando una nuova directory");
-		GenericArgument option = (GenericArgument)MasterFactoryBuilder.getFactory(ARGUMENTFACTORY).getArgument(GENERICARGUMENT);
-		option.setArgument(OUTDIR, "/home/andy/Scrivania/prova");
-		option.setArgument(CREATEOUTDIR, new Boolean(true));
-		testContentData(option);
+		//GenericArgument option = (GenericArgument)MasterFactoryBuilder.getFactory(ARGUMENTFACTORY).getArgument(GENERICARGUMENT);
+		signedData.setArgument(OUTDIR, "/home/andy/Scrivania/prova");
+		signedData.setArgument(CREATEOUTDIR, (new Boolean(true)).toString());
+		testContentData(signedData);
 	}//fine test
 
 	//PROCEDURE PRIVATE
 	//esegue il test passandogli gli argomenti come parametro
-	private void testContentData(GenericArgument option) throws FirmapiuException{
-		DataFilePath signedData = (DataFilePath)MasterFactoryBuilder.getFactory(DATAFACTORY).getData(DATAFILEPATH);
-		signedData.setData(OK_FILEPATH);
-		signedData.setData(OK_FILEPATH);
-		signedData.setData(ENCODINGERRORP7M_FILEPATH);
-		signedData.setData(NOTP7M_FILEPATH);
-		signedData.setData(FILENOTFOUND_FILEPATH);
+	private void testContentData(DataFilePath dataFilePath) throws FirmapiuException{
+		
 		
 		//signedData.setData(NOTABS_FILEPATH);	
-		Map<?,?> result=p7mFileInterface.getContentSignedData(signedData, option);
+		ResultInterface<String,File> result=p7mFileInterface.getContentSignedData(dataFilePath);
 		String testResult="Risultato del test:\n";
 		
-		Iterator<?> itr=result.keySet().iterator();
+		Iterator<String> itr=result.getResultDataSet().iterator();
 		while(itr.hasNext()){
 			String line="key -> ";
-			String key=(String)itr.next();
+			String key=itr.next();
 			line+=key+" ";
-			Object value=result.get(key);
-			if (value instanceof String){
-				File targetFile = new File((String)value);
-				assertTrue(targetFile.exists());
-				line+="value -> "+value+" OK! il file esiste";
-			} else if (value instanceof FirmapiuException){
-				FirmapiuException valueException=(FirmapiuException) value;
-				LOG.debug("errorCode: {} errorMsg: {}",valueException.errorCode,valueException.getLocalizedMessage());
+			File value;
+			try {
+				value = result.getResult(key);
+				assertTrue(value.exists());
+				line+="value -> "+value.getAbsolutePath()+" OK! il file esiste";
+			} catch (FirmapiuException e) {
+				LOG.debug("errorCode: {} errorMsg: {}",e.errorCode,e.getLocalizedMessage());
 				if (key.equals(ENCODINGERRORP7M_FILEPATH)){
-					assertEquals(Integer.valueOf(FirmapiuException.CONTENT_CADESBES_ENCODINGERROR_ATTACHED), Integer.valueOf(valueException.errorCode));
-					line+="value -> "+valueException.errorCode+" : OK! il file non è stato codificato: ";
-					line+="errorMessage -> "+valueException.getLocalizedMessage();
+					assertEquals(Integer.valueOf(FirmapiuException.CONTENT_CADESBES_ENCODINGERROR_ATTACHED), Integer.valueOf(e.errorCode));
+					line+="value -> "+e.errorCode+" : OK! il file non è stato codificato: ";
+					line+="errorMessage -> "+e.getLocalizedMessage();
 				}else if(key.equals(NOTP7M_FILEPATH)){
 					//assertSame(FirmapiuException.CONTENT_CADESBES_NOTP7MFILE, valueException.errorCode);
-					assertEquals(Integer.valueOf(FirmapiuException.CONTENT_CADESBES_NOTP7MFILE), Integer.valueOf(valueException.errorCode));
-					line+="value -> "+valueException.errorCode+" : OK! il file non è un p7m: ";
-					line+="errorMessage -> "+valueException.getLocalizedMessage();
+					assertEquals(Integer.valueOf(FirmapiuException.CONTENT_CADESBES_NOTP7MFILE), Integer.valueOf(e.errorCode));
+					line+="value -> "+e.errorCode+" : OK! il file non è un p7m: ";
+					line+="errorMessage -> "+e.getLocalizedMessage();
 				}else if(key.equals(FILENOTFOUND_FILEPATH)){
 					//assertSame(FirmapiuException.FILE_NOTFOUND, valueException.errorCode);
-					assertEquals(Integer.valueOf(FirmapiuException.FILE_NOTFOUND), Integer.valueOf(valueException.errorCode));
-					line+="value -> "+valueException.errorCode+" : OK! il file non esiste: ";
-					line+="errorMessage -> "+valueException.getLocalizedMessage();
+					assertEquals(Integer.valueOf(FirmapiuException.FILE_NOTFOUND), Integer.valueOf(e.errorCode));
+					line+="value -> "+e.errorCode+" : OK! il file non esiste: ";
+					line+="errorMessage -> "+e.getLocalizedMessage();
 				}else {
 					//eccezioni generiche
-					line+="value -> "+valueException.errorCode+" : ";
-					line+="errorMessage -> "+valueException.getLocalizedMessage();
+					line+="value -> "+e.errorCode+" : ";
+					line+="errorMessage -> "+e.getLocalizedMessage();
 				}
 			}
 			line+="\n";

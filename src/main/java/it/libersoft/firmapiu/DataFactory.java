@@ -39,7 +39,7 @@ final class DataFactory extends DefaultFactory {
 	public Data<?> getData(String choice) throws IllegalArgumentException {
 		if (choice.equals(DATAFILEPATH)){
 			boolean normalize=(Boolean)this.getProperty(NORMALIZE_DATAPATH);
-			return new DataFilePath(normalize);
+			return new DataFilePath();
 		}
 		else
 			throw new IllegalArgumentException(RB.getString("factoryerror3")

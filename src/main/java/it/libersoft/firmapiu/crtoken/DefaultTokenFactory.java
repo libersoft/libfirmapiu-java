@@ -1,13 +1,10 @@
 /**
  * 
  */
-package it.libersoft.firmapiu;
+package it.libersoft.firmapiu.crtoken;
 
-import it.libersoft.firmapiu.cades.P7FileCommandInterface;
 import it.libersoft.firmapiu.crtoken.PKCS11Token;
 import it.libersoft.firmapiu.exception.FirmapiuException;
-import static it.libersoft.firmapiu.consts.FactoryPropConsts.*;
-import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 
 import java.util.Locale;
 import java.util.Map;
@@ -18,12 +15,12 @@ import java.util.TreeMap;
  * Factory di default ereditata da tutte le factory concrete utilizzate dalla
  * libreria.<br>
  * Le factory sono implementate concretamente dalle classi che ereditano la
- * DefaultFactory
+ * DefaultTokenFactory
  * 
  * @author dellanna
  *
  */
-public class DefaultFactory {
+public class DefaultTokenFactory {
 
 	// inizializza il resourcebundle per il recupero dei messaggi lanciati dalla
 	// classe
@@ -37,42 +34,14 @@ public class DefaultFactory {
 	 * Crea la Factory settando le proprietà di default degli oggetti che
 	 * saranno creati
 	 */
-	protected DefaultFactory() {
+	protected DefaultTokenFactory() {
 		// crea la factory settando le proprietà di default
 		this.propMap = new TreeMap<String, Object>();
-		// il token crittografico utilizzato di default per la firma è un pkcs11
-		// token (una smartcard).
-		// Le factories concrete utilizzeranno questo token per implementare le
-		// operazioni di firma dei dati
-//		propMap.put(CRT_SIGN_TOKEN, PKCS11TOKENFACTORY);
-//		// Il token crittografico utilizzato di default per la verifica di dati
-//		// firmati elettronicamente è un TSLXmlKeyStoreToken.
-//		// Le factories concrete utilizzeranno questo token per implementare le
-//		// operazioni di verifica dell firma dei dati
-//		propMap.put(CRT_VERIFY_TOKEN, KEYSTORETOKENFACTORY);
 	}
 
 	/**
-	 * Crea un oggetto per la gestione delle operazioni di firma e verifica in
-	 * formato CADES-BES
-	 * 
-	 * @param choice
-	 *            Il formato della busta crittografica Cades-BES da utilizzare
-	 * @return
-	 * @throws IllegalArgumentException
-	 *             Se la factory utilizzata non implementa questo metodo
-	 * @see it.libersoft.firmapiu.consts.FactoryConsts
-	 */
-	public P7FileCommandInterface getCadesBESCommandInterface(String choice)
-			throws IllegalArgumentException {
-		throw new IllegalArgumentException(RB.getString("factoryerror1")
-				+ " : " + this.getClass().getCanonicalName());
-	}
-
-	/**
-	 * Crea un oggetto che raccoglie un insieme di dati da firmare o verificare
-	 * tramite le operazioni di firma e verifica messe a disposizione dalla
-	 * libreria
+	 * Crea un PKCS11Token per gestire le operazioni messe a disposizione da un
+	 * token pkcs11. (tipo smartcard, penne usb ecc ecc...)
 	 * 
 	 * @param choice
 	 *            il tipo di dati concreto da creare
@@ -81,14 +50,16 @@ public class DefaultFactory {
 	 *             Se la factory utilizzata non implementa questo metodo
 	 * @see it.libersoft.firmapiu.consts.FactoryConsts
 	 */
-	public Data<?> getData(String choice) throws IllegalArgumentException {
+	public PKCS11Token getPKCS11Token(String choice)
+			throws IllegalArgumentException, FirmapiuException {
 		throw new IllegalArgumentException(RB.getString("factoryerror1")
 				+ " : " + this.getClass().getCanonicalName());
 	}
 
 	/**
-	 * Crea un oggetto che raccoglie gli argomenti opzionali utilizzati nelle
-	 * operazioni di firma e verifica
+	 * Crea un KeyStoreToken per gestire le operazioni messe a disposizione da
+	 * un token "software" che gestisce un KeyStore contenente dati
+	 * crittografici. (tipo certificati, chiavi pubbliche, private ecc...)
 	 * 
 	 * @param choice
 	 *            il tipo di dati concreto da creare
@@ -97,26 +68,8 @@ public class DefaultFactory {
 	 *             Se la factory utilizzata non implementa questo metodo
 	 * @see it.libersoft.firmapiu.consts.FactoryConsts
 	 */
-	public Argument<?, ?> getArgument(String choice)
-			throws IllegalArgumentException {
-		throw new IllegalArgumentException(RB.getString("factoryerror1")
-				+ " : " + this.getClass().getCanonicalName());
-	}
-
-	/**
-	 * Crea un token per la gestione delle credenziali (tipo certificato utente,
-	 * chiave privata, gestione CA) usate dalle operazioni messe a disposizione
-	 * dalla libreria <code>firmapiulib</code>
-	 * 
-	 * @param choice
-	 *            il tipo di dati concreto da creare
-	 * @return
-	 * @throws IllegalArgumentException
-	 *             Se la factory utilizzata non implementa questo metodo
-	 * @see it.libersoft.firmapiu.consts.FactoryConsts
-	 */
-	public CRToken getToken(String choice) throws IllegalArgumentException,
-			FirmapiuException {
+	public KeyStoreToken getKeyStoreToken(String choice)
+			throws IllegalArgumentException, FirmapiuException {
 		throw new IllegalArgumentException(RB.getString("factoryerror1")
 				+ " : " + this.getClass().getCanonicalName());
 	}
