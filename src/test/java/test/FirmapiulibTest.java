@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 import it.libersoft.firmapiu.CRToken;
-import it.libersoft.firmapiu.DataFilePath;
 import it.libersoft.firmapiu.GenericArgument;
 import it.libersoft.firmapiu.MasterFactoryBuilder;
 import it.libersoft.firmapiu.cades.P7FileCommandInterface;
 import it.libersoft.firmapiu.crtoken.KeyStoreToken;
+import it.libersoft.firmapiu.data.DataFilePath;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 import static it.libersoft.firmapiu.consts.FirmapiuRecordConstants.*;

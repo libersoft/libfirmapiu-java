@@ -4,12 +4,12 @@
 package it.libersoft.firmapiu.junit;
 
 import static org.junit.Assert.*;
-import it.libersoft.firmapiu.DataFilePath;
 import it.libersoft.firmapiu.GenericArgument;
 import it.libersoft.firmapiu.MasterFactoryBuilder;
 import it.libersoft.firmapiu.ResultInterface;
 import it.libersoft.firmapiu.cades.CadesBESFactory;
 import it.libersoft.firmapiu.cades.P7FileCommandInterface;
+import it.libersoft.firmapiu.data.DataFilePath;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 import static it.libersoft.firmapiu.consts.ArgumentConsts.*;

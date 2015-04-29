@@ -5,15 +5,15 @@ package it.libersoft.firmapiu.cades;
 
 import it.libersoft.firmapiu.CRToken;
 import it.libersoft.firmapiu.Data;
-import it.libersoft.firmapiu.DataFilePath;
 import it.libersoft.firmapiu.Argument;
 import it.libersoft.firmapiu.GenericArgument;
 import it.libersoft.firmapiu.MasterFactoryBuilder;
-import it.libersoft.firmapiu.P7SDataFilePath;
+import it.libersoft.firmapiu.P7SData;
 import it.libersoft.firmapiu.Report;
 import it.libersoft.firmapiu.ResultInterface;
 import it.libersoft.firmapiu.crtoken.KeyStoreToken;
 import it.libersoft.firmapiu.crtoken.PKCS11Token;
+import it.libersoft.firmapiu.data.DataFilePath;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.ArgumentConsts.*;
 import static it.libersoft.firmapiu.exception.FirmapiuException.*;
@@ -318,7 +318,7 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	}
 
 	@Override
-	public ResultInterface<String, Report> verifyP7S(P7SDataFilePath<String> data)
+	public ResultInterface<String, Report> verifyP7S(P7SData<String> data)
 			throws FirmapiuException {
 		// TODO Auto-generated method stub
 		return null;

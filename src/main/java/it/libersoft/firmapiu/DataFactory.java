@@ -4,6 +4,7 @@
 package it.libersoft.firmapiu;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 import static it.libersoft.firmapiu.consts.FactoryPropConsts.*;
+import it.libersoft.firmapiu.data.DataFilePath;
 
 import java.util.Locale;
 import java.util.ResourceBundle;

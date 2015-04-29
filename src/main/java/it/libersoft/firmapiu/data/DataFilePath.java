@@ -1,8 +1,9 @@
 /**
  * 
  */
-package it.libersoft.firmapiu;
+package it.libersoft.firmapiu.data;
 
+import it.libersoft.firmapiu.Data;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.exception.FirmapiuException.*;
 

@@ -5,10 +5,10 @@ import java.util.Map;
 
 import it.libersoft.firmapiu.CommandInterface;
 import it.libersoft.firmapiu.Data;
-import it.libersoft.firmapiu.DataFilePath;
-import it.libersoft.firmapiu.P7SDataFilePath;
+import it.libersoft.firmapiu.P7SData;
 import it.libersoft.firmapiu.Report;
 import it.libersoft.firmapiu.ResultInterface;
+import it.libersoft.firmapiu.data.DataFilePath;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 
 /**
@@ -40,5 +40,5 @@ public interface P7FileCommandInterface extends CommandInterface<String,File> {
 	 * @return Un report contentente L'esito della verifica per ogni p7s passato comeparametro 
 	 * @throws FirmapiuException in caso di errore applicativo
 	 */
-	public ResultInterface<String,Report> verifyP7S(P7SDataFilePath<String> data) throws FirmapiuException;
+	public ResultInterface<String,Report> verifyP7S(P7SData<String> data) throws FirmapiuException;
 }

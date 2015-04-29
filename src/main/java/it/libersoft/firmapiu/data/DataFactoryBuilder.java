@@ -1,9 +1,10 @@
 /**
  * 
  */
-package it.libersoft.firmapiu.crtoken;
+package it.libersoft.firmapiu.data;
 
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
+import it.libersoft.firmapiu.cades.CadesBESFactory;
 import it.libersoft.firmapiu.crtoken.KeyStoreTokenFactory;
 import it.libersoft.firmapiu.crtoken.PKCS11TokenFactory;
 
@@ -11,9 +12,9 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
- * Token Factory che costruisce tutte le factory concrete utilizzare dalla
- * libreria firmapiu per la creazione dei token crittografici utilizzati
- * per la firma e la verifica di dati
+ * Data Factory che costruisce tutte le factory concrete utilizzare dalla
+ * libreria firmapiu per la creazione delle strutture dati utilizzate 
+ * dalle operazioni di firma e verifica dei dati
  * <p>
  * 
  * @see <a
@@ -22,7 +23,7 @@ import java.util.ResourceBundle;
  * @author dellanna
  *
  */
-public final class TokenFactoryBuilder {
+public final class DataFactoryBuilder {
 	// inizializza il resourcebundle per il recupero dei messaggi lanciati dalla
 	// classe
 	private final static ResourceBundle RB = ResourceBundle.getBundle(
@@ -36,8 +37,14 @@ public final class TokenFactoryBuilder {
 	 * @see it.libersoft.firmapiu.consts.FactoryConsts
 	 * @throws IllegalArgumentException Se la factory richiesta non esiste
 	 */
-	public static DefaultTokenFactory getFactory(String choice) {
-		if (choice.equals(PKCS11TOKENFACTORY)) {
+	public static DefaultDataFactory getFactory(String choice) {
+		if (choice.equals(CADESBESFACTORY)) {
+			return new CadesBESFactory();
+		}else if (choice.equals(DATAFACTORY)) {
+			return new DataFactory();
+		}else if (choice.equals(ARGUMENTFACTORY)) {
+			return new ArgumentFactory(); 
+		}else if (choice.equals(PKCS11TOKENFACTORY)) {
 			return new PKCS11TokenFactory(); 
 		}else if(choice.equals(KEYSTORETOKENFACTORY)){
 			return new KeyStoreTokenFactory();

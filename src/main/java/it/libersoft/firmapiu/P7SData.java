@@ -13,14 +13,14 @@ import java.util.TreeMap;
  * @author dellanna
  *
  */
-public class P7SDataFilePath<K> extends TreeMap<String,String> implements Data<K> {
+public class P7SData<K> extends TreeMap<String,String> implements Data<K> {
 
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * 
 	 */
-	protected P7SDataFilePath() {
+	protected P7SData() {
 		// TODO Auto-generated constructor stub
 	}
 

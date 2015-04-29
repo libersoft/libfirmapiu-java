@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import it.libersoft.firmapiu.MasterFactoryBuilder;
 import it.libersoft.firmapiu.crtoken.PKCS11Token;
+import it.libersoft.firmapiu.crtoken.TokenFactoryBuilder;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 
 import org.junit.After;
@@ -54,7 +55,7 @@ public class CRTSmartCardTokenSimpleTest {
 		LOG.addHandler(new DualConsoleHandler());
 		System.out.println("INSERIRE SMARTCARD <"+name+"> PER ESEGUIRE IL TEST CORRETTAMENTE!");
 		Thread.sleep(10000);
-		smartcard = (PKCS11Token)MasterFactoryBuilder.getFactory(PKCS11TOKENFACTORY).getToken(CRTSMARTCARD);
+		smartcard = TokenFactoryBuilder.getFactory(PKCS11TOKENFACTORY).getPKCS11Token(CRTSMARTCARD);
 		LOG.info("Oggetto da testare creato: inizio batteria di test su: "+smartcard.getClass().getCanonicalName());
 		System.out.println();
 		System.out.println("---------------------------------------------------------");
