@@ -86,22 +86,22 @@ public class DefaultFactory {
 				+ " : " + this.getClass().getCanonicalName());
 	}
 
-	/**
-	 * Crea un oggetto che raccoglie gli argomenti opzionali utilizzati nelle
-	 * operazioni di firma e verifica
-	 * 
-	 * @param choice
-	 *            il tipo di dati concreto da creare
-	 * @return
-	 * @throws IllegalArgumentException
-	 *             Se la factory utilizzata non implementa questo metodo
-	 * @see it.libersoft.firmapiu.consts.FactoryConsts
-	 */
-	public Argument<?, ?> getArgument(String choice)
-			throws IllegalArgumentException {
-		throw new IllegalArgumentException(RB.getString("factoryerror1")
-				+ " : " + this.getClass().getCanonicalName());
-	}
+//	/**
+//	 * Crea un oggetto che raccoglie gli argomenti opzionali utilizzati nelle
+//	 * operazioni di firma e verifica
+//	 * 
+//	 * @param choice
+//	 *            il tipo di dati concreto da creare
+//	 * @return
+//	 * @throws IllegalArgumentException
+//	 *             Se la factory utilizzata non implementa questo metodo
+//	 * @see it.libersoft.firmapiu.consts.FactoryConsts
+//	 */
+//	public Argument<?, ?> getArgument(String choice)
+//			throws IllegalArgumentException {
+//		throw new IllegalArgumentException(RB.getString("factoryerror1")
+//				+ " : " + this.getClass().getCanonicalName());
+//	}
 
 	/**
 	 * Crea un token per la gestione delle credenziali (tipo certificato utente,

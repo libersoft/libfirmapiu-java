@@ -3,16 +3,21 @@
  */
 package test;
 
+import java.io.File;
 import java.security.cert.X509Certificate;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import it.libersoft.firmapiu.CRToken;
-import it.libersoft.firmapiu.GenericArgument;
-import it.libersoft.firmapiu.MasterFactoryBuilder;
+import it.libersoft.firmapiu.Report;
+import it.libersoft.firmapiu.ResultInterface;
+//import it.libersoft.firmapiu.GenericArgument;
+//import it.libersoft.firmapiu.MasterFactoryBuilder;
+import it.libersoft.firmapiu.cades.CadesBESFactory;
 import it.libersoft.firmapiu.cades.P7FileCommandInterface;
 import it.libersoft.firmapiu.crtoken.KeyStoreToken;
+import it.libersoft.firmapiu.crtoken.TokenFactoryBuilder;
 import it.libersoft.firmapiu.data.DataFilePath;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
@@ -34,7 +39,7 @@ final class FirmapiulibTest {
 		// TODO Auto-generated method stub
 		
 		//crea il keystore contenente le trust anchor delle CA utilizzate per verificare l'affidabilità del certificato del firmatario
-		KeyStoreToken token=(KeyStoreToken)MasterFactoryBuilder.getFactory(KEYSTORETOKENFACTORY).getToken(TSLXMLKEYSTORE);
+		KeyStoreToken token= TokenFactoryBuilder.getFactory(KEYSTORETOKENFACTORY).getKeyStoreToken(TSLXMLKEYSTORE);
 		
 		try {
 			token.createKeyStore();
@@ -45,12 +50,13 @@ final class FirmapiulibTest {
 		}
 		
 		//Crea una cadesbescommandinterface per creare o verificare file P7MFILE
-		P7FileCommandInterface commandInterface=MasterFactoryBuilder.getFactory(CADESBESFACTORY).getCadesBESCommandInterface(P7MFILE);
+		//P7FileCommandInterface commandInterface=MasterFactoryBuilder.getFactory(CADESBESFACTORY).getCadesBESCommandInterface(P7MFILE);
+		P7FileCommandInterface commandInterface= CadesBESFactory.getFactory().getP7FileCommandInterface(P7MFILE);
 		
 		//Testa le funzionalità di verifica messe a disposizione dall'interfaccia dei comandi
 		//crea la struttura dati per passare i dati da verificare come parametro
 		DataFilePath data = (DataFilePath)MasterFactoryBuilder.getFactory(DATAFACTORY).getData(DATAFILEPATH);
-		GenericArgument option = (GenericArgument)MasterFactoryBuilder.getFactory(ARGUMENTFACTORY).getArgument(GENERICARGUMENT);
+		//GenericArgument option = (GenericArgument)MasterFactoryBuilder.getFactory(ARGUMENTFACTORY).getArgument(GENERICARGUMENT);
 		//inizializza la struttura dati con i percorsi dei file p7m da verificare
 		System.out.println("File da verificare:");
 		for(String arg: args){
@@ -62,19 +68,19 @@ final class FirmapiulibTest {
 		System.out.println();
 		
 		//esegue la verifica
-		Map<?,?> result=commandInterface.verify(data, option);
+		ResultInterface<String,Report> result=commandInterface.verify(data);
 		
 		System.out.println("Esito della verifica:");
 		System.out.println();
 		//controlla la verifica per ogni file
-		Iterator<String> itr=data.getDataSet().iterator();
+		Iterator<String> itr=result.getResultDataSet().iterator();
 		while(itr.hasNext()){
 			String dataPath = itr.next();
 			System.out.println();
 			System.out.println("File ->"+dataPath);
 			System.out.println("************************************");			
 			//verifica la firma di tutti i firmatari per ogni file
-			Object signers =result.get(dataPath);
+			Object signers =result.getResult(dataPath);
 			List<?> signersList= (List<?>)signers;
 			Iterator<?> sigItr = signersList.iterator();
 			while(sigItr.hasNext()){

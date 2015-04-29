@@ -6,7 +6,6 @@ package it.libersoft.firmapiu.crtoken;
 import javax.smartcardio.ATR;
 
 import it.libersoft.firmapiu.CRToken;
-import it.libersoft.firmapiu.MasterFactoryBuilder;
 import it.libersoft.firmapiu.crtoken.PKCS11Token;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
@@ -21,7 +20,7 @@ public class TestCard {
 	 */
 	public static void main(String[] args) throws FirmapiuException {
 		// TODO Auto-generated method stub
-		PKCS11Token token = (PKCS11Token)MasterFactoryBuilder.getFactory(PKCS11TOKENFACTORY).getToken(CRTSMARTCARD);
+		PKCS11Token token = TokenFactoryBuilder.getFactory(PKCS11TOKENFACTORY).getPKCS11Token(CRTSMARTCARD);
 		
 		//String atrString = CRTSmartCardToken.getHexString(smartcardToken.getATR());
 		ATR atr= new ATR(token.getATR());

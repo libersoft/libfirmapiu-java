@@ -11,7 +11,6 @@ import java.security.Security;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
-import it.libersoft.firmapiu.MasterFactoryBuilder;
 import it.libersoft.firmapiu.crtoken.PKCS11Token;
 import it.libersoft.firmapiu.crtoken.TokenFactoryBuilder;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;

@@ -11,8 +11,10 @@ import java.security.KeyStoreException;
 import java.util.logging.Logger;
 
 import it.libersoft.firmapiu.DefaultFactory;
-import it.libersoft.firmapiu.MasterFactoryBuilder;
+//import it.libersoft.firmapiu.MasterFactoryBuilder;
+import it.libersoft.firmapiu.crtoken.DefaultTokenFactory;
 import it.libersoft.firmapiu.crtoken.KeyStoreToken;
+import it.libersoft.firmapiu.crtoken.TokenFactoryBuilder;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 import static it.libersoft.firmapiu.consts.FactoryPropConsts.*;
@@ -47,9 +49,9 @@ public class TSLXmlKeyStoreTokenSimpleTest {
 		LOG.setUseParentHandlers(false);
 		LOG.addHandler(new DualConsoleHandler());
 		KEYSTORE_PATH="/home/andy/libersoftspace/firmapiulib/src/main/config/keystore.jks";
-		DefaultFactory keyfactory = MasterFactoryBuilder.getFactory(KEYSTORETOKENFACTORY);
+		DefaultTokenFactory keyfactory = TokenFactoryBuilder.getFactory(KEYSTORETOKENFACTORY);
 		String configFilePath=(String)keyfactory.getProperty(CRT_TOKEN_TSLXMLKEYSTORE_CONFIGFILEPATH);
-		keystoreToken = (KeyStoreToken)keyfactory.getToken(TSLXMLKEYSTORE);
+		keystoreToken = keyfactory.getKeyStoreToken(TSLXMLKEYSTORE);
 		LOG.info("Oggetto da testare creato: inizio batteria di test su: "+keystoreToken.getClass().getCanonicalName());
 		LOG.info("File di configurazione usato per creare l'oggetto: "+configFilePath);
 		System.out.println();

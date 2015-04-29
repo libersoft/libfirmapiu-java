@@ -4,7 +4,7 @@
 package test;
 
 import it.libersoft.firmapiu.DefaultFactory;
-import it.libersoft.firmapiu.MasterFactoryBuilder;
+//import it.libersoft.firmapiu.MasterFactoryBuilder;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 import static it.libersoft.firmapiu.consts.FactoryPropConsts.*;
@@ -27,11 +27,11 @@ final class PinTest {
 		
 		//TODO commentare e "scommentare" le parti di codice richieste per eseguire il test
 		//imposta le proprietà della factory
-		//DefaultTokenFactory factory = TokenFactoryBuilder.getFactory(PKCS11TOKENFACTORY);
-		//factory.setProperty(CRT_TOKEN_PIN_ONLYNUMBER, true);
-		//factory.setProperty(CRT_TOKEN_PIN_MINLENGTH, 5);
-		//factory.setProperty(CRT_TOKEN_PIN_MAXLENGTH, 8);
-		//PKCS11Token pkcs11Token = (PKCS11Token) factory.getToken(CRTSMARTCARD);
+		DefaultTokenFactory factory = TokenFactoryBuilder.getFactory(PKCS11TOKENFACTORY);
+		factory.setProperty(CRT_TOKEN_PIN_ONLYNUMBER, true);
+		factory.setProperty(CRT_TOKEN_PIN_MINLENGTH, 5);
+		factory.setProperty(CRT_TOKEN_PIN_MAXLENGTH, 8);
+		PKCS11Token pkcs11Token = (PKCS11Token) factory.getPKCS11Token(CRTSMARTCARD);
 		
 		char[] oldPin=args[0].toCharArray();
 		char[] newPin=args[1].toCharArray();

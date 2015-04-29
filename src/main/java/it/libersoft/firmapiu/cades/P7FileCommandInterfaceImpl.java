@@ -5,9 +5,9 @@ package it.libersoft.firmapiu.cades;
 
 import it.libersoft.firmapiu.CRToken;
 import it.libersoft.firmapiu.Data;
-import it.libersoft.firmapiu.Argument;
-import it.libersoft.firmapiu.GenericArgument;
-import it.libersoft.firmapiu.MasterFactoryBuilder;
+//import it.libersoft.firmapiu.Argument;
+//import it.libersoft.firmapiu.GenericArgument;
+//import it.libersoft.firmapiu.MasterFactoryBuilder;
 import it.libersoft.firmapiu.P7SData;
 import it.libersoft.firmapiu.Report;
 import it.libersoft.firmapiu.ResultInterface;
@@ -446,16 +446,16 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 			dataFilePath=(DataFilePath)data;
 		return dataFilePath;
 	}
-	//controllo coerenza argomenti
-	private static GenericArgument checkArgument(Argument<?, ?> option){
-		GenericArgument commandArgs;
-		if( option==null || !(option instanceof GenericArgument))
-			throw new IllegalArgumentException(RB.getString("factoryerror4")
-					+ " : " + option.getClass().getCanonicalName());
-		else 
-			commandArgs=(GenericArgument)option;
-		return commandArgs;
-	}
+//	//controllo coerenza argomenti
+//	private static GenericArgument checkArgument(Argument<?, ?> option){
+//		GenericArgument commandArgs;
+//		if( option==null || !(option instanceof GenericArgument))
+//			throw new IllegalArgumentException(RB.getString("factoryerror4")
+//					+ " : " + option.getClass().getCanonicalName());
+//		else 
+//			commandArgs=(GenericArgument)option;
+//		return commandArgs;
+//	}
 			
 	//genera directory di output
 	//recupera la directory di output. presso cui salvare il contenuto originale dei file contenuti nel p7m. Se non esiste la crea
