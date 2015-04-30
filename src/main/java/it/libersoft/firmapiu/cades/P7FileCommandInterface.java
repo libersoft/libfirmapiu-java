@@ -8,7 +8,6 @@ import it.libersoft.firmapiu.Data;
 import it.libersoft.firmapiu.P7SData;
 import it.libersoft.firmapiu.Report;
 import it.libersoft.firmapiu.ResultInterface;
-import it.libersoft.firmapiu.data.DataFilePath;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 
 /**
@@ -31,7 +30,7 @@ import it.libersoft.firmapiu.exception.FirmapiuException;
  *            Tipo di dato associato ai valori restituiti da
  *            ResultInterface<K,V>
  */
-public interface P7FileCommandInterface extends CommandInterface<String,File> {
+public interface P7FileCommandInterface extends CommandInterface<File,File> {
 	
 	/**
 	 * Verifica i file p7s nel formato Cades-BES per controllarne la correttezza e l'affidabilità

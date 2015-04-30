@@ -38,7 +38,7 @@ final class PinTest {
 		
 		
 		//testa il cambio del pin
-		//pkcs11Token.setPin(oldPin, newPin);
+		//kcs11Token.setPin(oldPin, newPin);
 		//testa lo sblocco del PIN
 		//pkcs11Token.unlockPKCS11Token(oldPin, newPin);
 		//testa il cambio del PUK

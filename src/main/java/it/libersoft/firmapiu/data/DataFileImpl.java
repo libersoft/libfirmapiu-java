@@ -21,7 +21,7 @@ import java.util.TreeSet;
 
 /**
  * Questa classe implementa un "contenitore" che contiene il percorso di un
- * insieme di file da passare come parametro di input<br>
+ * insieme di file da passare come parametro di input
  * alle operazioni di firma/verifica da effettuare sui file stessi
  * <p>
  * 
@@ -36,7 +36,7 @@ import java.util.TreeSet;
  * @see it.libersoft.firmapiu.Data
  * @see it.libersoft.firmapiu.consts.ArgumentConsts
  */
-public final class DataFilePath implements Data<String> {
+final class DataFileImpl implements DataFile {
 
 	// flag per vedere se i percorsi passati come parametro devono essere
 	// normalizzati o meno
@@ -44,14 +44,14 @@ public final class DataFilePath implements Data<String> {
 
 	// insieme contenete il percorso dei file su cui bisogna fare le operazioni
 	// di firma/verifica
-	private final TreeSet<String> filepathset;
+	private final TreeSet<File> filepathset;
 	// insieme contenente gli argomenti opzionali da passare al comando di
 	// firma/verifica
 	private final TreeMap<String, String> commandArgs;
 
-	protected DataFilePath() {
+	protected DataFileImpl() {
 		// TODO vedere se ce bisogno di sincronizzare o meno
-		this.filepathset = new TreeSet<String>();
+		this.filepathset = new TreeSet<File>();
 		this.commandArgs = new TreeMap<String, String>();
 		// this.normalize=normalize;
 	}
@@ -65,7 +65,7 @@ public final class DataFilePath implements Data<String> {
 	 * @see it.libersoft.firmapiu.Data#setData(java.lang.Object)
 	 */
 	@Override
-	public void setData(String data) throws FirmapiuException {
+	public void setData(File data) throws FirmapiuException {
 		// TODO parte da ignorare i percorsi dei file devono già essere forniti
 		// normalizzati altrimenti la libreria lancia un errore
 		// TODO In un futuro sviluppo della libreria si può decidere se i
@@ -83,11 +83,10 @@ public final class DataFilePath implements Data<String> {
 		// del file originale
 		// }
 		// }
-		File dataFile = new File(data);
-		if (!dataFile.isAbsolute()) {
+		if (!data.isAbsolute()) {
 			String msg = FirmapiuException
 					.getDefaultErrorCodeMessage(IS_NOT_ABS_PATH);
-			msg += " : " + data;
+			msg += " : " + data.getAbsolutePath();
 			throw new FirmapiuException(IS_NOT_ABS_PATH, msg);
 		}
 		this.filepathset.add(data);
@@ -97,8 +96,8 @@ public final class DataFilePath implements Data<String> {
 	 * @see it.libersoft.firmapiu.Data#getDataSet()
 	 */
 	@Override
-	public Set<String> getDataSet() {
-		return (Set<String>) this.filepathset.clone();
+	public Set<File> getDataSet() {
+		return (Set<File>) this.filepathset.clone();
 	}
 
 	/**
@@ -110,9 +109,9 @@ public final class DataFilePath implements Data<String> {
 	 * @see it.libersoft.firmapiu.Data#getDataId(java.lang.Object)
 	 */
 	@Override
-	public String getDataId(String data) throws FirmapiuException {
+	public String getDataId(File data) throws FirmapiuException {
 		if (this.filepathset.contains(data))
-			return data;
+			return data.getAbsolutePath();
 		else
 			return null;
 	}
@@ -126,14 +125,13 @@ public final class DataFilePath implements Data<String> {
 	 * @see it.libersoft.firmapiu.Data#getArrayData(java.lang.Object)
 	 */
 	@Override
-	public byte[] getArrayData(String data) throws FirmapiuException {
+	public byte[] getArrayData(File data) throws FirmapiuException {
 		if (!this.filepathset.contains(data))
 			return null;
 
-		File file = new File(data);
 		FileInputStream filein = null;
 		try {
-			filein = new FileInputStream(file);
+			filein = new FileInputStream(data);
 			byte[] b = new byte[filein.available()];
 			filein.read(b);
 			return b;

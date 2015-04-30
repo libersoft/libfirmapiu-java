@@ -13,7 +13,6 @@ import it.libersoft.firmapiu.Report;
 import it.libersoft.firmapiu.ResultInterface;
 import it.libersoft.firmapiu.crtoken.KeyStoreToken;
 import it.libersoft.firmapiu.crtoken.PKCS11Token;
-import it.libersoft.firmapiu.data.DataFilePath;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.ArgumentConsts.*;
 import static it.libersoft.firmapiu.exception.FirmapiuException.*;
@@ -98,13 +97,13 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	 * @see it.libersoft.firmapiu.consts.ArgumentConsts
 	 */
 	@Override
-	public ResultInterface<String, File> sign(Data<String> data) throws FirmapiuException{
+	public ResultInterface<File, File> sign(Data<File> data) throws FirmapiuException{
 		//se non è stato definito il token per la firma lancia un eccezione
 		if(this.signToken==null)
 			throw new FirmapiuException(CRT_TOKEN_NOTFOUND, new NullPointerException("signToken=null"));
 		
 		//controllo di coerenza iniziale sugli argomenti
-		//DataFilePath dataFilePath = checkData(data);
+		//DataFileImpl dataFilePath = checkData(data);
 		//GenericArgument commandArgs = checkArgument(option);
 	
 		//controlla gli argomenti
@@ -130,19 +129,21 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 
 
 		//prepara Map<String,Object> con i risultati delle operazioni effettuate sui file passati come parametro.
-		TreeMap<String,Object> mapResult = new TreeMap<String,Object>();
+		TreeMap<File,Object> mapResult = new TreeMap<File,Object>();
 		//recupera il dataset contenente i percorsi dei file da firmare
-		Set<String> dataFilePathSet=data.getDataSet();
+		Set<File> dataFilePathSet=data.getDataSet();
 		
-		Iterator<String> dataPathItr=dataFilePathSet.iterator();
+		Iterator<File> dataPathItr=dataFilePathSet.iterator();
 		CadesBESSigner signer=null;
 		//CRToken token=null;
 		while(dataPathItr.hasNext()){
-			String tmp = dataPathItr.next();
+			File tmp = dataPathItr.next();
 			//recupera l'identificatore univoco associato al dato che si vuole firmare
 			String dataId=data.getDataId(tmp);
 			//lo passa come percorso del file da firmare
 			File dataFileIn=new File(dataId);
+			if(!dataFileIn.equals(tmp))
+				throw new IllegalArgumentException("DataFile implementation not valid!");
 			FileOutputStream fileOutStream=null;
 			try {
 				//controlla che il file di input esiste
@@ -188,22 +189,22 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 				
 				//se l'operazione è andata bene, genera il percorso del .p7m risultante del file passato come parametro
 				//mapResult.put(dataFileIn.getAbsolutePath(),dataFileOut.getAbsolutePath());
-				mapResult.put(dataFileIn.getAbsolutePath(),dataFileOut);
+				mapResult.put(dataFileIn,dataFileOut);
 			} catch (FileNotFoundException e) {
 				String msg= FirmapiuException.getDefaultErrorCodeMessage(FILE_NOTFOUND);
 				msg+=" : "+dataFileIn.getAbsolutePath();
 				FirmapiuException fe1 =new FirmapiuException(FILE_NOTFOUND, msg, e);
-				mapResult.put(dataFileIn.getAbsolutePath(), fe1);
+				mapResult.put(dataFileIn, fe1);
 			} catch (IOException e) {
 				FirmapiuException fe1 = null;
 				if(e.getMessage().equals("Cannot override file!"))
 					fe1 =new FirmapiuException(FILE_OVERRIDE_ERROR, e);
 				else
 					fe1 =new FirmapiuException(IO_DEFAULT_ERROR, e);
-				mapResult.put(dataFileIn.getAbsolutePath(), fe1);
+				mapResult.put(dataFileIn, fe1);
 			} catch (CMSException e){
 				FirmapiuException fe1 =new FirmapiuException(SIGNER_CADESBES_ERROR, e);
-				mapResult.put(dataFileIn.getAbsolutePath(), fe1);
+				mapResult.put(dataFileIn, fe1);
 			} catch (ProviderException e){
 				//questa eccezione potrebbe essere lanciata se si rimuove il token pkcs11 durante il processo di firma
 				//se il token è PKCS11token si slogga e rilancia l'eccezione firmapiuexception al chiamante
@@ -254,7 +255,7 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	 * @see it.libersoft.firmapiu.CommandInterface#verify(it.libersoft.firmapiu.Data, it.libersoft.firmapiu.Argument)
 	 */
 	@Override
-	public ResultInterface<String, Report> verify(Data<String> signedData) throws FirmapiuException{
+	public ResultInterface<File, Report> verify(Data<File> signedData) throws FirmapiuException{
 		//se non è stato definito il token per la verifica lancia un eccezione
 		if(this.verifyToken==null)
 			throw new FirmapiuException(CRT_TOKEN_NOTFOUND, new NullPointerException("verifyToken=null"));
@@ -263,7 +264,7 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 		//per controllare l'affidabilità del certificato del firmatario
 		
 		//controllo di coerenza iniziale sugli argomenti
-		//DataFilePath signedDataFilePath = checkData(signedDataPath);
+		//DataFileImpl signedDataFilePath = checkData(signedDataPath);
 		//GenericArgument commandArgs = checkArgument(option);
 
 //		//directory di output
@@ -273,9 +274,9 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 //		}
 
 		//prepara Map<String,Object> con i risultati delle operazioni effettuate sui file passati come parametro.
-		TreeMap<String,Object> resultMap = new TreeMap<String,Object>();
+		TreeMap<File,Object> resultMap = new TreeMap<File,Object>();
 		//recupera il dataset contenente i percorsi dei file da verificare
-		Set<String> dataFilePathSet=signedData.getDataSet();
+		Set<File> dataFilePathSet=signedData.getDataSet();
 
 		//inizializza e carica il token utilizzato per controllare l'affidabilità della catena dei certificati dei firmatari
 		//TODO proviamo ad utilizzare il token da un altra parte
@@ -285,14 +286,16 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 		
 		
 		//per ogni file presente in signedData cerca di verificare la correttezza della firma digitale
-		Iterator<String> dataPathItr=dataFilePathSet.iterator();
+		Iterator<File> dataPathItr=dataFilePathSet.iterator();
 		while(dataPathItr.hasNext()){
-			String tmp = dataPathItr.next();
+			File tmp = dataPathItr.next();
 			//recupera l'identificatore univoco associato al dato che si vuole firmare
 			String dataId=signedData.getDataId(tmp);
 			//lo passa come percorso del file da verificare
 			File dataFileIn=new File(dataId);
 			//File dataFileIn=new File(dataPathItr.next());
+			if(!dataFileIn.equals(tmp))
+				throw new IllegalArgumentException("DataFile implementation not valid!");
 			try {	
 				//crea la busta crittografica dal file di input
 				CMSSignedData cmsSignedData =file2CMSSignedData(dataFileIn);
@@ -305,13 +308,13 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 				
 				
 				//se l'operazione è andata bene, associa il report al percorso del file passato come parametro
-				resultMap.put(dataFileIn.getAbsolutePath(),report);
+				resultMap.put(dataFileIn,report);
 			} catch (FirmapiuException e) {
 				//associa l'errore al percorso del file passato come parametro
-				resultMap.put(dataFileIn.getAbsolutePath(),e);
+				resultMap.put(dataFileIn,e);
 			} catch (IOException e) {
 				FirmapiuException fe1 =new FirmapiuException(IO_DEFAULT_ERROR, e);
-				resultMap.put(dataFileIn.getAbsolutePath(), fe1);
+				resultMap.put(dataFileIn, fe1);
 			}
 		}
 		return new ResultFileInterfaceImpl<Report>(resultMap);
@@ -334,9 +337,9 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	 * @see it.libersoft.firmapiu.CommandInterface#getContentSignedData(it.libersoft.firmapiu.Data, it.libersoft.firmapiu.Argument)
 	 */
 	@Override
-	public ResultInterface<String, File> getContentSignedData(Data<String> signedData) throws FirmapiuException {
+	public ResultInterface<File, File> getContentSignedData(Data<File> signedData) throws FirmapiuException {
 		//controllo di coerenza iniziale sugli argomenti
-		//DataFilePath signedDataFilePath = checkData(signedDataPath);
+		//DataFileImpl signedDataFilePath = checkData(signedDataPath);
 		//GenericArgument commandArgs = checkArgument(option);
 
 		//controlla gli argomenti
@@ -350,19 +353,21 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 		}
 		
 		//prepara Map<String,Object> con i risultati delle operazioni effettuate sui file passati come parametro.
-		TreeMap<String,Object> mapResult = new TreeMap<String,Object>();
+		TreeMap<File,Object> mapResult = new TreeMap<File,Object>();
 		//recupera il dataset contenente i percorsi dei file da firmare
-		Set<String> dataFilePathSet=signedData.getDataSet();
+		Set<File> dataFilePathSet=signedData.getDataSet();
 		
 		//per ogni file presente in signedDataFilePath cerca di restituire il contenuto originale del file
-		Iterator<String> dataPathItr=dataFilePathSet.iterator();
+		Iterator<File> dataPathItr=dataFilePathSet.iterator();
 		while(dataPathItr.hasNext()){
-			String tmp = dataPathItr.next();
+			File tmp = dataPathItr.next();
 			//recupera l'identificatore univoco associato al dato che si vuole firmare
 			String dataId=signedData.getDataId(tmp);
 			//lo passa come percorso del file da verificare
 			File dataFileIn=new File(dataId);
 			//File dataFileIn=new File(dataPathItr.next());
+			if(!dataFileIn.equals(tmp))
+				throw new IllegalArgumentException("DataFile implementation not valid!");
 			FileOutputStream fileOutStream=null;	
 			try {
 				//crea la busta crittografica dal file di input
@@ -390,24 +395,24 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 				}
 				
 				//se l'operazione è andata bene, genera il percorso del file risultante del file passato come parametro
-				mapResult.put(dataFileIn.getAbsolutePath(),dataFileOut);
+				mapResult.put(dataFileIn,dataFileOut);
 			} catch (FileNotFoundException e) {
 				String msg= FirmapiuException.getDefaultErrorCodeMessage(FILE_NOTFOUND);
 				msg+=" : "+dataFileIn.getAbsolutePath();
 				FirmapiuException fe1 =new FirmapiuException(FILE_NOTFOUND, msg, e);
-				mapResult.put(dataFileIn.getAbsolutePath(), fe1);
+				mapResult.put(dataFileIn, fe1);
 			} catch (IOException e) {
 				FirmapiuException fe1 = null;
 				if(e.getMessage().equals("Cannot override file!"))
 					fe1 =new FirmapiuException(FILE_OVERRIDE_ERROR, e);
 				else
 					fe1 =new FirmapiuException(IO_DEFAULT_ERROR, e);
-				mapResult.put(dataFileIn.getAbsolutePath(), fe1);
+				mapResult.put(dataFileIn, fe1);
 			} catch (SecurityException e){
 				FirmapiuException fe1 =new FirmapiuException(FILE_FORBIDDEN, e);
-				mapResult.put(dataFileIn.getAbsolutePath(), fe1);
+				mapResult.put(dataFileIn, fe1);
 			} catch (FirmapiuException e) {
-				mapResult.put(dataFileIn.getAbsolutePath(), e);
+				mapResult.put(dataFileIn, e);
 			}finally{
 				try {
 					//cerca di chiudere le risorse utilizzate
@@ -437,15 +442,15 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	
 	//PROCEDURE PRIVATE
 	//controllo coerenza data
-	private static DataFilePath checkData(Data<?> data){
-		DataFilePath dataFilePath;
-		if( data==null || !(data instanceof DataFilePath))
-			throw new IllegalArgumentException(RB.getString("factoryerror4")
-					+ " : " + data.getClass().getCanonicalName());
-		else 
-			dataFilePath=(DataFilePath)data;
-		return dataFilePath;
-	}
+//	private static DataFileImpl checkData(Data<?> data){
+//		DataFileImpl dataFilePath;
+//		if( data==null || !(data instanceof DataFileImpl))
+//			throw new IllegalArgumentException(RB.getString("factoryerror4")
+//					+ " : " + data.getClass().getCanonicalName());
+//		else 
+//			dataFilePath=(DataFileImpl)data;
+//		return dataFilePath;
+//	}
 //	//controllo coerenza argomenti
 //	private static GenericArgument checkArgument(Argument<?, ?> option){
 //		GenericArgument commandArgs;
@@ -524,24 +529,24 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	}
 	
 	//implementazione privata di ResultInterface
-	private class ResultFileInterfaceImpl<K> implements ResultInterface<String, K>{
+	private class ResultFileInterfaceImpl<K> implements ResultInterface<File, K>{
 
-		private final TreeMap<String, Object> result;
+		private final TreeMap<File, Object> result;
 		
 		
 		
-		protected ResultFileInterfaceImpl(TreeMap<String, Object> result) {
+		protected ResultFileInterfaceImpl(TreeMap<File, Object> result) {
 			this.result = result;
 		}
 
 		@Override
-		public Set<String> getResultDataSet() throws FirmapiuException {
+		public Set<File> getResultDataSet() throws FirmapiuException {
 			return this.result.keySet();
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public K getResult(String key) throws FirmapiuException {
+		public K getResult(File key) throws FirmapiuException {
 			
 			if(this.result.containsKey(key)){
 				Object value = this.result.get(key);

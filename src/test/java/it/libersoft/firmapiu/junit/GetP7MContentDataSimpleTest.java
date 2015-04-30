@@ -7,7 +7,8 @@ import static org.junit.Assert.*;
 import it.libersoft.firmapiu.ResultInterface;
 import it.libersoft.firmapiu.cades.CadesBESFactory;
 import it.libersoft.firmapiu.cades.P7FileCommandInterface;
-import it.libersoft.firmapiu.data.DataFilePath;
+import it.libersoft.firmapiu.data.DataFactoryBuilder;
+import it.libersoft.firmapiu.data.DataFile;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 import static it.libersoft.firmapiu.consts.ArgumentConsts.*;
@@ -40,18 +41,18 @@ public final class GetP7MContentDataSimpleTest {
 	//private final static Level LOGLEVEL=Level.ALL;
 	private static P7FileCommandInterface p7mFileInterface;
 	
-	private static DataFilePath signedData;
+	private static DataFile signedData;
 	
 	//path sul quale tutto dovrebbe andar bene
-	private final static String OK_FILEPATH="/home/andy/Scrivania/p7mfiles2/README.txt.p7m";
+	private final static File OK_FILEPATH= new File("/home/andy/Scrivania/p7mfiles2/README.txt.p7m");
 	//path di un file sul quale deve essere restituito un errore di encoding
-	private final static String ENCODINGERRORP7M_FILEPATH="/home/andy/Scrivania/p7mfiles2/262 Art All In One 56-69.pdf.p7m";
+	private final static File ENCODINGERRORP7M_FILEPATH=new File("/home/andy/Scrivania/p7mfiles2/262 Art All In One 56-69.pdf.p7m");
 	//path sul quale deve essere restituito un errore perchè il file non è un p7m
-	private final static String NOTP7M_FILEPATH="/home/andy/overview.html";
+	private final static File NOTP7M_FILEPATH=new File("/home/andy/overview.html");
 	//path sul quale deve essere restituito un errore perché il file non esiste
-	private final static String FILENOTFOUND_FILEPATH="/home/truffolo/pippo.txt.p7m";
+	private final static File FILENOTFOUND_FILEPATH=new File("/home/truffolo/pippo.txt.p7m");
 	//path sul quale deve essere restituito un errore perché non è assoluto
-	private final static String NOTABS_FILEPATH="./pippo.txt.p7m";
+	private final static File NOTABS_FILEPATH=new File("./pippo.txt.p7m");
 	
 	
 	/**
@@ -88,7 +89,7 @@ public final class GetP7MContentDataSimpleTest {
 	@Before
 	public void setUp() throws Exception {
 		System.out.println();
-		DataFilePath sigData = (DataFilePath)MasterFactoryBuilder.getFactory(DATAFACTORY).getData(DATAFILEPATH);
+		DataFile sigData = DataFactoryBuilder.getFactory(DATAFILEFACTORY).getDataFile();
 		sigData.setData(OK_FILEPATH);
 		sigData.setData(OK_FILEPATH);
 		sigData.setData(ENCODINGERRORP7M_FILEPATH);
@@ -151,18 +152,18 @@ public final class GetP7MContentDataSimpleTest {
 
 	//PROCEDURE PRIVATE
 	//esegue il test passandogli gli argomenti come parametro
-	private void testContentData(DataFilePath dataFilePath) throws FirmapiuException{
+	private void testContentData(DataFile dataFilePath) throws FirmapiuException{
 		
 		
 		//signedData.setData(NOTABS_FILEPATH);	
-		ResultInterface<String,File> result=p7mFileInterface.getContentSignedData(dataFilePath);
+		ResultInterface<File,File> result=p7mFileInterface.getContentSignedData(dataFilePath);
 		String testResult="Risultato del test:\n";
 		
-		Iterator<String> itr=result.getResultDataSet().iterator();
+		Iterator<File> itr=result.getResultDataSet().iterator();
 		while(itr.hasNext()){
 			String line="key -> ";
-			String key=itr.next();
-			line+=key+" ";
+			File key=itr.next();
+			line+=key.getAbsolutePath()+" ";
 			File value;
 			try {
 				value = result.getResult(key);

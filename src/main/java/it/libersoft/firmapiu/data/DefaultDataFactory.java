@@ -53,24 +53,23 @@ public class DefaultDataFactory {
 	}
 
 	/**
-	 * Crea un oggetto per la gestione delle operazioni di firma e verifica in
-	 * formato CADES-BES
+	 * Crea un oggetto che raccoglie un insieme di una buste crittografiche o contenuti di file, rappresentati come array di byte, da firmare o verificare
+	 * tramite le operazioni di firma e verifica messe a disposizione dalla libreria
 	 * 
 	 * @param choice
-	 *            Il formato della busta crittografica Cades-BES da utilizzare
+	 *            il tipo di dati concreto da creare
 	 * @return
 	 * @throws IllegalArgumentException
 	 *             Se la factory utilizzata non implementa questo metodo
 	 * @see it.libersoft.firmapiu.consts.FactoryConsts
 	 */
-	public P7FileCommandInterface getCadesBESCommandInterface(String choice)
-			throws IllegalArgumentException {
+	public DataByteArray getDataByteArray() throws IllegalArgumentException {
 		throw new IllegalArgumentException(RB.getString("factoryerror1")
 				+ " : " + this.getClass().getCanonicalName());
 	}
 
 	/**
-	 * Crea un oggetto che raccoglie un insieme di dati da firmare o verificare
+	 * Crea un oggetto che raccoglie un insieme di file da firmare o verificare
 	 * tramite le operazioni di firma e verifica messe a disposizione dalla
 	 * libreria
 	 * 
@@ -81,46 +80,11 @@ public class DefaultDataFactory {
 	 *             Se la factory utilizzata non implementa questo metodo
 	 * @see it.libersoft.firmapiu.consts.FactoryConsts
 	 */
-	public Data<?> getData(String choice) throws IllegalArgumentException {
+	public DataFile getDataFile() throws IllegalArgumentException {
 		throw new IllegalArgumentException(RB.getString("factoryerror1")
 				+ " : " + this.getClass().getCanonicalName());
 	}
-
-	/**
-	 * Crea un oggetto che raccoglie gli argomenti opzionali utilizzati nelle
-	 * operazioni di firma e verifica
-	 * 
-	 * @param choice
-	 *            il tipo di dati concreto da creare
-	 * @return
-	 * @throws IllegalArgumentException
-	 *             Se la factory utilizzata non implementa questo metodo
-	 * @see it.libersoft.firmapiu.consts.FactoryConsts
-	 */
-	public Argument<?, ?> getArgument(String choice)
-			throws IllegalArgumentException {
-		throw new IllegalArgumentException(RB.getString("factoryerror1")
-				+ " : " + this.getClass().getCanonicalName());
-	}
-
-	/**
-	 * Crea un token per la gestione delle credenziali (tipo certificato utente,
-	 * chiave privata, gestione CA) usate dalle operazioni messe a disposizione
-	 * dalla libreria <code>firmapiulib</code>
-	 * 
-	 * @param choice
-	 *            il tipo di dati concreto da creare
-	 * @return
-	 * @throws IllegalArgumentException
-	 *             Se la factory utilizzata non implementa questo metodo
-	 * @see it.libersoft.firmapiu.consts.FactoryConsts
-	 */
-	public CRToken getToken(String choice) throws IllegalArgumentException,
-			FirmapiuException {
-		throw new IllegalArgumentException(RB.getString("factoryerror1")
-				+ " : " + this.getClass().getCanonicalName());
-	}
-
+	
 	/**
 	 * Setta o sovrascrive una proprietà della factory. Questo comporta che gli
 	 * oggetti saranno creati dalla factory secondo questa proprietà<br>
@@ -129,6 +93,8 @@ public class DefaultDataFactory {
 	 * 
 	 * @param key
 	 * @param value
+	 * 
+	 * @see it.libersoft.firmapiu.consts.FactoryPropConsts
 	 */
 	public void setProperty(String key, Object value) {
 		this.propMap.put(key, value);
@@ -141,6 +107,8 @@ public class DefaultDataFactory {
 	 *            chiave della proprietà di cui si vuole ottenere il valore:
 	 *            vedi i constant fields di questa classe
 	 * @return
+	 * 
+	 * @see it.libersoft.firmapiu.consts.FactoryPropConsts
 	 */
 	public Object getProperty(String key) {
 		return this.propMap.get(key);
@@ -152,6 +120,8 @@ public class DefaultDataFactory {
 	 * 
 	 * @return Una map contenete tutte le associazioni &lt;chiave,valore&gt;
 	 *         delle proprietà settate da questa classe
+	 *         
+	 * @see it.libersoft.firmapiu.consts.FactoryPropConsts
 	 */
 	public Map<String, Object> getProperties() {
 		return (TreeMap<String, Object>) propMap.clone();

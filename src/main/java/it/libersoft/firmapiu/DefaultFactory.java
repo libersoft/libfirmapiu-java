@@ -129,6 +129,8 @@ public class DefaultFactory {
 	 * 
 	 * @param key
 	 * @param value
+	 * 
+	 * @see it.libersoft.firmapiu.consts.FactoryPropConsts
 	 */
 	public void setProperty(String key, Object value) {
 		this.propMap.put(key, value);
@@ -141,6 +143,8 @@ public class DefaultFactory {
 	 *            chiave della proprietà di cui si vuole ottenere il valore:
 	 *            vedi i constant fields di questa classe
 	 * @return
+	 * 
+	 * @see it.libersoft.firmapiu.consts.FactoryPropConsts
 	 */
 	public Object getProperty(String key) {
 		return this.propMap.get(key);
@@ -152,6 +156,8 @@ public class DefaultFactory {
 	 * 
 	 * @return Una map contenete tutte le associazioni &lt;chiave,valore&gt;
 	 *         delle proprietà settate da questa classe
+	 *         
+	 * @see it.libersoft.firmapiu.consts.FactoryPropConsts
 	 */
 	public Map<String, Object> getProperties() {
 		return (TreeMap<String, Object>) propMap.clone();

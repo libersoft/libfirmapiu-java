@@ -93,7 +93,7 @@ public final class FactoryPropConsts {
 	public static final String CRT_TOKEN_PIN_MAXLENGTH = "crtTokenPINMaxLength";
 
 	/**
-	 * <b>Chiave:</b> (Proprietà di DataFactory) I percorsi dei file/url vengono
+	 * <b>Chiave:</b> (Proprietà di DataFileFactory) I percorsi dei file/url vengono
 	 * normalizzati nei confronti del loro path relativo e dei loro link
 	 * simbolici, in modo da garantire che i percorsi siano delle chiavi e che
 	 * non venga effettuata più volte l'operazione di firma/verifica sulla

@@ -22,18 +22,19 @@ public final class FactoryConsts {
 	public final static String CADESBESFACTORY="cadesbesFactory";
 	
 	/**
-	 * Factory per la creazione di un insieme di dati da passare come parametro di input alle operazioni di firma e verifica
+	 * Factory per la creazione di un insieme di file da passare come parametro di input alle operazioni di firma e verifica
 	 * 
 	 * @see it.libersoft.firmapiu.Data
 	 */
-	public final static String DATAFACTORY="dataFactory";
+	public final static String DATAFILEFACTORY="dataFileFactory";
 	
 	/**
-	 * Factory per la creazione di argomenti da passare come parametro di input alle operazioni di firma e verifica
+	 * Factory per la creazione di un insieme di busta crittografiche o contenuti di file, rappresentati come array di byte, 
+	 * da passare come parametro di input alle operazioni di firma e verifica
 	 * 
-	 * @see it.libersoft.firmapiu.Argument
+	 * @see it.libersoft.firmapiu.Data
 	 */
-	public final static String ARGUMENTFACTORY="argumentFactory";
+	public final static String DATABYTEARRAYFACTORY="dataByteArrayFactory";
 	
 	/**
 	 * Factory per la creazione di token pkcs#11 utilizzati dalle operazioni della libreria
@@ -66,7 +67,7 @@ public final class FactoryConsts {
 	public final static String P7SFILE="p7sfile";
 	
 	/**
-	 * La factory DataFactory crea un insieme di file da passare come parametro di input alle operazioni di firma e verifica
+	 * La factory DataFileFactory crea un insieme di file da passare come parametro di input alle operazioni di firma e verifica
 	 * 
 	 * @see it.libersoft.firmapiu.Data
 	 */

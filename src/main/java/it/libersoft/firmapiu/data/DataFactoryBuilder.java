@@ -38,16 +38,11 @@ public final class DataFactoryBuilder {
 	 * @throws IllegalArgumentException Se la factory richiesta non esiste
 	 */
 	public static DefaultDataFactory getFactory(String choice) {
-		if (choice.equals(CADESBESFACTORY)) {
-			return new CadesBESFactory();
-		}else if (choice.equals(DATAFACTORY)) {
-			return new DataFactory();
-		}else if (choice.equals(ARGUMENTFACTORY)) {
-			return new ArgumentFactory(); 
-		}else if (choice.equals(PKCS11TOKENFACTORY)) {
-			return new PKCS11TokenFactory(); 
-		}else if(choice.equals(KEYSTORETOKENFACTORY)){
-			return new KeyStoreTokenFactory();
+		if (choice.equals(DATAFILEFACTORY)) {
+			return new DataFileFactory();
+		}else if (choice.equals(DATABYTEARRAYFACTORY)) {
+			//TODO fare il byte array factory
+			return new DefaultDataFactory(); 
 		}
 			throw new IllegalArgumentException(RB.getString("factoryerror0")
 					+ " : " + choice);
