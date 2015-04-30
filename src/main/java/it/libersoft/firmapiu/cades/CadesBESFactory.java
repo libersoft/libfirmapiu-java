@@ -54,8 +54,8 @@ public class CadesBESFactory extends DefaultFactory{
 	 * 
 	 * @see it.libersoft.firmapiu.consts.FactoryConsts
 	 */
-	public P7FileCommandInterface getP7FileCommandInterface(String filetype,CRToken signToken,CRToken verifyToken){
-		return new P7FileCommandInterfaceImpl(filetype, signToken, verifyToken);
+	public P7FileCommandInterface getP7FileCommandInterface(CRToken signToken,CRToken verifyToken){
+		return new P7FileCommandInterfaceImpl(signToken, verifyToken);
 	}
 	
 	
@@ -69,7 +69,7 @@ public class CadesBESFactory extends DefaultFactory{
 	 * 
 	 * @see it.libersoft.firmapiu.consts.FactoryConsts
 	 */
-	public P7FileCommandInterface getP7FileCommandInterface(String filetype) throws FirmapiuException{
+	public P7FileCommandInterface getP7FileCommandInterface() throws FirmapiuException{
 		//recupera le proprietà
 		//token per la firma
 		String signTokenType = (String) this.getProperty(CRT_SIGN_TOKEN);
@@ -100,9 +100,9 @@ public class CadesBESFactory extends DefaultFactory{
 			}
 		}//se la proprietà non è definita, crea il token con la factory tokenfactory
 		else
-			verifyToken = TokenFactoryBuilder.getFactory(KEYSTORETOKENFACTORY).getPKCS11Token(TSLXMLKEYSTORE);
+			verifyToken = TokenFactoryBuilder.getFactory(KEYSTORETOKENFACTORY).getKeyStoreToken(TSLXMLKEYSTORE);
 		
-		return new P7FileCommandInterfaceImpl(filetype, signToken, verifyToken);
+		return new P7FileCommandInterfaceImpl(signToken, verifyToken);
 	}
 	
 	/**

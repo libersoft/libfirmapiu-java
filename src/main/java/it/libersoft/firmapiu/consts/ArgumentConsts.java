@@ -38,4 +38,13 @@ public final class ArgumentConsts {
 	 * cui salvare l'esito dell'operazione
 	 * */
 	public static final String CREATEOUTDIR ="createoutdir";
+	
+	/**
+	 * Chiave: Opzione usata durante l'operazione di firma per la generazione di buste crittografiche Cades-BES<br>
+	 * Se l'opzione è presente, il contenuto dei dati da firmare deve essere detached dalla busta crittografica generata
+	 * se il valore è impostato a true<br>
+	 * Valore associato all'argomento: Boolean - se il contenuto dei dati da firmare deve essere detached o meno dalla busta
+	 * crittografica generata
+	 * */
+	public static final String DETACHED ="detached";
 }

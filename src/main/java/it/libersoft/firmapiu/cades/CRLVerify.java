@@ -64,8 +64,8 @@ final class CRLVerify {
 	 *            certificato di tipo X509
 	 */
 	CRLVerify(X509Certificate certificate) {
-		if (this.certificate == null)
-			throw new NullPointerException();
+//		if (this.certificate == null)
+//			throw new NullPointerException();
 		this.certificate = certificate;
 
 	}

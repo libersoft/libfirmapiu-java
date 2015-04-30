@@ -63,7 +63,7 @@ public final class GetP7MContentDataSimpleTest {
 		//PropertyConfigurator.configure("/home/andy/libersoftspace/firmapiulib/src/test/resources/log4j.properties");
 		LOG = (Log4jLoggerAdapter)LoggerFactory.getLogger(GetP7MContentDataSimpleTest.class);
 		//p7mFileInterface=MasterFactoryBuilder.getFactory(CADESBESFACTORY).getCadesBESCommandInterface(P7MFILE);
-		p7mFileInterface= CadesBESFactory.getFactory().getP7FileCommandInterface(P7MFILE,null,null);
+		p7mFileInterface= CadesBESFactory.getFactory().getP7FileCommandInterface(null,null);
 		LOG.info("Oggetto da testare creato: inizio batteria di test su: "+p7mFileInterface.getClass().getCanonicalName()+"\n\n");
 	}
 

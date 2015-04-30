@@ -42,6 +42,8 @@ import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSTypedData;
 import org.bouncycastle.cms.SignerInformation;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 
 /**
  * La classe offre operazioni per firmare e la verificare  un insieme di files firmati elettronicamente (.p7m) 
@@ -63,8 +65,6 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	private final CRToken signToken;
 	//tipo di token utilizzato per le operazioni di verifica
 	private final CRToken verifyToken;
-	//tipo di file utilizzato per le operazioni di firma/verifica
-	private final String fileType;
 	
 	/**
 	 * la classe non dovrebbe essere inizializzata se non attraverso la factory
@@ -74,17 +74,17 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	 * di files firmati elettronicamente in formato CADES-bes (attacched)  
 	 * @see it.libersoft.firmapiu.consts.FactoryPropConsts
 	 */
-	protected P7FileCommandInterfaceImpl(String fileType,CRToken signToken,CRToken verifyToken) {
+	protected P7FileCommandInterfaceImpl(CRToken signToken,CRToken verifyToken) {
 		//TODO proviamo a passare i token come parametro
 		this.signToken=signToken;
 		this.verifyToken=verifyToken;
 		//TODO gestire p7m p7s
-		if(fileType==null)
-			throw new IllegalArgumentException();
-		else if (fileType.equals(P7MFILE)|| fileType.equals(P7SFILE))
-			this.fileType=fileType;
-		else
-			throw new IllegalArgumentException();
+//		if(fileType==null)
+//			throw new IllegalArgumentException();
+//		else if (fileType.equals(P7MFILE)|| fileType.equals(P7SFILE))
+//			this.fileType=fileType;
+//		else
+//			throw new IllegalArgumentException();
 	}
 
 	/** 
@@ -115,6 +115,11 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 		if(commandArgs.containsKey(OUTDIR)){
 			outDir=getOutDir(commandArgs);
 		}
+		
+		//contenuto attached/detached dei file
+		boolean detached=false;
+		if(commandArgs.containsKey(DETACHED))
+			detached=Boolean.parseBoolean(commandArgs.get(DETACHED));
 
 		//pin
 		//recupera il pin del token utilizzato
@@ -154,7 +159,7 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 				
 				File dataFileOut;
 				String ext;
-				if(this.fileType.equals(P7MFILE))
+				if(!detached)
 					ext=".p7m";
 				else
 					ext=".p7s";
@@ -180,7 +185,7 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 					signer = new CadesBESSigner(this.signToken);
 				}
 				CMSSignedData signedData;
-				if(this.fileType.equals(P7MFILE))
+				if(!detached)
 					signedData=signer.sign(cmsDataIn,true);
 				else
 					signedData=signer.sign(cmsDataIn,false);
