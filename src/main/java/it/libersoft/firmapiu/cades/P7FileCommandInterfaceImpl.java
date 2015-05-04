@@ -121,6 +121,12 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 		if(commandArgs.containsKey(DETACHED))
 			detached=Boolean.parseBoolean(commandArgs.get(DETACHED));
 
+		//copyfile: l'override di un file esistente non è permesso. tuttavia se l'opzione copyfile è settata a true
+		//permette di duplicare un file chiamandolo con un nome diverso
+		boolean copyfile=false;
+		if(commandArgs.containsKey(COPYFILE))
+			copyfile=Boolean.parseBoolean(commandArgs.get(COPYFILE));
+		
 		//pin
 		//recupera il pin del token utilizzato
 		//Obbligatorio: L'argomento non può essere omesso. Se l'argomento viene omesso, il token crittografico
@@ -167,9 +173,21 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 					dataFileOut = new File(dataFileIn.getAbsolutePath()+ext);
 				else
 					dataFileOut = new File(outDir.getAbsolutePath()+"/"+dataFileIn.getName()+ext);
-				if(dataFileOut.exists())
-					throw new IOException("Cannot override file! : "+dataFileOut.getAbsolutePath());
-
+				if(dataFileOut.exists()){
+					if(!copyfile)
+						//non si può sovrascrivere un file esistente
+						throw new IOException("Cannot override file!");
+					else{
+						//procedura per rinominare un file esistente
+						int i=1;
+						while(true){
+							dataFileOut = new File(outDir.getAbsolutePath()+"/"+dataFileIn.getName()+i+ext);
+							if(!dataFileOut.exists())
+								break;
+							i++;
+						}
+					}
+				}
 				//TODO Passare l'array al posto del file
 				//CMSTypedData cmsDataIn = new CMSProcessableFile(dataFileIn);
 				CMSTypedData cmsDataIn = new CMSProcessableByteArray(data.getArrayData(tmp));
@@ -202,8 +220,11 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 				mapResult.put(dataFileIn, fe1);
 			} catch (IOException e) {
 				FirmapiuException fe1 = null;
-				if(e.getMessage().equals("Cannot override file!"))
-					fe1 =new FirmapiuException(FILE_OVERRIDE_ERROR, e);
+				if(e.getMessage().equals("Cannot override file!")){
+					String msg= FirmapiuException.getDefaultErrorCodeMessage(FILE_OVERRIDE_ERROR);
+					msg+=" : "+dataFileIn.getAbsolutePath();
+					fe1 =new FirmapiuException(FILE_OVERRIDE_ERROR,msg, e);
+				}
 				else
 					fe1 =new FirmapiuException(IO_DEFAULT_ERROR, e);
 				mapResult.put(dataFileIn, fe1);
@@ -356,6 +377,12 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 		if(commandArgs.containsKey(OUTDIR)){
 			outDir=getOutDir(commandArgs);
 		}
+
+		//copyfile: l'override di un file esistente non è permesso. tuttavia se l'opzione copyfile è settata a true
+		//permette di duplicare un file chiamandolo con un nome diverso
+		boolean copyfile=false;
+		if(commandArgs.containsKey(COPYFILE))
+			copyfile=Boolean.parseBoolean(commandArgs.get(COPYFILE));
 		
 		//prepara Map<String,Object> con i risultati delle operazioni effettuate sui file passati come parametro.
 		TreeMap<File,Object> mapResult = new TreeMap<File,Object>();
@@ -389,8 +416,21 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 				else
 					dataFileOut = new File(outDir.getAbsolutePath()+"/"+fileOutName);
 				//non si può sovrascrivere un file esistente
-				if(dataFileOut.exists())
-					throw new IOException("Cannot override file! : "+dataFileOut.getAbsolutePath());
+				if(dataFileOut.exists()){
+					if(!copyfile)
+						//non si può sovrascrivere un file esistente
+						throw new IOException("Cannot override file!");
+					else{
+						//procedura per rinominare un file esistente
+						int i=1;
+						while(true){
+							dataFileOut = new File(outDir.getAbsolutePath()+"/"+fileOutName+"."+i);
+							if(!dataFileOut.exists())
+								break;
+							i++;
+						}
+					}
+				}
 				fileOutStream=new FileOutputStream(dataFileOut);
 				//scrive il contenuto del file originale sul file di output
 				try {
@@ -408,8 +448,11 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 				mapResult.put(dataFileIn, fe1);
 			} catch (IOException e) {
 				FirmapiuException fe1 = null;
-				if(e.getMessage().equals("Cannot override file!"))
-					fe1 =new FirmapiuException(FILE_OVERRIDE_ERROR, e);
+				if(e.getMessage().equals("Cannot override file!")){
+					String msg= FirmapiuException.getDefaultErrorCodeMessage(FILE_OVERRIDE_ERROR);
+					msg+=" : "+dataFileIn.getAbsolutePath();
+					fe1 =new FirmapiuException(FILE_OVERRIDE_ERROR,msg,e);
+				}
 				else
 					fe1 =new FirmapiuException(IO_DEFAULT_ERROR, e);
 				mapResult.put(dataFileIn, fe1);
