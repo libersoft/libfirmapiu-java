@@ -96,6 +96,7 @@ public class CadesBESFactory extends DefaultFactory{
 				Class<?> verifyClass = ClassLoader.getSystemClassLoader().loadClass(verifyTokenType);
 				verifyToken =(CRToken)verifyClass.newInstance();
 			} catch (Exception e) {
+				//TODO ??
 				verifyToken = TokenFactoryBuilder.getFactory(KEYSTORETOKENFACTORY).getPKCS11Token(CRTSMARTCARD);
 			}
 		}//se la proprietà non è definita, crea il token con la factory tokenfactory
@@ -117,7 +118,7 @@ public class CadesBESFactory extends DefaultFactory{
 	 * 
 	 * @see it.libersoft.firmapiu.consts.FactoryConsts
 	 */
-	public P7ByteCommandInterface getP7ByteCommandInterface(String filetype,CRToken signToken,CRToken verifyToken){
+	public P7ByteCommandInterface getP7ByteCommandInterface(CRToken signToken,CRToken verifyToken){
 		//TODO
 		return null;
 	}
