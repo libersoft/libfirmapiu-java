@@ -22,4 +22,4 @@ build/
 .gradle
 
 #ignora il keystore contenente la lista delle CA generato durante i test
-src/main/config/keystore.jks
+#src/main/config/keystore.jks
