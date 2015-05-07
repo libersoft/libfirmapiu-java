@@ -260,7 +260,7 @@ final class CadesBESVerifier {
 			Set<String> fields) {
 		//genera la map contenente le informazioni di verifica per il singolo firmatario
 		Map<String,Object> record = new TreeMap<String,Object>();
-		
+		//FIXME informazione replicata nei metodi di Cades-Bes Verifier che già offrono la possbilità di ottenere la SignerInformation
 		//inserisce la signerinfo
 		if(fields.contains(SIGNERINFO))
 			record.put(SIGNERINFO, signer);

@@ -69,6 +69,7 @@ final class TSLXmlKeyStoreToken implements KeyStoreToken {
 	 *             In caso di errore applicativo
 	 */
 	TSLXmlKeyStoreToken(String configFilePath) throws FirmapiuException {
+		//TODO da controllare se cè bisogno di sincronizzazione per accesso concorrente
 		this.configFile = new File(configFilePath);
 		// TODO gestione delle proprietà null
 		Properties prop = new Properties();

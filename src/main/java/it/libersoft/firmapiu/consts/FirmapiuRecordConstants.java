@@ -60,7 +60,7 @@ public final class FirmapiuRecordConstants {
 	 * stati firmati<br>
 	 * eccezione se è stato riscontrato un errore di carattere applicativo
 	 * */
-	public static final String SIGNERCERTREVOKED = "signercertrevoked";
+	public static final String SIGNERCERTREVOKED = "signercertrevokedsigningtime";
 
 	// chiavi e valori di utilità
 
@@ -104,16 +104,21 @@ public final class FirmapiuRecordConstants {
 		/**
 		 * Il certificato non è stato revocato
 		 * */
-		public static final String GOOD="GOOD";
+		public static final int GOOD=0;
+		
+		/**
+		 * Il certificato è stato sospeso
+		 * */
+		public static final int SUSPENDED=1;
 		
 		/**
 		 * Il certificato è stato revocato
 		 * */
-		public static final String REVOKED="REVOKED";
+		public static final int REVOKED=2;
 		
 		/**
 		 * Lo stato del certificato è sconosciuto (probabilmente perchè è stato interrogato il server sbagliato)
 		 * */
-		public static final String UNKNOWN="UNKNOWN";
+		public static final int UNKNOWN=3;
 	}
 }

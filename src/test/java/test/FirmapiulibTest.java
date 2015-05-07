@@ -45,13 +45,13 @@ final class FirmapiulibTest {
 		//crea il keystore contenente le trust anchor delle CA utilizzate per verificare l'affidabilità del certificato del firmatario
 		KeyStoreToken token= TokenFactoryBuilder.getFactory(KEYSTORETOKENFACTORY).getKeyStoreToken(TSLXMLKEYSTORE);
 		
-//		try {
-//			token.createKeyStore();
-//			System.out.println("Il keystore è stato creato");
-//		} catch (Exception e) {
-//			System.err.println("Il keystore non è stato creato, probabilmente esiste già");
-//			e.printStackTrace();
-//		}
+		try {
+			token.createKeyStore();
+			System.out.println("Il keystore è stato creato");
+		} catch (Exception e) {
+			System.err.println("Il keystore non è stato creato, probabilmente esiste già");
+			e.printStackTrace();
+		}
 		
 		//Crea una cadesbescommandinterface per creare o verificare file P7MFILE
 		//P7FileCommandInterface commandInterface=MasterFactoryBuilder.getFactory(CADESBESFACTORY).getCadesBESCommandInterface(P7MFILE);
