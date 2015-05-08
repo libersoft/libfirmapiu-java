@@ -55,7 +55,9 @@ public class CadesBESFactory extends DefaultFactory{
 	 * @see it.libersoft.firmapiu.consts.FactoryConsts
 	 */
 	public P7FileCommandInterface getP7FileCommandInterface(CRToken signToken,CRToken verifyToken){
-		return new P7FileCommandInterfaceImpl(signToken, verifyToken);
+		//recupera la proprietà del digestCalculatorProvider
+		String digestCalculatorProviderStr=(String)this.getProperty(DIGEST_CALCULATOR_PROVIDER);
+		return new P7FileCommandInterfaceImpl(signToken, verifyToken,digestCalculatorProviderStr);
 	}
 	
 	
@@ -103,7 +105,7 @@ public class CadesBESFactory extends DefaultFactory{
 		else
 			verifyToken = TokenFactoryBuilder.getFactory(KEYSTORETOKENFACTORY).getKeyStoreToken(TSLXMLKEYSTORE);
 		
-		return new P7FileCommandInterfaceImpl(signToken, verifyToken);
+		return this.getP7FileCommandInterface(signToken, verifyToken);
 	}
 	
 	/**

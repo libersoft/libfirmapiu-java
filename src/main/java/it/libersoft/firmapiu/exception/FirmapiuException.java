@@ -266,7 +266,11 @@ public final class FirmapiuException extends Exception {
 	public static final int CERT_DEFAULT_ERROR=899;
 	
 	//Errori generici: codici (900-999)
-
+	/**
+	 * Errore generico: non è riuscito a caricare il digest calculator provider
+	 * */
+	public static final int DIGESTCALCULATOR_ERROR=997;
+	
 	/**
 	 * Errore di default: protocollo sconosciuto
 	 * */

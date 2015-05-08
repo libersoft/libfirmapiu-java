@@ -28,12 +28,12 @@ import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 import static it.libersoft.firmapiu.consts.FirmapiuRecordConstants.*;
 
 /**
- * Test NON-junit che testa le funzionalità basilari messe a disposizione dalla libreria firmapiu
+ * Test NON-junit che testa le funzionalità basilari di verifica messe a disposizione dalla libreria firmapiu
  *
  * @author dellanna
  *
  */
-final class FirmapiulibTest {
+final class FirmapiulibVerifyTest {
 
 	/**
 	 * @param args

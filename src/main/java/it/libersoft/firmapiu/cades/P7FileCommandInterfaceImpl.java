@@ -66,6 +66,9 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	//tipo di token utilizzato per le operazioni di verifica
 	private final CRToken verifyToken;
 	
+	//digestCalculator provider utilizzato per le operazioni di firma
+	private final String digestCalculatorProviderStr;
+	
 	/**
 	 * la classe non dovrebbe essere inizializzata se non attraverso la factory
 	 * 
@@ -74,10 +77,11 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	 * di files firmati elettronicamente in formato CADES-bes (attacched)  
 	 * @see it.libersoft.firmapiu.consts.FactoryPropConsts
 	 */
-	protected P7FileCommandInterfaceImpl(CRToken signToken,CRToken verifyToken) {
+	protected P7FileCommandInterfaceImpl(CRToken signToken,CRToken verifyToken,String digestCalculatorProviderStr) {
 		//TODO proviamo a passare i token come parametro
 		this.signToken=signToken;
 		this.verifyToken=verifyToken;
+		this.digestCalculatorProviderStr=digestCalculatorProviderStr;
 		//TODO gestire p7m p7s
 //		if(fileType==null)
 //			throw new IllegalArgumentException();
@@ -200,7 +204,7 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 //					//se il token è di tipo PKCS11Token, inizializza la sessione
 //					if(token instanceof PKCS11Token)
 //						((PKCS11Token)token).login(tokenpin);
-					signer = new CadesBESSigner(this.signToken);
+					signer = new CadesBESSigner(this.signToken,this.digestCalculatorProviderStr);
 				}
 				CMSSignedData signedData;
 				if(!detached)

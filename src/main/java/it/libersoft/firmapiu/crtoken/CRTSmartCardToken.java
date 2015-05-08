@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.AuthProvider;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -132,7 +133,10 @@ final class CRTSmartCardToken implements PKCS11Token {
 		// caricando uno dei driver presenti nel sistema
 		Properties pkcs11Prop = new Properties();
 		try {
-			pkcs11Prop.load(new FileInputStream(new File(pkcs11DriverPath)));
+			//TODO CONTROLLARE che il caricamento delle proprietà in questa maniera  sia corretto 
+			InputStream inp = ClassLoader.getSystemClassLoader().getResourceAsStream(pkcs11DriverPath);
+			//pkcs11Prop.load(new FileInputStream(new File(pkcs11DriverPath)));
+			pkcs11Prop.load(inp);
 		} catch (IOException e) {
 			throw new FirmapiuException(CRT_TOKEN_CONFIGFILE_NOTFOUND, e);
 		}
