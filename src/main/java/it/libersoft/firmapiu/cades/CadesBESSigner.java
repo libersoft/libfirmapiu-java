@@ -46,6 +46,7 @@ import org.bouncycastle.cms.SignerInfoGenerator;
 import org.bouncycastle.cms.jcajce.JcaSignerInfoGeneratorBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.DigestCalculatorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
@@ -71,12 +72,16 @@ final class CadesBESSigner {
 	
 	private final CMSSignedDataGenerator cmsGenerator;
 	
+	private final String digestCalculatorProviderStr;
 		
 	/**
 	 * @param token
 	 * @throws FirmapiuException
 	 */
-	CadesBESSigner(CRToken token) throws FirmapiuException{
+	CadesBESSigner(CRToken token,String digestCalulatorProviderStr) throws FirmapiuException{
+		//digest calulator provider utilizzato per il calcolo del digest
+		this.digestCalculatorProviderStr=digestCalulatorProviderStr;
+		
 		//inizializza il provider di Bouncy Castle
 		Provider p1 = new BouncyCastleProvider();
 		//TODO vedere se ce da implementare o meno una procedura se si tenta di installare più volte lo stesso providere in maniera concorrente
@@ -203,7 +208,25 @@ final class CadesBESSigner {
 	    //crea il signerInfoGenerator e aggiunge gli attributi richiesti per la legge italiana
 	    SignerInfoGenerator original;
 		try {
-			original = new JcaSignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder().setProvider(bcProvName).build()).build(shaSigner, signCert);
+			//cerca di caricare il digest calculator provider passato come parametro. 
+			//Se è null usa il digestcalculator provider delle Bouncy Castle
+			DigestCalculatorProvider digestCalculatorProvider=null;
+			if(this.digestCalculatorProviderStr!=null){
+				try {
+					Class<?> cls=ClassLoader.getSystemClassLoader().loadClass(digestCalulatorProviderStr);
+					digestCalculatorProvider= (DigestCalculatorProvider)cls.newInstance();
+				} catch (ClassNotFoundException | InstantiationException
+						| IllegalAccessException e) {
+					//se non riesce a caricare la classe lancia una firmapiuexception
+					String msg= FirmapiuException.getDefaultErrorCodeMessage(DIGESTCALCULATOR_ERROR);
+					msg+=" : "+this.digestCalculatorProviderStr;
+					throw new FirmapiuException(DIGESTCALCULATOR_ERROR, msg, e);
+				}
+			}
+			else
+				digestCalculatorProvider=new JcaDigestCalculatorProviderBuilder().setProvider(bcProvName).build();
+			
+			original = new JcaSignerInfoGeneratorBuilder(digestCalculatorProvider).build(shaSigner, signCert);
 		} catch (CertificateEncodingException e) {
 			throw new FirmapiuException(CERT_ENCODING_ERROR, e);
 		} catch (OperatorCreationException e) {

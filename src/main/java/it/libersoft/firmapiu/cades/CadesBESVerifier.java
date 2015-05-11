@@ -607,6 +607,16 @@ final class CadesBESVerifier {
 			params = new PKIXBuilderParameters(anchors, target);
 			//disabilita il controllo delle CRL
 			params.setRevocationEnabled(false);
+			//se il certificato è scaduto cerca di generare lo stesso la catena dei certificati
+			try {
+				X509Certificate x509cert = certConverter.getCertificate(cert);
+				//long before=x509cert.getNotBefore().getTime();
+				long after=x509cert.getNotAfter().getTime();
+				after-=10;
+				params.setDate(new Date(after));
+			} catch (CertificateException e) {
+				throw new FirmapiuException(CERT_KEYSTORE_DEFAULT_ERROR, e);
+			}
 			CertStoreParameters intermediates = new CollectionCertStoreParameters(chain);
 			params.addCertStore(CertStore.getInstance("Collection", intermediates));
 			params.setSigProvider(this.bcProvName);
