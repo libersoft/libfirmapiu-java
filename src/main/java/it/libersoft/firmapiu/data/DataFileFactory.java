@@ -11,7 +11,9 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
- * Questa factory crea un insieme di dati da passare come parametro di input alle operazioni di firma e verifica
+ * Questa factory crea un insieme di dati da passare come parametro di input alle operazioni di firma e verifica<p>
+ * 
+ * I dati richiesti sono un insieme di file
  * 
  * @author dellanna
  *

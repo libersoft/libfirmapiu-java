@@ -14,7 +14,7 @@ import it.libersoft.firmapiu.exception.FirmapiuException;
  * @author dellanna
  *
  */
-interface CMSSIgnedDataResultInterface<K,V> extends ResultInterface<K, V> {
+interface CMSSignedDataResultInterface<K,V> extends ResultInterface<K, V> {
 	
 	/**
 	 * Associa dei dati firmati a una chiave

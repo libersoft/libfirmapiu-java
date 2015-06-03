@@ -3,10 +3,12 @@
  */
 package it.libersoft.firmapiu.cades;
 
+import java.security.ProviderException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSTypedData;
@@ -17,8 +19,10 @@ import it.libersoft.firmapiu.Data;
 import it.libersoft.firmapiu.Report;
 import it.libersoft.firmapiu.ResultInterface;
 import it.libersoft.firmapiu.exception.FirmapiuException;
-
 import static it.libersoft.firmapiu.consts.ArgumentConsts.*;
+import static it.libersoft.firmapiu.exception.FirmapiuException.CRT_TOKEN_NOTFOUND;
+import static it.libersoft.firmapiu.exception.FirmapiuException.SIGNER_CADESBES_ERROR;
+import static it.libersoft.firmapiu.exception.FirmapiuException.SIGNER_TOKEN_REMOVED;
 
 /**
  * 
@@ -50,6 +54,10 @@ abstract class AbstractCadesBESCommandInterface<K,V> implements
 	 */
 	@Override
 	public ResultInterface<K, V> sign(Data<K> data) throws FirmapiuException {
+		//se non è stato definito il token per la firma lancia un eccezione
+		if(this.signToken==null)
+			throw new FirmapiuException(CRT_TOKEN_NOTFOUND, new NullPointerException("signToken=null"));
+		
 		//controlla gli argomenti di Data<K> data
 		Map<String,String> commandArgs = data.getArgumentMap();
 		
@@ -59,19 +67,35 @@ abstract class AbstractCadesBESCommandInterface<K,V> implements
 			detached=Boolean.parseBoolean(commandArgs.get(DETACHED));
 		
 		//Crea il resultSet da restituire in risposta
-		CMSSIgnedDataResultInterface<K, V> resultInterface = this.getCMSSIgnedDataResultInterface();
+		CMSSignedDataResultInterface<K, V> resultInterface = this.getCMSSIgnedDataResultInterface();
 		
 		//itera sul set dei dati da firmare e salva i dati firmati nel resultInterface
 		Set<K> dataSet=data.getDataSet();
 		Iterator<K> itr= dataSet.iterator();
-		CadesBESSigner signer= new CadesBESSigner(this.signToken,this.digestCalculatorProviderStr);
+		//TODO vedere se signer può essere inizializzato dentro il while per ottimizzare 
+		CadesBESSigner signer = new CadesBESSigner(this.signToken,this.digestCalculatorProviderStr);
 		while(itr.hasNext()){
 			K dataKey=itr.next();
-			CMSTypedData cmsData=new CMSProcessableByteArray(data.getArrayData(dataKey));
-			//TODO vedere se signer può essere inizializzato dentro il while per ottimizzare 
-//			CMSSignedData signedData=signer.sign(cmsData, !detached);
-			//resultInterface.put(dataKey, signedData);
-		}
+			try {
+				CMSTypedData cmsData=new CMSProcessableByteArray(data.getArrayData(dataKey));
+				CMSSignedData signedData=signer.sign(cmsData, !detached);
+				resultInterface.put(dataKey, signedData);
+			} catch (FirmapiuException e) {
+				resultInterface.putFirmapiuException(dataKey, e);
+			} catch (CMSException e) {
+				FirmapiuException fe1 =new FirmapiuException(SIGNER_CADESBES_ERROR, e);
+				resultInterface.putFirmapiuException(dataKey, fe1);
+			}catch (ProviderException e){
+				//questa eccezione potrebbe essere lanciata se si rimuove il token pkcs11 durante il processo di firma
+				//se il token è PKCS11token si slogga e rilancia l'eccezione firmapiuexception al chiamante
+				//TODO si prova a gestire il token pkcs11 da un altra parte
+				//				if((token!=null)&&(token instanceof PKCS11Token)){
+//					((PKCS11Token)token).logout();
+//				}
+				FirmapiuException fe1 =new FirmapiuException(SIGNER_TOKEN_REMOVED, e);
+				throw fe1;
+			}
+		}//fine while
 		
 		return resultInterface;
 	}
@@ -97,7 +121,7 @@ abstract class AbstractCadesBESCommandInterface<K,V> implements
 	}
 
 	//crea una result interface da CMSSignedData
-	abstract CMSSIgnedDataResultInterface<K, V> getCMSSIgnedDataResultInterface();
+	abstract CMSSignedDataResultInterface<K, V> getCMSSIgnedDataResultInterface();
 	
 	//crea una result Interface da una CMSTypedData
 	abstract CMSTypedDataResultInterface<K, V> getCMSTypedDataResultInterface();
