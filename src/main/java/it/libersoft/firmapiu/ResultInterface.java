@@ -40,4 +40,16 @@ public interface ResultInterface<K, V> {
 	 *             in caso di errore applicativo
 	 */
 	public V getResult(K key) throws FirmapiuException;
+
+	/**
+	 * Inserisce un eccezione per una determinata chiave: quando verrà fatta la
+	 * getResult per quella determinata chiave, l'implementazione concreta dovrà
+	 * lanciare la firmapiuException passata come paramentro in questo metodo
+	 * 
+	 * @param key
+	 *            la chiave richiesta
+	 * @param e
+	 *            L'eccezione da "iniettare"
+	 */
+	public void putFirmapiuException(K key, FirmapiuException e);
 }

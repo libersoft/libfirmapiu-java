@@ -121,7 +121,8 @@ public class CadesBESFactory extends DefaultFactory{
 	 * @see it.libersoft.firmapiu.consts.FactoryConsts
 	 */
 	public P7ByteCommandInterface getP7ByteCommandInterface(CRToken signToken,CRToken verifyToken){
-		//TODO
-		return null;
+		//recupera la proprietà del digestCalculatorProvider
+		String digestCalculatorProviderStr=(String)this.getProperty(DIGEST_CALCULATOR_PROVIDER);
+		return new P7ByteCommandInterfaceImpl(signToken, verifyToken,digestCalculatorProviderStr);
 	}
 }

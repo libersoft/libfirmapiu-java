@@ -610,6 +610,11 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 			else
 				return null;
 		}
+
+		@Override
+		public void putFirmapiuException(File key, FirmapiuException e) {
+			this.result.put(key, e);
+		}
 	}
 	
 	//implementazione privata di report
