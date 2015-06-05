@@ -18,7 +18,7 @@ import java.util.ResourceBundle;
  * @author dellanna
  *
  */
-public final class DataFileFactory extends DefaultDataFactory {
+final class DataFileFactory extends DefaultDataFactory {
 	
 	// inizializza il resourcebundle per il recupero dei messaggi lanciati dalla
 	// classe

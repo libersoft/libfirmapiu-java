@@ -8,7 +8,6 @@ import it.libersoft.firmapiu.Data;
 //import it.libersoft.firmapiu.Argument;
 //import it.libersoft.firmapiu.GenericArgument;
 //import it.libersoft.firmapiu.MasterFactoryBuilder;
-import it.libersoft.firmapiu.P7SData;
 import it.libersoft.firmapiu.Report;
 import it.libersoft.firmapiu.ResultInterface;
 import it.libersoft.firmapiu.crtoken.KeyStoreToken;
@@ -351,7 +350,7 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	}
 
 	@Override
-	public ResultInterface<String, Report> verifyP7S(P7SData<String> data)
+	public ResultInterface<File, Report> verifyP7S(P7SData<File,File> data)
 			throws FirmapiuException {
 		// TODO Auto-generated method stub
 		return null;

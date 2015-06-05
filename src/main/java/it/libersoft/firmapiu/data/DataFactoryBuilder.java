@@ -41,8 +41,11 @@ public final class DataFactoryBuilder {
 		if (choice.equals(DATAFILEFACTORY)) {
 			return new DataFileFactory();
 		}else if (choice.equals(DATABYTEARRAYFACTORY)) {
-			//TODO fare il byte array factory
 			return new DataByteArrayFactory(); 
+		}else if (choice.equals(P7SDATAFILEFACTORY)) {
+			return new P7SDataFileFactory(); 
+		}else if (choice.equals(P7SDATABYTEARRAYFACTORY)) {
+			return new P7SDataByteArrayFactory(); 
 		}
 			throw new IllegalArgumentException(RB.getString("factoryerror0")
 					+ " : " + choice);

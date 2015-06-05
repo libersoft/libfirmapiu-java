@@ -11,7 +11,7 @@ package it.libersoft.firmapiu.data;
  * @author dellanna
  *
  */
-public final class DataByteArrayFactory extends DefaultDataFactory {
+final class DataByteArrayFactory extends DefaultDataFactory {
 
 	/**
 	 * 
@@ -26,8 +26,5 @@ public final class DataByteArrayFactory extends DefaultDataFactory {
 	@Override
 	public DataByteArray getDataByteArray() throws IllegalArgumentException {
 		return new DataByteArrayImpl();
-	}
-
-	
-	
+	}	
 }

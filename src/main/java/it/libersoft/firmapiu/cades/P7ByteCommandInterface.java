@@ -5,7 +5,6 @@ package it.libersoft.firmapiu.cades;
 
 import it.libersoft.firmapiu.CommandInterface;
 import it.libersoft.firmapiu.ResultInterface;
-import it.libersoft.firmapiu.P7SData;
 import it.libersoft.firmapiu.Report;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 
@@ -34,6 +33,6 @@ public interface P7ByteCommandInterface extends CommandInterface<byte[], byte[]>
 	 * @return Un report contentente L'esito della verifica per ogni p7s passato comeparametro 
 	 * @throws FirmapiuException in caso di errore applicativo
 	 */
-	public ResultInterface<byte[],Report> verifyP7S(P7SData<byte[]> data) throws FirmapiuException;
+	public ResultInterface<byte[],Report> verifyP7S(P7SData<byte[],byte[]> data) throws FirmapiuException;
 	
 }

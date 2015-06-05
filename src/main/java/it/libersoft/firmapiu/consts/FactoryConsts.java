@@ -29,12 +29,28 @@ public final class FactoryConsts {
 	public final static String DATAFILEFACTORY="dataFileFactory";
 	
 	/**
+	 * Factory per la creazione di un insieme di buste crittografiche detached p7s e dati associati, rappresentati come files, 
+	 * da passare come parametro di input alle operazioni di verifica
+	 * 
+	 * @see it.libersoft.firmapiu.Data
+	 */
+	public final static String P7SDATAFILEFACTORY="p7sDataFileFactory";
+	
+	/**
 	 * Factory per la creazione di un insieme di busta crittografiche o contenuti di file, rappresentati come array di byte, 
 	 * da passare come parametro di input alle operazioni di firma e verifica
 	 * 
 	 * @see it.libersoft.firmapiu.Data
 	 */
 	public final static String DATABYTEARRAYFACTORY="dataByteArrayFactory";
+	
+	/**
+	 * Factory per la creazione di un insieme di buste crittografiche detached e dati associati, rappresentati come array di byte, 
+	 * da passare come parametro di input alle operazioni di verifica
+	 * 
+	 * @see it.libersoft.firmapiu.Data
+	 */
+	public final static String P7SDATABYTEARRAYFACTORY="p7sDataByteArrayFactory";
 	
 	/**
 	 * Factory per la creazione di token pkcs#11 utilizzati dalle operazioni della libreria

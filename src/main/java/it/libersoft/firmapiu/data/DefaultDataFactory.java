@@ -44,17 +44,21 @@ public class DefaultDataFactory {
 		// token (una smartcard).
 		// Le factories concrete utilizzeranno questo token per implementare le
 		// operazioni di firma dei dati
-//		propMap.put(CRT_SIGN_TOKEN, PKCS11TOKENFACTORY);
-//		// Il token crittografico utilizzato di default per la verifica di dati
-//		// firmati elettronicamente è un TSLXmlKeyStoreToken.
-//		// Le factories concrete utilizzeranno questo token per implementare le
-//		// operazioni di verifica dell firma dei dati
-//		propMap.put(CRT_VERIFY_TOKEN, KEYSTORETOKENFACTORY);
+		// propMap.put(CRT_SIGN_TOKEN, PKCS11TOKENFACTORY);
+		// // Il token crittografico utilizzato di default per la verifica di
+		// dati
+		// // firmati elettronicamente è un TSLXmlKeyStoreToken.
+		// // Le factories concrete utilizzeranno questo token per implementare
+		// le
+		// // operazioni di verifica dell firma dei dati
+		// propMap.put(CRT_VERIFY_TOKEN, KEYSTORETOKENFACTORY);
 	}
 
 	/**
-	 * Crea un oggetto che raccoglie un insieme di una buste crittografiche o contenuti di file, rappresentati come array di byte, da firmare o verificare
-	 * tramite le operazioni di firma e verifica messe a disposizione dalla libreria
+	 * Crea un oggetto che raccoglie un insieme di una buste crittografiche o
+	 * contenuti di file, rappresentati come array di byte, da firmare o
+	 * verificare tramite le operazioni di firma e verifica messe a disposizione
+	 * dalla libreria
 	 * 
 	 * @param choice
 	 *            il tipo di dati concreto da creare
@@ -64,6 +68,25 @@ public class DefaultDataFactory {
 	 * @see it.libersoft.firmapiu.consts.FactoryConsts
 	 */
 	public DataByteArray getDataByteArray() throws IllegalArgumentException {
+		throw new IllegalArgumentException(RB.getString("factoryerror1")
+				+ " : " + this.getClass().getCanonicalName());
+	}
+
+	/**
+	 * Crea un oggetto che raccoglie un insieme di una buste crittografiche
+	 * detached o .p7s, e contenuto originale associato, rappresentati come
+	 * array di byte, per le operazioni di verifica messe a disposizione dalla
+	 * libreria
+	 * 
+	 * @param choice
+	 *            il tipo di dati concreto da creare
+	 * @return
+	 * @throws IllegalArgumentException
+	 *             Se la factory utilizzata non implementa questo metodo
+	 * @see it.libersoft.firmapiu.consts.FactoryConsts
+	 */
+	public P7SDataByteArray getP7SDataByteArray()
+			throws IllegalArgumentException {
 		throw new IllegalArgumentException(RB.getString("factoryerror1")
 				+ " : " + this.getClass().getCanonicalName());
 	}
@@ -84,7 +107,24 @@ public class DefaultDataFactory {
 		throw new IllegalArgumentException(RB.getString("factoryerror1")
 				+ " : " + this.getClass().getCanonicalName());
 	}
-	
+
+	/**
+	 * Crea un oggetto che raccoglie un insieme di file p7s e file originale
+	 * associato per le operazioni di verifica messe a disposizione dalla
+	 * libreria
+	 * 
+	 * @param choice
+	 *            il tipo di dati concreto da creare
+	 * @return
+	 * @throws IllegalArgumentException
+	 *             Se la factory utilizzata non implementa questo metodo
+	 * @see it.libersoft.firmapiu.consts.FactoryConsts
+	 */
+	public P7SDataFile getP7SDataFile() throws IllegalArgumentException {
+		throw new IllegalArgumentException(RB.getString("factoryerror1")
+				+ " : " + this.getClass().getCanonicalName());
+	}
+
 	/**
 	 * Setta o sovrascrive una proprietà della factory. Questo comporta che gli
 	 * oggetti saranno creati dalla factory secondo questa proprietà<br>
@@ -120,7 +160,7 @@ public class DefaultDataFactory {
 	 * 
 	 * @return Una map contenete tutte le associazioni &lt;chiave,valore&gt;
 	 *         delle proprietà settate da questa classe
-	 *         
+	 * 
 	 * @see it.libersoft.firmapiu.consts.FactoryPropConsts
 	 */
 	public Map<String, Object> getProperties() {
