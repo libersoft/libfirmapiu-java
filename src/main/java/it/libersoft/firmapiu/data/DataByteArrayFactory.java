@@ -25,6 +25,6 @@ final class DataByteArrayFactory extends DefaultDataFactory {
 	 */
 	@Override
 	public DataByteArray getDataByteArray() throws IllegalArgumentException {
-		return new DataByteArrayImpl();
+		return new CommonDataByteArrayImpl();
 	}	
 }

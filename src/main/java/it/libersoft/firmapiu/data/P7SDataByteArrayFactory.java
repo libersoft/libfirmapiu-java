@@ -42,6 +42,6 @@ final class P7SDataByteArrayFactory extends DefaultDataFactory {
 	 */
 	@Override
 	public P7SDataByteArray getP7SDataByteArray() throws IllegalArgumentException {
-		return new P7SDataByteArrayImpl();
+		return new CommonDataByteArrayImpl();
 	}
 }
