@@ -1,7 +1,7 @@
 /**
  * 
  */
-package it.libersoft.firmapiu;
+package it.libersoft.firmapiu.cades;
 
 import it.libersoft.firmapiu.exception.FirmapiuException;
 
@@ -12,12 +12,12 @@ import java.util.Set;
 import org.bouncycastle.cms.SignerInformation;
 
 /**
- * Restituisce un report sull'operazione di verifica di un dato firmato elettronicamente in una busta (Casdes-BES, Pades, Xades etc)
+ * Restituisce un report sull'operazione di verifica di un dato firmato elettronicamente in una busta pkcs7(CMS) o Cades-Bes
  * 
  * @author dellanna
  *
  */
-public interface Report {
+public interface CMSReport {
 	
 	/**
 	 * Restituisce la lista di tutti i firmatari presenti nella busta crittografica

@@ -14,7 +14,6 @@ import org.bouncycastle.cms.CMSTypedData;
 
 import it.libersoft.firmapiu.CRToken;
 import it.libersoft.firmapiu.Data;
-import it.libersoft.firmapiu.Report;
 import it.libersoft.firmapiu.ResultInterface;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.exception.FirmapiuException.*;
@@ -63,7 +62,7 @@ final class P7ByteCommandInterfaceImpl extends
 	 * .firmapiu.P7SData)
 	 */
 	@Override
-	public ResultInterface<byte[], Report> verifyP7S(P7SData<byte[],byte[]> data)
+	public ResultInterface<byte[], CMSReport> verifyP7S(P7SData<byte[],byte[]> data)
 			throws FirmapiuException {
 		// TODO Auto-generated method stub
 		return null;

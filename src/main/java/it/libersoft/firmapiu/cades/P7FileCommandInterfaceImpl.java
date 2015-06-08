@@ -8,7 +8,6 @@ import it.libersoft.firmapiu.Data;
 //import it.libersoft.firmapiu.Argument;
 //import it.libersoft.firmapiu.GenericArgument;
 //import it.libersoft.firmapiu.MasterFactoryBuilder;
-import it.libersoft.firmapiu.Report;
 import it.libersoft.firmapiu.ResultInterface;
 import it.libersoft.firmapiu.crtoken.KeyStoreToken;
 import it.libersoft.firmapiu.crtoken.PKCS11Token;
@@ -284,7 +283,7 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	 * @see it.libersoft.firmapiu.CommandInterface#verify(it.libersoft.firmapiu.Data, it.libersoft.firmapiu.Argument)
 	 */
 	@Override
-	public ResultInterface<File, Report> verify(Data<File> signedData) throws FirmapiuException{
+	public ResultInterface<File, CMSReport> verify(Data<File> signedData) throws FirmapiuException{
 		//se non è stato definito il token per la verifica lancia un eccezione
 		if(this.verifyToken==null)
 			throw new FirmapiuException(CRT_TOKEN_NOTFOUND, new NullPointerException("verifyToken=null"));
@@ -346,11 +345,11 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 				resultMap.put(dataFileIn, fe1);
 			}
 		}
-		return new ResultFileInterfaceImpl<Report>(resultMap);
+		return new ResultFileInterfaceImpl<CMSReport>(resultMap);
 	}
 
 	@Override
-	public ResultInterface<File, Report> verifyP7S(P7SData<File,File> data)
+	public ResultInterface<File, CMSReport> verifyP7S(P7SData<File,File> data)
 			throws FirmapiuException {
 		// TODO Auto-generated method stub
 		return null;
@@ -617,7 +616,7 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	}
 	
 	//implementazione privata di report
-	private class ReportImpl implements Report{
+	private class ReportImpl implements CMSReport{
 
 		private final CadesBESVerifier verifier;
 		

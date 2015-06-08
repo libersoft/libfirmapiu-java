@@ -3,6 +3,7 @@
  */
 package it.libersoft.firmapiu;
 
+import it.libersoft.firmapiu.cades.CMSReport;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 
 import java.util.Map;
@@ -32,10 +33,10 @@ public interface CommandInterface<K,V> {
 	 * 
 	 * @param data I dati da verificare
 	 * (I dati da verificare dovrebbero essere delle chiavi univoche, per non firmare più di una volta gli stessi dati)
-	 * @return Un report di verifica per ogni dato da verificare
+	 * @return ? Dovrebbe essere una classe che rappresenta un report di verifica per ogni dato da verificare
 	 * @throws FirmapiuException Se l'esecuzione del metodo ha generato un errore applicativo
 	 */
-	public ResultInterface<K,Report> verify(Data<K> data) throws FirmapiuException;
+	public ResultInterface<K,?> verify(Data<K> data) throws FirmapiuException;
 	
 	/**
 	 * Restituisce il contenuto di un insieme di dati firmati

@@ -16,7 +16,6 @@ import org.bouncycastle.cms.CMSTypedData;
 import it.libersoft.firmapiu.CRToken;
 import it.libersoft.firmapiu.CommandInterface;
 import it.libersoft.firmapiu.Data;
-import it.libersoft.firmapiu.Report;
 import it.libersoft.firmapiu.ResultInterface;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.ArgumentConsts.*;
@@ -104,7 +103,7 @@ abstract class AbstractCadesBESCommandInterface<K,V> implements
 	 * @see it.libersoft.firmapiu.CommandInterface#verify(it.libersoft.firmapiu.Data)
 	 */
 	@Override
-	public ResultInterface<K, Report> verify(Data<K> data)
+	public ResultInterface<K, CMSReport> verify(Data<K> data)
 			throws FirmapiuException {
 		// TODO Auto-generated method stub
 		return null;

@@ -4,8 +4,8 @@
 package it.libersoft.firmapiu.cades;
 
 import it.libersoft.firmapiu.CommandInterface;
+import it.libersoft.firmapiu.Data;
 import it.libersoft.firmapiu.ResultInterface;
-import it.libersoft.firmapiu.Report;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 
 /**
@@ -26,6 +26,14 @@ import it.libersoft.firmapiu.exception.FirmapiuException;
  */
 public interface P7ByteCommandInterface extends CommandInterface<byte[], byte[]> {
 	
+	
+	/**
+	 * Verifica i dati presenti in una busta crittografica Cades-BES/CMS salvandoli in un CMSReport 
+	 * 
+	 * @see it.libersoft.firmapiu.CommandInterface#verify(it.libersoft.firmapiu.Data)
+	 */
+	public ResultInterface<byte[],CMSReport> verify(Data<byte[]> data) throws FirmapiuException;
+	
 	/**
 	 * Verifica i file p7s nel formato Cades-BES per controllarne la correttezza e l'affidabilità
 	 * 
@@ -33,6 +41,6 @@ public interface P7ByteCommandInterface extends CommandInterface<byte[], byte[]>
 	 * @return Un report contentente L'esito della verifica per ogni p7s passato comeparametro 
 	 * @throws FirmapiuException in caso di errore applicativo
 	 */
-	public ResultInterface<byte[],Report> verifyP7S(P7SData<byte[],byte[]> data) throws FirmapiuException;
+	public ResultInterface<byte[],CMSReport> verifyP7S(P7SData<byte[],byte[]> data) throws FirmapiuException;
 	
 }

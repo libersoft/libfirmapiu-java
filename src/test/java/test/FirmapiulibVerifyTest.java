@@ -13,12 +13,12 @@ import java.util.Set;
 import org.bouncycastle.cms.SignerInformation;
 
 import it.libersoft.firmapiu.CRToken;
-import it.libersoft.firmapiu.Report;
 import it.libersoft.firmapiu.ResultInterface;
 //import it.libersoft.firmapiu.GenericArgument;
 //import it.libersoft.firmapiu.MasterFactoryBuilder;
 import it.libersoft.firmapiu.cades.CadesBESFactory;
 import it.libersoft.firmapiu.cades.P7FileCommandInterface;
+import it.libersoft.firmapiu.cades.CMSReport;
 import it.libersoft.firmapiu.crtoken.KeyStoreToken;
 import it.libersoft.firmapiu.crtoken.TokenFactoryBuilder;
 import it.libersoft.firmapiu.data.DataFactoryBuilder;
@@ -72,7 +72,7 @@ final class FirmapiulibVerifyTest {
 		System.out.println();
 		
 		//esegue la verifica
-		ResultInterface<File,Report> result=commandInterface.verify(data);
+		ResultInterface<File,CMSReport> result=commandInterface.verify(data);
 		
 		System.out.println("Esito della verifica:");
 		System.out.println();
@@ -84,7 +84,7 @@ final class FirmapiulibVerifyTest {
 			System.out.println("File ->"+dataPath.getAbsolutePath());
 			System.out.println("************************************");			
 			//verifica la firma di tutti i firmatari per ogni file
-			Report signers =result.getResult(dataPath);
+			CMSReport signers =result.getResult(dataPath);
 			Iterator<SignerInformation> sigItr = signers.getSigners().iterator();
 			while(sigItr.hasNext()){
 				System.out.println("Firmatario:");
@@ -99,7 +99,7 @@ final class FirmapiulibVerifyTest {
 	}
 
 	//stampa a video i records contenenti le informazioni di verifica per ogni firmatario
-	private static void printSignerRecord(SignerInformation signerRecord,Report report) throws FirmapiuException{
+	private static void printSignerRecord(SignerInformation signerRecord,CMSReport report) throws FirmapiuException{
 		Set<String> record=report.getSignerRecordFields(signerRecord);
 		X509Certificate cert1 =null;
 		//certificato del firmatario
