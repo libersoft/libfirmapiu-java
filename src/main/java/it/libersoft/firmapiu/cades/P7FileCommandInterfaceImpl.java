@@ -614,40 +614,7 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 			this.result.put(key, e);
 		}
 	}
-	
-	//implementazione privata di report
-	private class ReportImpl implements CMSReport{
-
-		private final CadesBESVerifier verifier;
 		
-		protected ReportImpl(CadesBESVerifier verifier) {
-			this.verifier = verifier;
-		}
-
-		@Override
-		public List<SignerInformation> getSigners() throws FirmapiuException {
-			return verifier.getAllSigners();
-		}
-
-		@Override
-		public Set<String> getSignerRecordFields(SignerInformation signer)
-				throws FirmapiuException {
-			return this.verifier.verifySigner(signer).keySet();
-		}
-
-		@Override
-		public Object getSignerField(SignerInformation signer, String field)
-				throws FirmapiuException {
-			Object fieldValue=this.verifier.verifySignerField(signer, field);
-			if(fieldValue == null)
-				return null;
-			else if(fieldValue instanceof FirmapiuException)
-				throw (FirmapiuException)fieldValue;
-			else 
-				return fieldValue;
-		}
-	}
-	
 	//procedura privata per trovare il percorso canonico di un file da un path generico
 	/*private static File fileFromPath(String filepath){
 		if(filepath.startsWith("~"))

@@ -5,6 +5,7 @@ package it.libersoft.firmapiu.cades;
 
 import java.security.ProviderException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSTypedData;
+import org.bouncycastle.cms.SignerInformation;
 
 import it.libersoft.firmapiu.CRToken;
 import it.libersoft.firmapiu.CommandInterface;
@@ -19,9 +21,7 @@ import it.libersoft.firmapiu.Data;
 import it.libersoft.firmapiu.ResultInterface;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.ArgumentConsts.*;
-import static it.libersoft.firmapiu.exception.FirmapiuException.CRT_TOKEN_NOTFOUND;
-import static it.libersoft.firmapiu.exception.FirmapiuException.SIGNER_CADESBES_ERROR;
-import static it.libersoft.firmapiu.exception.FirmapiuException.SIGNER_TOKEN_REMOVED;
+import static it.libersoft.firmapiu.exception.FirmapiuException.*;
 
 /**
  * 
@@ -48,6 +48,22 @@ abstract class AbstractCadesBESCommandInterface<K,V> implements
 		this.digestCalculatorProviderStr=digestCalculatorProviderStr;
 	}
 
+	/**
+	 * @see it.libersoft.firmapiu.CommandInterface#getSignToken()
+	 */
+	@Override
+	public CRToken getSignToken() throws FirmapiuException {
+		return this.signToken;
+	}
+
+	/**
+	 * @see it.libersoft.firmapiu.CommandInterface#getVerifyCrToken()
+	 */
+	@Override
+	public CRToken getVerifyCrToken() throws FirmapiuException {
+		return this.verifyToken;
+	}
+	
 	/* (non-Javadoc)
 	 * @see it.libersoft.firmapiu.CommandInterface#sign(it.libersoft.firmapiu.Data)
 	 */
@@ -105,8 +121,35 @@ abstract class AbstractCadesBESCommandInterface<K,V> implements
 	@Override
 	public ResultInterface<K, CMSReport> verify(Data<K> data)
 			throws FirmapiuException {
-		// TODO Auto-generated method stub
-		return null;
+		//se non è stato definito il token per la verifica lancia un eccezione
+		if(this.verifyToken==null)
+			throw new FirmapiuException(CRT_TOKEN_NOTFOUND, new NullPointerException("verifyToken=null"));
+		
+		//Carica il keystore contenenti i certificati di root delle CA ritenuti affidabili per le operazioni di verifica
+		this.verifyToken.loadKeyStore(null);
+		
+		//crea il resultset da restituire in risposta
+		CMSReportResultInterface<K> resultInterface = this.getCMSReportResultInterface();
+		
+		//per ogni dato contenuto in data verifica che la firma sia corretta (l'implmementazione concreta di data 
+		//deve essere una busta cades-bes attached)
+		Iterator<K> dataItr=data.getDataSet().iterator();
+		while(dataItr.hasNext()){
+			//crea la busta crittografica dai dati di input
+			K dataKey=dataItr.next();
+			byte[] b=data.getArrayData(dataKey);
+			try {
+				CMSSignedData cmsSignedData = new CMSSignedData(b);
+				//crea il verificatore per verificare la signedData ed effettua tutte le verifiche su tutti i firmatari
+				CadesBESVerifier verifier = new CadesBESVerifier(cmsSignedData, this.verifyToken);
+				resultInterface.put(dataKey, verifier);
+			} catch (CMSException e) {
+				FirmapiuException fe1 =new FirmapiuException(CONTENT_CADESBES_ENCODINGERROR_ATTACHED, e);
+				resultInterface.putFirmapiuException(dataKey, fe1);
+			}
+		}
+
+		return resultInterface;
 	}
 
 	/* (non-Javadoc)
@@ -118,9 +161,12 @@ abstract class AbstractCadesBESCommandInterface<K,V> implements
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 	//crea una result interface da CMSSignedData
 	abstract CMSSignedDataResultInterface<K, V> getCMSSIgnedDataResultInterface();
+
+	//crea una resultinterface per gestire i report dell'operazione di verifica
+	abstract CMSReportResultInterface<K> getCMSReportResultInterface();
 	
 	//crea una result Interface da una CMSTypedData
 	abstract CMSTypedDataResultInterface<K, V> getCMSTypedDataResultInterface();
