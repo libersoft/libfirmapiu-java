@@ -25,7 +25,7 @@ import static it.libersoft.firmapiu.exception.FirmapiuException.*;
  *
  */
 final class P7ByteCommandInterfaceImpl extends
-		AbstractCadesBESCommandInterface<byte[], byte[]> implements
+		AbstractCadesBESCommandInterface<byte[], byte[],byte[]> implements
 		P7ByteCommandInterface {
 
 	P7ByteCommandInterfaceImpl(CRToken signToken, CRToken verifyToken,
@@ -35,19 +35,7 @@ final class P7ByteCommandInterfaceImpl extends
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * it.libersoft.firmapiu.cades.P7ByteCommandInterface#verifyP7S(it.libersoft
-	 * .firmapiu.P7SData)
-	 */
-	@Override
-	public ResultInterface<byte[], CMSReport> verifyP7S(P7SData<byte[],byte[]> data)
-			throws FirmapiuException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 	
 	/**
 	 * Restituisce la CMSTypedDataResultInterface<byte[],byte[]> effettivamente

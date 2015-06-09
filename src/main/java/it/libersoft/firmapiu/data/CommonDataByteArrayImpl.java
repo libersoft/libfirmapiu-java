@@ -122,6 +122,19 @@ final class CommonDataByteArrayImpl implements DataByteArray, P7SDataByteArray {
 			return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see it.libersoft.firmapiu.cades.P7SData#getContentArrayData(java.lang.Object)
+	 */
+	@Override
+	public byte[] getContentArrayData(byte[] data) throws FirmapiuException {
+		ArrayWrapper wrappedData = new ArrayWrapper(data);
+		if (this.wrapperByteArrayMap.containsKey(wrappedData))
+			//se il valore ottenuto è già un array di bytes, lo ripassa al chiamante
+			return this.wrapperByteArrayMap.get(wrappedData);
+		else
+			return null;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

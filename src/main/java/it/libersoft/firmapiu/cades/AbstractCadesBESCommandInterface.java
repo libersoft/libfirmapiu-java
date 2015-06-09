@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.cms.CMSProcessable;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSTypedData;
@@ -28,8 +29,8 @@ import static it.libersoft.firmapiu.exception.FirmapiuException.*;
  * @author dellanna
  *
  */
-abstract class AbstractCadesBESCommandInterface<K,V> implements
-		CommandInterface<K, V> {
+abstract class AbstractCadesBESCommandInterface<K,V,W> implements
+		CadesBESCommandInterface<K,V,W> {
 	
 	//tipo di token utilizzato per le operazioni di firma
 	private final CRToken signToken;
@@ -149,6 +150,44 @@ abstract class AbstractCadesBESCommandInterface<K,V> implements
 			}
 		}
 
+		return resultInterface;
+	}
+	
+	/* (non-Javadoc)
+	 * @see it.libersoft.firmapiu.cades.CadesBESCommandInterface#verifyP7S(it.libersoft.firmapiu.cades.P7SData)
+	 */
+	@Override
+	public ResultInterface<K, CMSReport> verifyP7S(P7SData<K, W> data)
+			throws FirmapiuException {		
+		//se non è stato definito il token per la verifica lancia un eccezione
+		if(this.verifyToken==null)
+			throw new FirmapiuException(CRT_TOKEN_NOTFOUND, new NullPointerException("verifyToken=null"));
+		
+		//Carica il keystore contenenti i certificati di root delle CA ritenuti affidabili per le operazioni di verifica
+		this.verifyToken.loadKeyStore(null);
+		
+		//crea il resultset da restituire in risposta
+		CMSReportResultInterface<K> resultInterface = this.getCMSReportResultInterface();
+		
+		//per ogni dato contenuto in data verifica che la firma sia corretta (l'implmementazione concreta di data 
+		//deve essere una busta cades-bes attached)
+		Iterator<K> dataItr=data.getDataSet().iterator();
+		while(dataItr.hasNext()){
+			//crea la busta crittografica dai dati di input
+			K dataKey=dataItr.next();
+			byte[] b=data.getArrayData(dataKey);
+			try {
+				byte [] bValue=data.getContentArrayData(dataKey);
+				CMSProcessable processable = new CMSProcessableByteArray(bValue);
+				CMSSignedData cmsSignedData = new CMSSignedData(processable,b);
+				//crea il verificatore per verificare la signedData ed effettua tutte le verifiche su tutti i firmatari
+				CadesBESVerifier verifier = new CadesBESVerifier(cmsSignedData, this.verifyToken);
+				resultInterface.put(dataKey, verifier);
+			} catch (CMSException e) {
+				FirmapiuException fe1 =new FirmapiuException(CONTENT_CADESBES_ENCODINGERROR_ATTACHED, e);
+				resultInterface.putFirmapiuException(dataKey, fe1);
+			}
+		}
 		return resultInterface;
 	}
 

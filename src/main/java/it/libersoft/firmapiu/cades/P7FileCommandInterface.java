@@ -28,21 +28,6 @@ import it.libersoft.firmapiu.exception.FirmapiuException;
  *            Tipo di dato associato ai valori restituiti da
  *            ResultInterface<K,V>
  */
-public interface P7FileCommandInterface extends CommandInterface<File,File> {
-	
-	/**
-	 * Verifica i dati presenti in una busta crittografica Cades-BES/CMS salvandoli in un CMSReport 
-	 * 
-	 * @see it.libersoft.firmapiu.CommandInterface#verify(it.libersoft.firmapiu.Data)
-	 */
-	public ResultInterface<File,CMSReport> verify(Data<File> data) throws FirmapiuException;
-	
-	/**
-	 * Verifica i file p7s nel formato Cades-BES per controllarne la correttezza e l'affidabilità
-	 * 
-	 * @param data I dati da controllare (devono contenere un mapping p7s, contenuto originale di un file)
-	 * @return Un report contentente L'esito della verifica per ogni p7s passato comeparametro 
-	 * @throws FirmapiuException in caso di errore applicativo
-	 */
-	public ResultInterface<File,CMSReport> verifyP7S(P7SData<File,File> data) throws FirmapiuException;
+public interface P7FileCommandInterface extends CadesBESCommandInterface<File,File,File> {
+
 }

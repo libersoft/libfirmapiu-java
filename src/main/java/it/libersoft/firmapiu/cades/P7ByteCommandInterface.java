@@ -24,23 +24,6 @@ import it.libersoft.firmapiu.exception.FirmapiuException;
  * @param <byte> Array di byte: rappresentano i valori associati alle chiavi. Sono i dati firmati o di cui è stato
  * restituito il contenuto originale (Se i dati erano inbustati "attached" in una busta Cades-Bes)
  */
-public interface P7ByteCommandInterface extends CommandInterface<byte[], byte[]> {
-	
-	
-	/**
-	 * Verifica i dati presenti in una busta crittografica Cades-BES/CMS salvandoli in un CMSReport 
-	 * 
-	 * @see it.libersoft.firmapiu.CommandInterface#verify(it.libersoft.firmapiu.Data)
-	 */
-	public ResultInterface<byte[],CMSReport> verify(Data<byte[]> data) throws FirmapiuException;
-	
-	/**
-	 * Verifica i file p7s nel formato Cades-BES per controllarne la correttezza e l'affidabilità
-	 * 
-	 * @param data I dati da controllare (devono contenere un mapping p7s, contenuto originale di un file)
-	 * @return Un report contentente L'esito della verifica per ogni p7s passato comeparametro 
-	 * @throws FirmapiuException in caso di errore applicativo
-	 */
-	public ResultInterface<byte[],CMSReport> verifyP7S(P7SData<byte[],byte[]> data) throws FirmapiuException;
-	
+public interface P7ByteCommandInterface extends CadesBESCommandInterface<byte[], byte[],byte[]> {
+		
 }

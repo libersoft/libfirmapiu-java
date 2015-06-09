@@ -47,4 +47,16 @@ public interface P7SData<K, V> extends Data<K> {
 	 *             In caso di errori applicativi
 	 */
 	public V getP7SContent(K key) throws FirmapiuException;
+	
+	/**
+	 * Restituisce il contenuto associato ad una busta crittografica Cades-bes
+	 * detached rappresentato come array di bytes
+	 * 
+	 * @param Value
+	 *            Contenuto associato alla busta crittografica Cades-bes/P7S
+	 * @return Contenuto associato rappresentato come array di bytes
+	 * @throws FirmapiuException
+	 *             In caso di errori applicativi
+	 */
+	public byte[] getContentArrayData(K key) throws FirmapiuException;
 }

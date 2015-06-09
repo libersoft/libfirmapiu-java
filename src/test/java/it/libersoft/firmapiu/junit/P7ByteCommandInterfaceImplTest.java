@@ -12,6 +12,7 @@ import it.libersoft.firmapiu.crtoken.KeyStoreToken;
 import it.libersoft.firmapiu.crtoken.TokenFactoryBuilder;
 import it.libersoft.firmapiu.data.DataByteArray;
 import it.libersoft.firmapiu.data.DataFactoryBuilder;
+import it.libersoft.firmapiu.data.P7SDataByteArray;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 import static it.libersoft.firmapiu.consts.FirmapiuRecordConstants.CERTCHAIN;
@@ -56,7 +57,11 @@ public class P7ByteCommandInterfaceImplTest {
 
 	//parametri di test: file di cui effettuare la verifica
 	private final static File FILETEST= new File("/home/andy/Scrivania/p7mfiles2/README.txt.p7m");
-
+	private final static File P7SFILETEST = new File("/home/andy/probbblemi.txt.p7s");
+	private final static File P7SFILECONTENTTEST = new File("/home/andy/probbblemi.txt");
+	
+	
+	
 	public P7ByteCommandInterfaceImplTest() {
 	}
 
@@ -99,9 +104,22 @@ public class P7ByteCommandInterfaceImplTest {
 	/**
 	 * Test method for {@link it.libersoft.firmapiu.cades.P7ByteCommandInterfaceImpl#verifyP7S(it.libersoft.firmapiu.cades.P7SData)}.
 	 */
-	//@Test
-	public final void testVerifyP7S() {
-		fail("Not yet implemented"); // TODO
+	@Test
+	public final void testVerifyP7S() throws Exception{
+		LOG.info("Testa metodo verifyP7S su: {} e {}\nPreparo i parametri per effettuare il test",P7SFILETEST,P7SFILECONTENTTEST);
+		FileInputStream in = new FileInputStream(P7SFILETEST);
+		byte[] p7sDataTest=new byte[in.available()];
+		in.read(p7sDataTest);
+		
+		FileInputStream in2 = new FileInputStream(P7SFILECONTENTTEST);
+		byte[] p7sDataContentTest=new byte[in2.available()];
+		in2.read(p7sDataContentTest);
+		
+		//inizializza la struttura dati utilizzata per passare i dati da verificate a P7ByteArrayCommandInterface
+		P7SDataByteArray p7sData = DataFactoryBuilder.getFactory(P7SDATABYTEARRAYFACTORY).getP7SDataByteArray();
+		p7sData.putP7SData(p7sDataTest, p7sDataContentTest);
+		ResultInterface<byte[], CMSReport>result=p7mByteInterface.verifyP7S(p7sData);
+		logVerify(result);
 	}
 
 	/**

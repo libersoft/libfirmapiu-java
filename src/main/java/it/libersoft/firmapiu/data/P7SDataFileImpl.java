@@ -78,6 +78,12 @@ final class P7SDataFileImpl implements P7SDataFile {
 		return null;
 	}
 
+	@Override
+	public byte[] getContentArrayData(File key) throws FirmapiuException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	/* (non-Javadoc)
 	 * @see it.libersoft.firmapiu.Data#setArgument(java.lang.String, java.lang.String)
 	 */
@@ -95,5 +101,4 @@ final class P7SDataFileImpl implements P7SDataFile {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 }
