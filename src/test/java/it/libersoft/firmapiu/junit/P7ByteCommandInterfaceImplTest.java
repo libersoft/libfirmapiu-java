@@ -26,6 +26,7 @@ import static it.libersoft.firmapiu.consts.FirmapiuRecordConstants.TRUSTEDSIGNER
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.security.cert.X509Certificate;
 import java.util.Iterator;
 import java.util.List;
@@ -56,6 +57,8 @@ public class P7ByteCommandInterfaceImplTest {
 	private static P7ByteCommandInterface p7mByteInterface;
 
 	//parametri di test: file di cui effettuare la verifica
+	private final static File SIGNFILETEST = new File("/home/andy/overview.html");
+	private final static String PINTEST ="87654321";
 	private final static File FILETEST= new File("/home/andy/Scrivania/p7mfiles2/README.txt.p7m");
 	private final static File P7SFILETEST = new File("/home/andy/probbblemi.txt.p7s");
 	private final static File P7SFILECONTENTTEST = new File("/home/andy/probbblemi.txt");
@@ -127,7 +130,7 @@ public class P7ByteCommandInterfaceImplTest {
 	 */
 	//@Test
 	public final void testSign() {
-		fail("Not yet implemented"); // TODO
+		
 	}
 
 	/**
@@ -149,9 +152,20 @@ public class P7ByteCommandInterfaceImplTest {
 	/**
 	 * Test method for {@link it.libersoft.firmapiu.cades.AbstractCadesBESCommandInterface#getContentSignedData(it.libersoft.firmapiu.Data)}.
 	 */
-	//@Test
-	public final void testGetContentSignedData() {
-		fail("Not yet implemented"); // TODO
+	@Test
+	public final void testGetContentSignedData() throws Exception{
+		LOG.info("Testa metodo getContentSignedData su: {}\nPreparo i parametri per effettuare il test",FILETEST);
+		FileInputStream in = new FileInputStream(FILETEST);
+		byte[] dataTest=new byte[in.available()];
+		in.read(dataTest);
+		//inizializza la struttura dati utilizzata per passare i dati da verificate a P7ByteArrayCommandInterface
+		DataByteArray data=DataFactoryBuilder.getFactory(DATABYTEARRAYFACTORY).getDataByteArray();
+		data.setData(dataTest);
+		ResultInterface<byte[], byte[]>result=p7mByteInterface.getContentSignedData(data);
+		byte[] content=result.getResult(dataTest);
+		FileOutputStream fileOutStream =new FileOutputStream(new File(System.getProperty("user.home")+"/testTest.txt"));
+		fileOutStream.write(content);
+		fileOutStream.close();
 	}
 
 	//stampa l'esito della verifica

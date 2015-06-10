@@ -3,6 +3,7 @@
  */
 package it.libersoft.firmapiu.cades;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSTypedData;
 import org.bouncycastle.cms.SignerInformation;
@@ -45,7 +47,6 @@ final class P7ByteCommandInterfaceImpl extends
 	 */
 	@Override
 	CMSSignedDataResultInterface<byte[], byte[]> getCMSSIgnedDataResultInterface() {
-		// TODO Auto-generated method stub
 		return new ResultByteInterfaceImpl();
 	}
 
@@ -57,13 +58,12 @@ final class P7ByteCommandInterfaceImpl extends
 	
 	@Override
 	CMSTypedDataResultInterface<byte[], byte[]> getCMSTypedDataResultInterface() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ResultByteInterfaceImpl();
 	}
 
 	// implementazione privata di CMSTypedDataResultInterface
 	private final class ResultByteInterfaceImpl implements
-	CMSSignedDataResultInterface<byte[], byte[]> {
+	CMSSignedDataResultInterface<byte[], byte[]> ,CMSTypedDataResultInterface<byte[], byte[]>{
 
 		private final HashMap<byte[], Object> result;
 
@@ -102,6 +102,23 @@ final class P7ByteCommandInterfaceImpl extends
 			} catch (IOException e) {
 				FirmapiuException fe1 =new FirmapiuException(IO_DEFAULT_ERROR, e);
 				throw fe1;
+			}
+		}
+
+		@Override
+		public void put(byte[] key, CMSTypedData data) throws FirmapiuException {
+			ByteArrayOutputStream bout = new ByteArrayOutputStream();
+			try {
+				data.write(bout);
+				byte[] content=bout.toByteArray();
+				this.result.put(key, content);
+			} catch (IOException e) {
+				FirmapiuException fe1 =new FirmapiuException(IO_DEFAULT_ERROR, e);
+				throw fe1;
+			} catch (CMSException e) {
+				throw new FirmapiuException(CONTENT_CADESBES_DEFAULT_ERROR, e);
+			} finally{
+				try {bout.close();} catch (IOException e) {}
 			}
 		}
 	}//fine ResultByteInterfaceImpl
