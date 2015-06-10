@@ -276,7 +276,7 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	 * 
 	 * @param signedData Il percorso dei file firmati nel formato p7m di cui si vuole verificare la correttezza della firma digitale
 	 * @param option Argomenti opzionali generici passati al comando
-	 * @return Una map contenente l'esito dell'operazione di verifica firma per ogni file passato come parametro
+	 * @return l'esito dell'operazione di verifica firma per ogni file passato come parametro
 	 * @throws FirmapiuException 
 	 * @throws IllegalArgumentException 
 	 * 
@@ -284,7 +284,7 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	 */
 	@Override
 	public ResultInterface<File, CMSReport> verify(Data<File> signedData) throws FirmapiuException{
-		//se non è stato definito il token per la verifica lancia un eccezione
+		/*//se non è stato definito il token per la verifica lancia un eccezione
 		if(this.verifyToken==null)
 			throw new FirmapiuException(CRT_TOKEN_NOTFOUND, new NullPointerException("verifyToken=null"));
 		
@@ -307,11 +307,7 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 		Set<File> dataFilePathSet=signedData.getDataSet();
 
 		//inizializza e carica il token utilizzato per controllare l'affidabilità della catena dei certificati dei firmatari
-		//TODO proviamo ad utilizzare il token da un altra parte
-		//CRToken token=TokenFactoryBuilder.getFactory(this.verifyTokenType).getToken(TSLXMLKEYSTORE);
-		//token.loadKeyStore(null);
 		this.verifyToken.loadKeyStore(null);
-		
 		
 		//per ogni file presente in signedData cerca di verificare la correttezza della firma digitale
 		Iterator<File> dataPathItr=dataFilePathSet.iterator();
@@ -345,14 +341,26 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 				resultMap.put(dataFileIn, fe1);
 			}
 		}
-		return new ResultFileInterfaceImpl<CMSReport>(resultMap);
+		return new ResultFileInterfaceImpl<CMSReport>(resultMap);*/
+		return this.verifyProcedure(signedData);
 	}
 
+	/** 
+	 * Restituisce l'esito dell'operazione di verifica della firma digitale per una serie di file passati come parametro<p>
+	 * 
+	 * @param signedData Il percorso dei file firmati nel formato p7s 
+	 * e i files con il contenuto dei dati firmati di cui si vuole verificare la correttezza della firma digitale
+	 * @param option Argomenti opzionali generici passati al comando
+	 * @return l'esito dell'operazione di verifica firma per ogni file passato come parametro
+	 * @throws FirmapiuException 
+	 * @throws IllegalArgumentException 
+	 * 
+	 * @see it.libersoft.firmapiu.CommandInterface#verify(it.libersoft.firmapiu.Data, it.libersoft.firmapiu.Argument)
+	 */
 	@Override
-	public ResultInterface<File, CMSReport> verifyP7S(P7SData<File,File> data)
+	public ResultInterface<File, CMSReport> verifyP7S(P7SData<File,File> signedData)
 			throws FirmapiuException {
-		// TODO Auto-generated method stub
-		return null;
+		return this.verifyProcedure(signedData);
 	}
 	
 	/** 
@@ -576,6 +584,109 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 				fileInStream.close();
 			} catch (Exception e) {}
 		}
+	}
+	
+	//procedura privata per recuperare una CMSSIgnedData (una busta crittografica) da un .p7s
+	private static CMSSignedData file2CMSSignedData(File dataFileIn,CMSProcessableByteArray processable) throws FirmapiuException, IOException
+	{
+		//controlla che il file di input termini con .p7m altrimenti lancia un errore
+		if(!dataFileIn.getName().endsWith(".p7s"))
+			throw new FirmapiuException(CONTENT_CADESBES_NOTP7SFILE);
+		
+		//controlla che il file esista altrimenti lancia un errore
+		if (!dataFileIn.exists())
+			throw new FileNotFoundException(dataFileIn.getAbsolutePath()+" "+RB1.getString("filerror0"));
+		
+		//crea la busta crittografica CMSSignedData.
+		FileInputStream fileInStream = new FileInputStream(dataFileIn);
+		byte[] dataFileInByte=new byte[fileInStream.available()];
+		fileInStream.read(dataFileInByte);
+		try {
+			return new CMSSignedData(processable, dataFileInByte);
+		} catch (CMSException e) {
+			throw new FirmapiuException(CONTENT_CADESBES_DEFAULT_ERROR, e);
+		}finally{
+			//cerca di chiude la risorsa esistente
+			try {
+				fileInStream.close();
+			} catch (Exception e) {}
+		}
+	}
+	
+	//procedura privata per la verifica di file p7s p7m
+	private <K> ResultInterface<File, CMSReport> verifyProcedure(Data<K> signedData)throws FirmapiuException{
+		//se non è stato definito il token per la verifica lancia un eccezione
+		if(this.verifyToken==null)
+			throw new FirmapiuException(CRT_TOKEN_NOTFOUND, new NullPointerException("verifyToken=null"));
+		
+		//inizializza il token contenente i certificati di ROOT delle CA utilizzati 
+		//per controllare l'affidabilità del certificato del firmatario
+		
+		//controllo di coerenza iniziale sugli argomenti
+		//DataFileImpl signedDataFilePath = checkData(signedDataPath);
+		//GenericArgument commandArgs = checkArgument(option);
+
+//		//directory di output
+//		File outDir=null;
+//		if(commandArgs.isArgument(OUTDIR)){
+//			outDir=getOutDir(commandArgs);
+//		}
+
+		//prepara Map<String,Object> con i risultati delle operazioni effettuate sui file passati come parametro.
+		TreeMap<File,Object> resultMap = new TreeMap<File,Object>();
+		//recupera il dataset contenente i percorsi dei file da verificare
+		Set<K> dataFilePathSet=signedData.getDataSet();
+
+		//inizializza e carica il token utilizzato per controllare l'affidabilità della catena dei certificati dei firmatari
+		this.verifyToken.loadKeyStore(null);
+		
+		//per ogni file presente in signedData cerca di verificare la correttezza della firma digitale
+		Iterator<K> dataPathItr=dataFilePathSet.iterator();
+		while(dataPathItr.hasNext()){
+			//File tmp = dataPathItr.next();
+			K tmp = dataPathItr.next();
+			//recupera l'identificatore univoco associato al dato che si vuole firmare
+			//TODO ?? non dovrebbe andare dentro il try catch interno?
+			String dataId=signedData.getDataId(tmp);
+			//lo passa come percorso del file da verificare
+			File dataFileIn=new File(dataId);
+			//File dataFileIn=new File(dataPathItr.next());
+//			if(!dataFileIn.equals(tmp))
+//				throw new IllegalArgumentException("DataFile implementation not valid!");
+			try {	
+				//crea la busta crittografica dal file di input
+				CMSSignedData cmsSignedData=null;
+				
+				if (signedData instanceof P7SData<?, ?>)
+				{
+					P7SData<K, ?> signedData2=(P7SData<K, ?>) signedData;
+					byte[] contentByte=signedData2.getContentArrayData(tmp);
+					CMSProcessableByteArray processable =new CMSProcessableByteArray(contentByte);
+					cmsSignedData =file2CMSSignedData(dataFileIn,processable);
+					System.out.println("YEEEEEEEEEEEEEEEE CIAOOOOOOOOOOOOOOOOOOOOO SONO UN P7SSSSSSSSSSSS");
+				} else
+				if (signedData instanceof Data<?>){
+					cmsSignedData =file2CMSSignedData(dataFileIn);
+					System.out.println("YEEEEEEEEEEEEEEEE CIAOOOOOOOOOOOOOOOOOOOOO SONO UN P7MMMMMMMMMM");}
+				
+				//crea il verificatore per verificare la signedData ed effettua tutte le verifiche su tutti i firmatari
+				CadesBESVerifier verifier = new CadesBESVerifier(cmsSignedData, this.verifyToken);
+				//List<Map<String,Object>> report=verifier.verifyAllSigners();
+				//TODO da cambiare con un report dei risultati più umano?
+				ReportImpl report= new ReportImpl(verifier);
+				
+				
+				//se l'operazione è andata bene, associa il report al percorso del file passato come parametro
+				resultMap.put(dataFileIn,report);
+			} catch (FirmapiuException e) {
+				//associa l'errore al percorso del file passato come parametro
+				resultMap.put(dataFileIn,e);
+			} catch (IOException e) {
+				FirmapiuException fe1 =new FirmapiuException(IO_DEFAULT_ERROR, e);
+				resultMap.put(dataFileIn, fe1);
+			}
+		}
+		return new ResultFileInterfaceImpl<CMSReport>(resultMap);
 	}
 	
 	//implementazione privata di ResultInterface

@@ -23,6 +23,7 @@ import it.libersoft.firmapiu.crtoken.KeyStoreToken;
 import it.libersoft.firmapiu.crtoken.TokenFactoryBuilder;
 import it.libersoft.firmapiu.data.DataFactoryBuilder;
 import it.libersoft.firmapiu.data.DataFile;
+import it.libersoft.firmapiu.data.P7SDataFile;
 import it.libersoft.firmapiu.exception.FirmapiuException;
 import static it.libersoft.firmapiu.consts.FactoryConsts.*;
 import static it.libersoft.firmapiu.consts.FirmapiuRecordConstants.*;
@@ -45,34 +46,40 @@ final class FirmapiulibVerifyTest {
 		//crea il keystore contenente le trust anchor delle CA utilizzate per verificare l'affidabilità del certificato del firmatario
 		KeyStoreToken token= TokenFactoryBuilder.getFactory(KEYSTORETOKENFACTORY).getKeyStoreToken(TSLXMLKEYSTORE);
 		
-		try {
-			token.createKeyStore();
-			System.out.println("Il keystore è stato creato");
-		} catch (Exception e) {
-			System.err.println("Il keystore non è stato creato, probabilmente esiste già");
-			e.printStackTrace();
-		}
-		
+//		try {
+//			token.createKeyStore();
+//			System.out.println("Il keystore è stato creato");
+//		} catch (Exception e) {
+//			System.err.println("Il keystore non è stato creato, probabilmente esiste già");
+//			e.printStackTrace();
+//		}
+//		
 		//Crea una cadesbescommandinterface per creare o verificare file P7MFILE
 		//P7FileCommandInterface commandInterface=MasterFactoryBuilder.getFactory(CADESBESFACTORY).getCadesBESCommandInterface(P7MFILE);
 		P7FileCommandInterface commandInterface= CadesBESFactory.getFactory().getP7FileCommandInterface(null,token);
 		
 		//Testa le funzionalità di verifica messe a disposizione dall'interfaccia dei comandi
 		//crea la struttura dati per passare i dati da verificare come parametro
-		DataFile data = DataFactoryBuilder.getFactory(DATAFILEFACTORY).getDataFile();
-		//GenericArgument option = (GenericArgument)MasterFactoryBuilder.getFactory(ARGUMENTFACTORY).getArgument(GENERICARGUMENT);
-		//inizializza la struttura dati con i percorsi dei file p7m da verificare
-		System.out.println("File da verificare:");
-		for(String arg: args){
-			data.setData(new File(arg));
-			System.out.println(arg);
-		}
+//		DataFile data = DataFactoryBuilder.getFactory(DATAFILEFACTORY).getDataFile();
+//		//GenericArgument option = (GenericArgument)MasterFactoryBuilder.getFactory(ARGUMENTFACTORY).getArgument(GENERICARGUMENT);
+//		//inizializza la struttura dati con i percorsi dei file p7m da verificare
+//		System.out.println("File da verificare:");
+//		for(String arg: args){
+//			data.setData(new File(arg));
+//			System.out.println(arg);
+//		}
 
+		P7SDataFile data = DataFactoryBuilder.getFactory(P7SDATAFILEFACTORY).getP7SDataFile();
+		
+		data.putP7SData(new File("/home/andy/probbblemi.txt.p7s"), new File("/home/andy/probbblemi.txt"));
+		data.putP7SData(new File("/home/andy/prova.p7s"), new File("/home/andy/overview.html"));
+		
 		System.out.println();
 		System.out.println();
 		
-		//esegue la verifica
-		ResultInterface<File,CMSReport> result=commandInterface.verify(data);
+//		//esegue la verifica
+//		ResultInterface<File,CMSReport> result=commandInterface.verify(data);
+		ResultInterface<File,CMSReport> result=commandInterface.verifyP7S(data);
 		
 		System.out.println("Esito della verifica:");
 		System.out.println();

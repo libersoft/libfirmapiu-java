@@ -44,6 +44,6 @@ final class P7SDataFileFactory extends DefaultDataFactory {
 	 */
 	@Override
 	public P7SDataFile getP7SDataFile() throws IllegalArgumentException {
-		return new P7SDataFileImpl();
+		return new CommonDataFileImpl();
 	}
 }

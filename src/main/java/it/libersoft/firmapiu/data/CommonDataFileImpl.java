@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Iterator;
@@ -36,7 +37,7 @@ import java.util.TreeSet;
  * @see it.libersoft.firmapiu.Data
  * @see it.libersoft.firmapiu.consts.ArgumentConsts
  */
-final class DataFileImpl implements DataFile {
+final class CommonDataFileImpl implements DataFile,P7SDataFile {
 
 	// flag per vedere se i percorsi passati come parametro devono essere
 	// normalizzati o meno
@@ -44,14 +45,14 @@ final class DataFileImpl implements DataFile {
 
 	// insieme contenete il percorso dei file su cui bisogna fare le operazioni
 	// di firma/verifica
-	private final TreeSet<File> filepathset;
+	private final TreeMap<File,File> filePathMap;
 	// insieme contenente gli argomenti opzionali da passare al comando di
 	// firma/verifica
 	private final TreeMap<String, String> commandArgs;
 
-	protected DataFileImpl() {
+	protected CommonDataFileImpl() {
 		// TODO vedere se ce bisogno di sincronizzare o meno
-		this.filepathset = new TreeSet<File>();
+		this.filePathMap = new TreeMap<File,File>();
 		this.commandArgs = new TreeMap<String, String>();
 		// this.normalize=normalize;
 	}
@@ -89,7 +90,7 @@ final class DataFileImpl implements DataFile {
 			msg += " : " + data.getAbsolutePath();
 			throw new FirmapiuException(IS_NOT_ABS_PATH, msg);
 		}
-		this.filepathset.add(data);
+		this.filePathMap.put(data,null);
 	}
 
 	/**
@@ -97,7 +98,7 @@ final class DataFileImpl implements DataFile {
 	 */
 	@Override
 	public Set<File> getDataSet() {
-		return (Set<File>) this.filepathset.clone();
+		return this.filePathMap.keySet();
 	}
 
 	/**
@@ -110,7 +111,7 @@ final class DataFileImpl implements DataFile {
 	 */
 	@Override
 	public String getDataId(File data) throws FirmapiuException {
-		if (this.filepathset.contains(data))
+		if (this.filePathMap.containsKey(data))
 			return data.getAbsolutePath();
 		else
 			return null;
@@ -126,7 +127,7 @@ final class DataFileImpl implements DataFile {
 	 */
 	@Override
 	public byte[] getArrayData(File data) throws FirmapiuException {
-		if (!this.filepathset.contains(data))
+		if (!this.filePathMap.containsKey(data))
 			return null;
 
 		FileInputStream filein = null;
@@ -168,6 +169,61 @@ final class DataFileImpl implements DataFile {
 	@Override
 	public Map<String, String> getArgumentMap() throws FirmapiuException {
 		return (Map<String, String>) this.commandArgs.clone();
+	}
+
+	@Override
+	public void putP7SData(File data, File content) throws FirmapiuException {
+		if (!data.isAbsolute()) {
+			String msg = FirmapiuException
+					.getDefaultErrorCodeMessage(IS_NOT_ABS_PATH);
+			msg += " : " + data.getAbsolutePath();
+			throw new FirmapiuException(IS_NOT_ABS_PATH, msg);
+		}
+		if (!content.isAbsolute()) {
+			String msg = FirmapiuException
+					.getDefaultErrorCodeMessage(IS_NOT_ABS_PATH);
+			msg += " : " + content.getAbsolutePath();
+			throw new FirmapiuException(IS_NOT_ABS_PATH, msg);
+		}
+		this.filePathMap.put(data,content);
+	}
+
+	@Override
+	public File getP7SContent(File dataKey) throws FirmapiuException {
+		File content=this.filePathMap.get(dataKey);
+		if(content==null)
+			throw new FirmapiuException(FILE_NOTFOUND);
+		else if (!content.exists()){
+			String msg= FirmapiuException.getDefaultErrorCodeMessage(FILE_NOTFOUND);
+			msg+=" : "+content.getAbsolutePath();
+			throw new FirmapiuException(FILE_NOTFOUND, msg);
+		}
+		return content;
+	}
+
+	@Override
+	public byte[] getContentArrayData(File dataKey) throws FirmapiuException {
+		File content=this.filePathMap.get(dataKey);
+		if(content==null)
+			throw new FirmapiuException(FILE_NOTFOUND);
+		else if (!content.exists()){
+			String msg= FirmapiuException.getDefaultErrorCodeMessage(FILE_NOTFOUND);
+			msg+=" : "+content.getAbsolutePath();
+			throw new FirmapiuException(FILE_NOTFOUND, msg);
+		}
+		FileInputStream fileinStream=null;
+		try {
+			fileinStream = new FileInputStream(content);
+			byte[] contentByte=new byte[fileinStream.available()];
+			fileinStream.read(contentByte);
+			return contentByte;
+		} catch (IOException e) {
+			String msg= FirmapiuException.getDefaultErrorCodeMessage(IO_DEFAULT_ERROR);
+			msg+=" : "+content.getAbsolutePath();
+			throw new FirmapiuException(IO_DEFAULT_ERROR, msg,e);
+		} finally{
+			try {fileinStream.close();} catch (IOException e) {}
+		}
 	}
 
 	// PROCEDURE PRIVATE

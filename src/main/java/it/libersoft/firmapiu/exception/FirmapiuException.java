@@ -61,6 +61,7 @@ public final class FirmapiuException extends Exception {
 	public static final int SIGNER_DEFAULT_ERROR=199;
 	
 	//Errori sulle operazioni di verifica: codici (200-299)
+		
 	/**
 	 * Errore durante la fase di verifica della firma di un firmatario: attributi firmati non trovati
 	 * */
@@ -104,10 +105,16 @@ public final class FirmapiuException extends Exception {
 	 * Errore di formato se i dati non sono codificati secondo la busta crittografica CADES-bes di tipo "attached"
 	 * */
 	public static final int CONTENT_CADESBES_ENCODINGERROR_ATTACHED=300;
+	
 	/**
 	 * Errore di formato se il file contenente i dati non ha l'estensione .p7m
 	 * */
 	public static final int CONTENT_CADESBES_NOTP7MFILE=301;
+	
+	/**
+	 * Errore di formato se il file contenente i dati non ha l'estensione .p7s
+	 * */
+	public static final int CONTENT_CADESBES_NOTP7SFILE=302;
 
 	/**
 	 * Errore di default sull'operazione di recupero del contenuto originale di dati imbustati nella busta crittografica CADES-bes

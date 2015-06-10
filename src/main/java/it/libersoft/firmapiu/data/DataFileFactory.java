@@ -39,6 +39,6 @@ final class DataFileFactory extends DefaultDataFactory {
 	 */
 	@Override
 	public DataFile getDataFile() throws IllegalArgumentException {
-		return new DataFileImpl();
+		return new CommonDataFileImpl();
 	}
 }
