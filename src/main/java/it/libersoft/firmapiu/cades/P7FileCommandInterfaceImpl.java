@@ -342,7 +342,7 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 			}
 		}
 		return new ResultFileInterfaceImpl<CMSReport>(resultMap);*/
-		return this.verifyProcedure(signedData);
+		return this.verifyProcedure(signedData,false);
 	}
 
 	/** 
@@ -360,7 +360,7 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	@Override
 	public ResultInterface<File, CMSReport> verifyP7S(P7SData<File,File> signedData)
 			throws FirmapiuException {
-		return this.verifyProcedure(signedData);
+		return this.verifyProcedure(signedData,true);
 	}
 	
 	/** 
@@ -614,7 +614,7 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 	}
 	
 	//procedura privata per la verifica di file p7s p7m
-	private <K> ResultInterface<File, CMSReport> verifyProcedure(Data<K> signedData)throws FirmapiuException{
+	private <K> ResultInterface<File, CMSReport> verifyProcedure(Data<K> signedData,boolean detached)throws FirmapiuException{
 		//se non è stato definito il token per la verifica lancia un eccezione
 		if(this.verifyToken==null)
 			throw new FirmapiuException(CRT_TOKEN_NOTFOUND, new NullPointerException("verifyToken=null"));
@@ -657,17 +657,18 @@ final class P7FileCommandInterfaceImpl implements P7FileCommandInterface {
 				//crea la busta crittografica dal file di input
 				CMSSignedData cmsSignedData=null;
 				
-				if (signedData instanceof P7SData<?, ?>)
+				if (detached && (signedData instanceof P7SData<?, ?>))
 				{
 					P7SData<K, ?> signedData2=(P7SData<K, ?>) signedData;
 					byte[] contentByte=signedData2.getContentArrayData(tmp);
 					CMSProcessableByteArray processable =new CMSProcessableByteArray(contentByte);
 					cmsSignedData =file2CMSSignedData(dataFileIn,processable);
-					System.out.println("YEEEEEEEEEEEEEEEE CIAOOOOOOOOOOOOOOOOOOOOO SONO UN P7SSSSSSSSSSSS");
+					//System.out.println("YEEEEEEEEEEEEEEEE CIAOOOOOOOOOOOOOOOOOOOOO SONO UN P7SSSSSSSSSSSS");
 				} else
-				if (signedData instanceof Data<?>){
+				if (!detached && (signedData instanceof Data<?>)){
 					cmsSignedData =file2CMSSignedData(dataFileIn);
-					System.out.println("YEEEEEEEEEEEEEEEE CIAOOOOOOOOOOOOOOOOOOOOO SONO UN P7MMMMMMMMMM");}
+					//System.out.println("YEEEEEEEEEEEEEEEE CIAOOOOOOOOOOOOOOOOOOOOO SONO UN P7MMMMMMMMMM");
+				}
 				
 				//crea il verificatore per verificare la signedData ed effettua tutte le verifiche su tutti i firmatari
 				CadesBESVerifier verifier = new CadesBESVerifier(cmsSignedData, this.verifyToken);

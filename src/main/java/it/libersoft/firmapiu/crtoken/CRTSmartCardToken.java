@@ -135,7 +135,9 @@ final class CRTSmartCardToken implements PKCS11Token {
 		try {
 			//TODO CONTROLLARE che il caricamento delle proprietà in questa maniera  sia corretto 
 			InputStream inp = ClassLoader.getSystemClassLoader().getResourceAsStream(pkcs11DriverPath);
-			//pkcs11Prop.load(new FileInputStream(new File(pkcs11DriverPath)));
+			//se inp è null cerca di caricare il file come risorsa esterna
+			if(inp==null)
+				inp=new FileInputStream(new File(pkcs11DriverPath));
 			pkcs11Prop.load(inp);
 		} catch (IOException e) {
 			throw new FirmapiuException(CRT_TOKEN_CONFIGFILE_NOTFOUND, e);
