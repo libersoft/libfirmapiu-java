@@ -1,0 +1,93 @@
+libfirmapiu-java (0.4.2) libersoft-devel; urgency=medium
+
+  [ dellanna ]
+  * aggiunta keystore statico di test
+  * Implementazione getP7ByteCommandInterface: definizione AbstractCadesBESCommandInterface
+  * bugfix: la ricerca della catena di certificazione per il certificato del firmatario viene fatta anche se il certificato è scaduto
+  * Estese funzionalità libreria per il supporto alle operazioni tramite l'utilizzo di dati rappresentati direttamente come array di bytes: definito un nuovo set di classi e completamento di FirmapiuLibSignTest contenente il codice di esempio da utilizzare per la firma di dati tramite libreria
+  * aggiunto gradle wrapper se si vuole usare questa versione di gradle localizzata senza dover scaricare una versione di gradle da internet
+  * Aggiunte classi per il supporto alla gestione delle buste Cades-BES detached rappresentate come .p7s o come array di bytes
+  * Aggiunta classe CommonDataArrayImpl che gestisce l'implementazione concreta di dati o files .p7s(cades-bes detached) rappresentati come array di bytes utilizzati dalle operazioni della libreria
+  *  Cambiato it.libersoft.firmapiu.Report in it.libersoft.firmapiu.cades.CMSReport per mettere in risalto che le classi che implementano questa interfaccia generino un Report di risultati riguardanti la verifica di dati in una busta crittografica cades-bes/pkcs7(CMS)
+  * aggiunta verifica busta crittografica attached (.p7m) per dati rappresentati come array di bytes
+  * aggiunta verifica busta crittografica detached (.p7s) per dati rappresentati come array di bytes
+  * aggiunta getContentData per il recupero dei dati originali presenti in una busta crittografica attacched, per dati rappresentati come array di bytes
+  * aggiunta verifyP7S in P7FileCommandInterfaceImpl per fornire supporto alla verifica di dati imbustati in una busta crittografica detached rappresentata come file .p7s
+  * Bugfix di alcuni errori in fase di caricamento smartcard e in fase di verifica dati
+
+  [ Valerio Baldisserotto ]
+
+ -- dellanna <ada@libersoft.it>  Mon, 21 Sep 2015 16:10:11 +0200
+
+libfirmapiu-java (0.1.5-4) libersoft-devel; urgency=medium
+
+  [ dellanna ]
+  * Implementation of getP7ByteCommandInterface of CadesBESFactory
+  * bugfix: searches on the chain of certs is made even if signer's cert is expired
+
+ -- dellanna <ada@libersoft.it>  Mon, 11 May 2015 14:48:36 +0200
+
+libfirmapiu-java (0.1.5-3) libersoft-devel; urgency=medium
+
+  * Minor bugfixes 
+
+ -- Valerio Baldisserotto <svalo@libersoft.it>  Thu, 07 May 2015 16:39:24 +0200
+
+libfirmapiu-java (0.1.5-2) libersoft-devel; urgency=medium
+
+  * Bugfix now keystore is included
+
+ -- Valerio Baldisserotto <svalo@libersoft.it>  Thu, 07 May 2015 15:54:50 +0200
+
+libfirmapiu-java (0.1.5-1) libersoft-devel; urgency=medium
+
+  [ dellanna ]
+  * Added static base keystore
+
+
+ -- dellanna <ada@libersoft.it>  Thu, 07 May 2015 15:44:10 +0200
+
+libfirmapiu-java (0.1.5) libersoft-devel; urgency=medium
+
+  [ dellanna ]
+  * New signatures: ability to sign .p7m .p7s as an option of sign command
+  * Bug fixes
+  * New signatures: added CopyFile option
+  * Fixes error message if file exists
+  * Updated config files path
+  * Updated key names
+
+
+ -- dellanna <ada@libersoft.it>  Thu, 07 May 2015 14:42:24 +0200
+
+libfirmapiu-java (0.1.4) libersoft-devel; urgency=medium
+
+  * Added option to rename file on saving if a file with same name exists
+  * Cleanup
+  * Bugfixes
+
+ -- Valerio Baldisserotto <svalo@libersoft.it>  Mon, 04 May 2015 16:59:02 +0200
+
+libfirmapiu-java (0.1.3) libersoft-devel; urgency=medium
+
+  * Fixed config path
+
+ -- Valerio Baldisserotto <svalo@libersoft.it>  Mon, 23 Mar 2015 15:18:47 +0100
+
+libfirmapiu-java (0.1.2) libersoft-devel; urgency=medium
+
+  * Fixed wrong config file location 
+
+ -- Valerio Baldisserotto <svalo@libersoft.it>  Wed, 18 Mar 2015 09:45:30 +0100
+
+libfirmapiu-java (0.1.1) libersoft-devel; urgency=medium
+
+  * Minor fixes
+
+ -- Valerio Baldisserotto <svalo@libersoft.it>  Mon, 09 Mar 2015 20:36:26 +0100
+
+libfirmapiu-java (0.1) libersoft-devel; urgency=low
+
+  * Initial release (Closes: #2066)
+
+ -- Valerio Baldisserotto <svalo@libersoft.it>  Mon, 09 Mar 2015 15:06:06 +0100
